@@ -17,9 +17,6 @@ Responsible for looking through data in `Enso/Data` and pre-computing features t
 
 Finds featurizers that should be active by searching through `Enso/Featurize` and calling the featurize method of
 each class that inherits from the `Featurizer` base class found in `Enso/Featurize/__init__.py`
-#### train.py ####
-Responsible for training all `Featurizers` that support training on a portion of the evaluation dataset. Specifically those
-inheriting from the `SupervisedFeaturizer` base class also found in `Enso/Featurize/__init__.py`
 #### experiment.py ####
 Responsible for running all experiments found in `Enso/Experiments`. Ideally this is another file that shouldn't really be
 altered. Configuring standard pieces like which featurizers/which experiments to run is all done through `config.py`.
@@ -51,8 +48,8 @@ have access to. These should all effectively be copies of the files in `Enso/Dat
 by fixed-length vectors. As there are multiple approached for featurization the name of the `Featurizer` is appended to
 the name of the dataset.
 #### Featurize ####
-Place to add all supervised and unsupervised featurizers. This is run through the `featurize.py` file, and should inherit
-from the base classes found within `Enso/Featurize/__init__.py`.
+Place to add all featurizers. This is run through the `featurize.py` file, and should inherit
+from the base class found within `Enso/Featurize/__init__.py`.
 #### Experiments ####
 Place for writing any new experiments. These should all follow the format outlined by the `Experiment` base classes found
 in `Enso/Experiments/__init__.py`. These experiments are specific to the task being undertaken. As such you'l find not just
