@@ -41,7 +41,7 @@ If a list field is missing then the default assumption will be to run the experi
 Place for storing all raw datasets. These should only be used for featurization. This should not be accessible from the
 experiments folder. Look to existing datasets in this folder for examples of how a dataset should be formatted. This
 section is further subdivided into sections based on the type of task with the current supported types being `Classify`,
-`Regress`, and `Match`. These are further divided into `test` and `train`
+`Regress`, and `Match`.
 #### Features ####
 Place for storing pre-computed features. This is what the `Enso/Experiments` draws from and all that any experiment should
 have access to. These should all effectively be copies of the files in `Enso/Data` with the major text field being replaced
