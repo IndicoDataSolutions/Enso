@@ -1,0 +1,6 @@
+{
+  "TextSpamDataset": {
+      "path": "Data/Classify/TextSpam.csv",
+      "source": "s3://indico-enso/classify/TextSpam.csv"
+  }
+}
