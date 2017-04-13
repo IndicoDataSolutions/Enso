@@ -27,6 +27,7 @@ or it can be passed in at runtime as a command line argument as so: `python expe
 Should be frequently edited to change the specifics of how `experiment.py` is run. The main parameters here are:
  - `Datasets`: A list of the datasets that you want to include in your experiments
  - `Features`: A list of pre-computed features to include in your experiments. Only features for your specified datasets will be used.
+ *Note* The name of the featurizer will dictate the name of the features file.
  - `Experiments`: A list of the experiments to run on top of the feature sets that have selected
  - `Data Volumes`: A list of number of examples to run experiments on
  - `Metrics`: A list of metrics you'd like to see for the combination of experiments being run
@@ -34,6 +35,17 @@ Should be frequently edited to change the specifics of how `experiment.py` is ru
  - `CV`: Specify how many CV folds you'd like to run for each Data Volume
 
 If a list field is missing then the default assumption will be to run the experiment on all relevant members of that class
+
+## Data Management ##
+Because of the large size of both the dataset and featurized version of those datasets, we're using `privvy` for
+data management. To make sure this works, whenever you add a new dataset, or featurize a new dataset add the appropriate
+information to the `.privvy` file in the repo.
+
+##### Uploading to s3 #####
+`sudo -E privvy-push`
+
+##### Downloading from s3 #####
+`sudo -E privvy-pull`
 
 
 ## Sections ##
