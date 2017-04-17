@@ -1,8 +1,8 @@
 """Module for all featurization methods that one might want to test."""
-import pandas as pd
+from utils import feature_set_location, BaseObject
 
 
-class Featurizer(object):
+class Featurizer(BaseObject):
     """Base class for building featurizers."""
 
     def generate(self, dataset, dataset_name):
@@ -23,8 +23,5 @@ class Featurizer(object):
 
     def _write(self, featurized_dataset, dataset_name):
         """Responsible for taking a featurized dataset and writing it out to the filesystem."""
-        base_dir, _, filename = dataset_name.rpartition('/')
-        write_location = "Features/%s/" % base_dir
-        class_name = self.__class__.__name__
-        dump_name = "%s_%s_features.csv" % (filename, class_name)
-        featurized_dataset.to_csv(write_location + dump_name)
+        dump_location = feature_set_location(dataset_name, self)
+        featurized_dataset.to_csv(dump_location)

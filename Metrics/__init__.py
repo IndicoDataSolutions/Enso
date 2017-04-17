@@ -1,10 +1,20 @@
 """Module for all metrics that one might want for evaluation."""
+import abc
+
+from utils import BaseObject
 
 
-class Metric(object):
+class Metric(BaseObject):
     """Base class for all Metrics."""
 
-    pass
+    @abc.abstractmethod
+    def evaluate(self, target, result):
+        """
+        General metric endpoint for generating results.
+
+        This should be implemented by every metric class. No exceptions.
+        """
+        raise NotImplementedError
 
 
 class ClassificationMetric(Metric):
