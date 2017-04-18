@@ -12,7 +12,7 @@ def feature_set_location(dataset_name, featurizer):
     return write_location + dump_name
 
 
-def get_plugins(plugin_dir, match_names, instantiate=True):
+def get_plugins(plugin_dir, match_names):
     """Responsible for grabbing objects from specified plugin directories."""
     root, dirs, files = os.walk(plugin_dir).next()
     relevant_classes = []
@@ -29,9 +29,7 @@ def get_plugins(plugin_dir, match_names, instantiate=True):
             Config doesn't match classes present.\n%s: %s\nConfig: %s
         """ % (plugin_dir, names, match_names))
 
-    if instantiate:
-        return [relevant_class() for relevant_class in relevant_classes]
-    return relevant_classes
+    return [relevant_class() for relevant_class in relevant_classes]
 
 
 class BaseObject(object):

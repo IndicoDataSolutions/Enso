@@ -59,7 +59,7 @@ class Experimentation(object):
     @staticmethod
     def _dump_results(experiment_results):
         """Responsible for recording config and dumping experiment results in result directory."""
-        current_time = strftime("%Y%m%d%H%M%S", gmtime())
+        current_time = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
         result_path = "Results/%s" % current_time
         if os.path.exists(result_path):
             raise ValueError("Result File %s already exists" % current_time)
