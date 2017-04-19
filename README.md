@@ -47,6 +47,13 @@ information to the `.privvy` file in the repo.
 ##### Downloading from s3 #####
 `sudo -E privvy-pull`
 
+## Data Formatting ##
+In order to ensure interoperability the onus is on the person adding the dataset to ensure that it complies with Enso
+standards. In general these standards should be quite easy to adhere to.
+#### Classification Tasks ####
+For classification tasks the data format should be a csv with one column labeled `Text`, and any additional targets
+labeled `Target_<n>` where `n` is a unique number representing which target it is. This is meant primarily to enforce
+a uniform data contract, and also to ensure that no learning can be done on top of the column labels
 
 ## Sections ##
 #### Data ####
