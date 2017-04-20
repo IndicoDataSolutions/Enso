@@ -8,7 +8,7 @@ class Metric(BaseObject):
     """Base class for all Metrics."""
 
     @abc.abstractmethod
-    def evaluate(self, target, result):
+    def evaluate(self, ground_truth, result):
         """
         General metric endpoint for generating results.
 

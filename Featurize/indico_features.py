@@ -1,5 +1,5 @@
 """File for storing the featurizers that indico offers via API."""
-from Featurize import Featurizer
+from featurize import Featurizer
 from indicoio.custom import vectorize
 
 

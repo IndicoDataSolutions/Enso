@@ -3,11 +3,13 @@ import os
 import inspect
 from importlib import import_module
 
+import pandas as pd
+
 
 def feature_set_location(dataset_name, featurizer):
     """Responsible for generating filenames for generated feature sets."""
     base_dir, _, filename = dataset_name.rpartition('/')
-    write_location = "Features/%s/" % base_dir
+    write_location = "features/%s/" % base_dir
     dump_name = "%s_%s_features.csv" % (filename, featurizer.__class__.__name__)
     return write_location + dump_name
 
@@ -30,6 +32,19 @@ def get_plugins(plugin_dir, match_names):
         """ % (plugin_dir, names, match_names))
 
     return [relevant_class() for relevant_class in relevant_classes]
+
+
+def labels_to_binary(target_list):
+    """
+    Convert a list of labels into a pandas dataframe appropriate for metric calculations.
+
+    Example: labels_to_binary('apple', ['apple', 'orange']) ->
+    pd.DataFrame({'apple': [1, 0], 'orange': [0, 1]})
+    """
+    full_mapping = {}
+    for target in set(target_list):
+        full_mapping[target] = [int(item == target) for item in target_list]
+    return pd.DataFrame(full_mapping)
 
 
 class BaseObject(object):
