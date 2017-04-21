@@ -46,7 +46,7 @@ class Experiment(BaseObject):
     @classmethod
     def verify_output(cls, function):
         """Check predict output to ensure it complies with the experiment type."""
-        raise NotImplementedError
+        return function
 
 
 class ClassificationExperiment(Experiment):

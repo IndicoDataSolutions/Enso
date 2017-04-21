@@ -1,4 +1,6 @@
 """Main method for running featurization according to config.py."""
+import logging
+
 import pandas as pd
 
 from config import FEATURIZERS, DATA
@@ -10,7 +12,7 @@ class Featurization(object):
 
     def __init__(self):
         """Responsible for searching featurizer module and importing those specified in config."""
-        self.featurizers = get_plugins('Featurize', FEATURIZERS)
+        self.featurizers = get_plugins('featurize', FEATURIZERS)
 
     def run(self):
         """Responsible for running actual featurization jobs."""
@@ -31,7 +33,8 @@ class Featurization(object):
 
 
 if __name__ == "__main__":
-    print "Initializing Featurizers..."
+    logging.basicConfig(level=logging.INFO)
+    logging.info("Initializing Featurizers...")
     featurization = Featurization()
-    print "Converting Datasets..."
+    logging.info("Converting Datasets...")
     featurization.run()
