@@ -1,4 +1,10 @@
 """Constants to configure the rest of Enso."""
+# Directory for storing results
+RESULTS_DIRECTORY = "results"
+
+# Directory for storing features
+FEATURES_DIRECTORY = "features"
+
 # Featurizers to activate
 FEATURIZERS = {
     "IndicoFinance",

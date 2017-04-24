@@ -1,5 +1,5 @@
 """Base class for visualization objects."""
-from utils import BaseObject, get_all_experiment_runs
+from utils import BaseObject
 
 
 class Visualization(BaseObject):
@@ -13,8 +13,3 @@ class Visualization(BaseObject):
         `write`=True will default to saving the generated image in the Results directory.
         """
         pass
-
-    @staticmethod
-    def _get_results_dir(test_run):
-        """Grab the appropriate results directory."""
-        get_all_experiment_runs()

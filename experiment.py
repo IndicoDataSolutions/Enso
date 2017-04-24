@@ -10,7 +10,7 @@ import numpy as np
 from sklearn.model_selection import StratifiedShuffleSplit
 
 from utils import feature_set_location, get_plugins
-from config import FEATURIZERS, DATA, EXPERIMENTS, METRICS, TEST_SETUP
+from config import FEATURIZERS, DATA, EXPERIMENTS, METRICS, TEST_SETUP, RESULTS_DIRECTORY
 
 
 class Experimentation(object):
@@ -32,15 +32,15 @@ class Experimentation(object):
                 logging.info("Currently using featurizer: %s" % featurizer.name())
                 dataset = self._load_dataset(dataset_name, featurizer)
                 for splitter, target, training_size in self._split_dataset(dataset):
-                    current_status = {
+                    current_setting = {
                         'Dataset': dataset_name,
                         'Featurizer': featurizer.name(),
                         'TrainSize': training_size
                     }
-                    self._run_experiment(splitter, target, dataset, current_status)
+                    self._run_experiment(splitter, target, dataset, current_setting)
         self._dump_results()
 
-    def _run_experiment(self, splitter, target, dataset, current_status):
+    def _run_experiment(self, splitter, target, dataset, current_setting):
         """Responsible for running all experiments specified in config."""
         for train, test in splitter:
             for experiment in self.experiments:
@@ -56,29 +56,23 @@ class Experimentation(object):
                 ground_truth = list(dataset[target].iloc[test])
                 logging.info("Measuring: %s" % experiment.name())
 
-                internal_status = {'Experiment': experiment.name()}
-                internal_status.update(current_status)
+                internal_setting = {'Experiment': experiment.name()}
+                internal_setting.update(current_setting)
 
-                self._measure_experiment(ground_truth, result, internal_status)
+                self._measure_experiment(ground_truth, result, internal_setting)
 
-    def _measure_experiment(self, target, result, internal_status):
+    def _measure_experiment(self, target, result, internal_setting):
         """Responsible for recording all metrics specified in config for a given experiment."""
         for metric in self.metrics:
             result = metric.evaluate(target, result)
-            full_state = {"Metric": metric.name(), 'Result': result}
-            full_state.update(internal_status)
-            self.results = self.results.append(self._make_df_entry(**full_state), ignore_index=True)
-
-    def _make_df_entry(self, **kwargs):
-        base = [None] * len(self.columns)
-        for key, value in kwargs.items():
-            base[self.columns.index(key)] = value
-        return pd.Series(base, index=self.columns)
+            full_setting = {"Metric": metric.name(), 'Result': result}
+            full_setting.update(internal_setting)
+            self.results.append(full_setting)
 
     def _dump_results(self):
         """Responsible for recording config and dumping experiment results in result directory."""
         current_time = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
-        result_path = "results/%s" % current_time
+        result_path = "%s/%s" % (RESULTS_DIRECTORY, current_time)
         if os.path.exists(result_path):
             raise ValueError("Result File %s already exists" % current_time)
         os.makedirs(result_path)

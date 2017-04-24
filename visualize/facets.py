@@ -24,6 +24,9 @@ class FacetGridVisualization(Visualization):
     ):
         """Create a tiled visualization of experiment results."""
         named_params = {x_tile, y_tile, x_axis, y_axis, lines}  # This is a set
+        # Force the user to make a choice about handling predictions for different classes.
+        # It should support either being one of the axes for the Main Visualization,
+        # or there should be a strategy for turning multiple entries into a single one
         if category is not None:
             results = self.handle_categories(results, category)
         elif 'Category' not in named_params:
@@ -31,6 +34,8 @@ class FacetGridVisualization(Visualization):
                 Category must either have a strategy listed, or be a displayed variable.
             """)
 
+        # Same as above logic, but for multiple cv runs rather than multiple classes
+        # In the results column
         if cv is not None:
             results = self.handle_cv(results, cv)
         elif 'Split' not in named_params:
@@ -83,7 +88,7 @@ class FacetGridVisualization(Visualization):
         for _, row in results.iterrows():
             current_row = self._row_repr(row)
             if current_row not in found_rows:
-                found_rows.update([current_row])
+                found_rows.add(current_row)
                 yield results.loc[
                     (results['Dataset'] == row['Dataset']) &
                     (results['Experiment'] == row['Experiment']) &
@@ -94,12 +99,11 @@ class FacetGridVisualization(Visualization):
 
     @staticmethod
     def _row_repr(row):
-        """Return a string representation of a row without the Result colum."""
-        non_result_elements = (
+        """Return a tuple representation of a row without the Result colum."""
+        return (
             row['Dataset'],
             row['Experiment'],
             row['Metric'],
             row['TrainSize'],
             row['Featurizer']
         )
-        return "%s%s%s%s%s" % (non_result_elements)

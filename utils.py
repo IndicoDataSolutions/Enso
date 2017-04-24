@@ -5,12 +5,13 @@ from time import strptime
 from importlib import import_module
 
 import pandas as pd
+from config import RESULTS_DIRECTORY, FEATURES_DIRECTORY
 
 
 def feature_set_location(dataset_name, featurizer):
     """Responsible for generating filenames for generated feature sets."""
     base_dir, _, filename = dataset_name.rpartition('/')
-    write_location = "features/%s/" % base_dir
+    write_location = "%s/%s/" % (FEATURES_DIRECTORY, base_dir)
     dump_name = "%s_%s_features.csv" % (filename, featurizer.__class__.__name__)
     return write_location + dump_name
 
@@ -37,7 +38,7 @@ def get_plugins(plugin_dir, match_names):
 
 def get_all_experiment_runs():
     """Grab all experiment runs and return a list sorted by date."""
-    root, dirs, files = os.walk('results').next()
+    dirs = [item for item in os.listdir(RESULTS_DIRECTORY) if os.path.isdir(item)]
     dirs.sort(key=lambda d: strptime(d, "%Y-%m-%d_%H-%M-%S"), reverse=True)
     return dirs
 

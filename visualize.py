@@ -40,6 +40,7 @@ class Visualization(object):
 
     def visualize(self):
         """Pass visualization options defined in config to instantiated visualizations."""
+        # Grabs all settings that don't have a dict nested below.
         global_options = {a: b for a, b in VISUALIZATION_OPTIONS.items() if not isinstance(b, dict)}
         global_options['results'] = self.results
         for visualization in self.visualizations:
