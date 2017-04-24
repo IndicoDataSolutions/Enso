@@ -1,6 +1,7 @@
 """General util functions."""
 import os
 import inspect
+from time import strptime
 from importlib import import_module
 
 import pandas as pd
@@ -32,6 +33,13 @@ def get_plugins(plugin_dir, match_names):
         """ % (plugin_dir, names, match_names))
 
     return [relevant_class() for relevant_class in relevant_classes]
+
+
+def get_all_experiment_runs():
+    """Grab all experiment runs and return a list sorted by date."""
+    root, dirs, files = os.walk('results').next()
+    dirs.sort(key=lambda d: strptime(d, "%Y-%m-%d_%H-%M-%S"), reverse=True)
+    return dirs
 
 
 def labels_to_binary(target_list):

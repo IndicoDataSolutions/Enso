@@ -1,9 +1,7 @@
 """Main method for running experiments as configured in config.py."""
 import os
-import json
 import logging
 from shutil import copyfile
-from collections import defaultdict
 from time import gmtime, strftime
 from ast import literal_eval
 
@@ -23,23 +21,27 @@ class Experimentation(object):
         self.experiments = get_plugins("experiment", EXPERIMENTS)
         self.featurizers = get_plugins("featurize", FEATURIZERS)
         self.metrics = get_plugins("metrics", METRICS)
+        self.columns = ['Dataset', 'Featurizer', 'Experiment', 'Metric', 'TrainSize', 'Result']
+        self.results = pd.DataFrame(columns=self.columns)
 
     def run_experiments(self):
         """Responsible for actually running experiments."""
-        experiment_results = defaultdict(lambda: defaultdict(dict))
         for dataset_name in DATA:
             logging.info("Experimenting on %s dataset" % dataset_name)
             for featurizer in self.featurizers:
                 logging.info("Currently using featurizer: %s" % featurizer.name())
                 dataset = self._load_dataset(dataset_name, featurizer)
                 for splitter, target, training_size in self._split_dataset(dataset):
-                    results = self._run_experiment(splitter, target, dataset)
-                    experiment_results[dataset_name][featurizer.name()][training_size] = results
-        self._dump_results(experiment_results)
+                    current_status = {
+                        'Dataset': dataset_name,
+                        'Featurizer': featurizer.name(),
+                        'TrainSize': training_size
+                    }
+                    self._run_experiment(splitter, target, dataset, current_status)
+        self._dump_results()
 
-    def _run_experiment(self, splitter, target, dataset):
+    def _run_experiment(self, splitter, target, dataset, current_status):
         """Responsible for running all experiments specified in config."""
-        experiment_results = defaultdict(list)
         for train, test in splitter:
             for experiment in self.experiments:
                 # You might find yourself wondering why we're using lists here instead of np arrays
@@ -54,19 +56,26 @@ class Experimentation(object):
                 ground_truth = list(dataset[target].iloc[test])
                 logging.info("Measuring: %s" % experiment.name())
 
-                metric_dict = self._measure_experiment(ground_truth, result)
-                experiment_results[experiment.name()].append(metric_dict)
-        return experiment_results
+                internal_status = {'Experiment': experiment.name()}
+                internal_status.update(current_status)
 
-    def _measure_experiment(self, target, result):
+                self._measure_experiment(ground_truth, result, internal_status)
+
+    def _measure_experiment(self, target, result, internal_status):
         """Responsible for recording all metrics specified in config for a given experiment."""
-        metric_results = defaultdict(dict)
         for metric in self.metrics:
-            metric_results[metric.name()] = metric.evaluate(target, result)
-        return metric_results
+            result = metric.evaluate(target, result)
+            full_state = {"Metric": metric.name(), 'Result': result}
+            full_state.update(internal_status)
+            self.results = self.results.append(self._make_df_entry(**full_state), ignore_index=True)
 
-    @staticmethod
-    def _dump_results(experiment_results):
+    def _make_df_entry(self, **kwargs):
+        base = [None] * len(self.columns)
+        for key, value in kwargs.items():
+            base[self.columns.index(key)] = value
+        return pd.Series(base, index=self.columns)
+
+    def _dump_results(self):
         """Responsible for recording config and dumping experiment results in result directory."""
         current_time = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
         result_path = "results/%s" % current_time
@@ -74,8 +83,8 @@ class Experimentation(object):
             raise ValueError("Result File %s already exists" % current_time)
         os.makedirs(result_path)
 
-        result_file = "%s/Results.json" % result_path
-        json.dump(experiment_results, open(result_file, 'w'))
+        result_file = "%s/Results.csv" % result_path
+        self.results.to_csv(result_file)
 
         # The a is for archival, not just a typo
         config_record = "%s/Config.pya" % result_path
