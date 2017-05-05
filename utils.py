@@ -38,7 +38,7 @@ def get_plugins(plugin_dir, match_names):
 
 def get_all_experiment_runs():
     """Grab all experiment runs and return a list sorted by date."""
-    dirs = [item for item in os.listdir(RESULTS_DIRECTORY) if os.path.isdir(item)]
+    dirs = [item for item in os.listdir(RESULTS_DIRECTORY)]
     dirs.sort(key=lambda d: strptime(d, "%Y-%m-%d_%H-%M-%S"), reverse=True)
     return dirs
 
