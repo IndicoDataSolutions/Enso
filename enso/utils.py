@@ -1,30 +1,39 @@
 """General util functions."""
 import os
+import os.path
 import inspect
+from time import strptime
 from importlib import import_module
 
 import pandas as pd
+
+from enso.config import RESULTS_DIRECTORY, FEATURES_DIRECTORY
 
 
 def feature_set_location(dataset_name, featurizer):
     """Responsible for generating filenames for generated feature sets."""
     base_dir, _, filename = dataset_name.rpartition('/')
-    write_location = "features/%s/" % base_dir
+    write_location = "%s/%s/" % (FEATURES_DIRECTORY, base_dir)
     dump_name = "%s_%s_features.csv" % (filename, featurizer.__class__.__name__)
     return write_location + dump_name
 
 
 def get_plugins(plugin_dir, match_names):
     """Responsible for grabbing objects from specified plugin directories."""
-    root, dirs, files = os.walk(plugin_dir).next()
+    full_plugin_dir_path = os.path.abspath(os.path.join(os.path.dirname(__file__), plugin_dir))
+    root, dirs, files = next(os.walk(full_plugin_dir_path))
+
     relevant_classes = []
     for filename in files:
-        if "__init__" not in filename and not filename.endswith('.pyc'):
-            module_name = filename.rpartition('.')[0]
-            mod = import_module("%s.%s" % (root, module_name))
-            for name, obj in inspect.getmembers(mod):
-                if inspect.isclass(obj) and obj.__name__ in match_names:
-                    relevant_classes.append(obj)
+        if not filename.endswith('.py') or '__' in filename:
+            continue
+        module_name = filename.rpartition('.')[0]
+        import_path = "%s.%s.%s" % ("enso", plugin_dir, module_name)
+        mod = import_module(import_path)
+        for name, obj in inspect.getmembers(mod):
+            if inspect.isclass(obj) and obj.__name__ in match_names:
+                relevant_classes.append(obj)
+
     names = set(item.__name__ for item in relevant_classes)
     if names != match_names:
         raise ValueError("""
@@ -32,6 +41,13 @@ def get_plugins(plugin_dir, match_names):
         """ % (plugin_dir, names, match_names))
 
     return [relevant_class() for relevant_class in relevant_classes]
+
+
+def get_all_experiment_runs():
+    """Grab all experiment runs and return a list sorted by date."""
+    dirs = [item for item in os.listdir(RESULTS_DIRECTORY)]
+    dirs.sort(key=lambda d: strptime(d, "%Y-%m-%d_%H-%M-%S"), reverse=True)
+    return dirs
 
 
 def labels_to_binary(target_list):
