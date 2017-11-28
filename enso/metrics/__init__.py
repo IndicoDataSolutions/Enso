@@ -1,7 +1,7 @@
 """Module for all metrics that one might want for evaluation."""
 import abc
 
-from utils import BaseObject
+from enso.utils import BaseObject
 
 
 class Metric(BaseObject):

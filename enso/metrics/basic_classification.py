@@ -1,8 +1,8 @@
 """Basic classification metrics."""
 from sklearn.metrics import roc_auc_score
 
-from metrics import ClassificationMetric
-from utils import labels_to_binary
+from enso.metrics import ClassificationMetric
+from enso.utils import labels_to_binary
 
 
 class RocAuc(ClassificationMetric):

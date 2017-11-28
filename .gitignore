@@ -89,6 +89,6 @@ ENV/
 .ropeproject
 
 # Data
-Data/
-Features/
-Results/
+Data/*
+Features/*
+Results/*

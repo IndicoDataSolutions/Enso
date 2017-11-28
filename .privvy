@@ -1,8 +1,46 @@
 {
+    "AirlineNegativityDataset": {
+        "path": "Data/Classify/AirlineNegativity.csv",
+        "source": "s3://indico-enso/classify/AirlineNegativity.csv"
+    },
+    "AirlineNegativitySmallDataset": {
+        "path": "Data/Classify/AirlineNegativity.small.csv",
+        "source": "s3://indico-enso/classify/AirlineNegativity.small.csv"
+    },
+    "HotelReviewsDataset": {
+        "path": "Data/Classify/HotelReviews.csv",
+        "source": "s3://indico-enso/classify/HotelReviews.csv"
+    },
+    "HotelReviewsSmallDataset": {
+        "path": "Data/Classify/HotelReviews.small.csv",
+        "source": "s3://indico-enso/classify/HotelReviews.small.csv"
+    },
+    "IMDBDataset": {
+        "path": "Data/Classify/IMDB.csv",
+        "source": "s3://indico-enso/classify/IMDB.csv"
+    },
+    "IMDBSmallDataset": {
+        "path": "Data/Classify/IMDB.small.csv",
+        "source": "s3://indico-enso/classify/IMDB.small.csv"
+    },
+    "IronyDataset": {
+        "path": "Data/Classify/Irony.csv",
+        "source": "s3://indico-enso/classify/Irony.csv"
+    },
+    "IronySmallDataset": {
+        "path": "Data/Classify/Irony.small.csv",
+        "source": "s3://indico-enso/classify/Irony.small.csv"
+    },
     "TextSpamDataset": {
         "path": "Data/Classify/TextSpam.csv",
         "source": "s3://indico-enso/classify/TextSpam.csv"
     },
+    "TextSpamSmallDataset": {
+        "path": "Data/Classify/TextSpam.small.csv",
+        "source": "s3://indico-enso/classify/TextSpam.small.csv"
+    },
+
+
 
     "TextSpamIndicoSentimentFeatures": {
         "path": "Features/Classify/TextSpam_IndicoSentiment_features.csv",
