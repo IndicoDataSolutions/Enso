@@ -1,20 +1,19 @@
 """Module for any LR-style experiment."""
 import pandas as pd
-
 from sklearn.model_selection import GridSearchCV
 from sklearn.linear_model import LogisticRegression
 
-from experiment import ClassificationExperiment
+from enso.experiment import Experiment
 
 
-class GridSearchLR(ClassificationExperiment):
+class GridSearchLR(Experiment):
     """Basic implementation of a grid-search optimized Logistic Regression."""
 
     def __init__(self):
         """Initialize internal classifier."""
         self.model = LogisticRegression
         self.active_model = None
-        self.param_grid = {'penalty': ['l1', 'l2'], 'C': [5, 10, 15, 25, 50]}
+        self.param_grid = {'penalty': ['l1', 'l2']}
 
     def train(self, training_data, training_labels):
         """Run grid search to optimize hyper-parameters, then trains the final model."""

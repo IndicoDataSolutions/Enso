@@ -1,9 +1,11 @@
 """File for storing the featurizers that indico offers via API."""
-from featurize import Featurizer
 from indicoio.custom import vectorize
+import indicoio.config
+from tqdm import tqdm
 
+from enso.featurize import Featurizer
 
-CHUNK_SIZE = 100
+CHUNK_SIZE = 50
 
 
 def featurization_factory(domain):
@@ -11,7 +13,7 @@ def featurization_factory(domain):
     @staticmethod
     def indico_feature_func(dataset):
         all_features = []
-        for i in xrange(0, len(dataset), CHUNK_SIZE):
+        for i in tqdm(range(0, len(dataset), CHUNK_SIZE)):
             chunk_data = list(dataset[i:i + CHUNK_SIZE])
             all_features.extend(vectorize(chunk_data, domain=domain))
         return all_features

@@ -1,23 +1,77 @@
-"""Base class for visualization objects."""
+"""Main file for creating visualizations."""
+import logging
 import abc
 import ast
-from functools import wraps
 import json
+from functools import wraps
 
-import numpy as np
 import pandas as pd
+import numpy as np
 
-from utils import BaseObject
+from enso.config import VISUALIZATIONS, VISUALIZATION_OPTIONS, RESULTS_DIRECTORY
+from enso.utils import get_plugins, get_all_experiment_runs
+from enso.utils import BaseObject
 
 
-class Visualization(BaseObject):
+class Visualization(object):
+    """Object for visualization orchestration."""
+
+    def __init__(self, test_run=None):
+        """Visualize results from a given test run."""
+        self.results_id = self._resolve_results_id(test_run)
+        self.results = self._grab_results(self.results_id)
+        self.visualizers = get_plugins("visualize", VISUALIZATIONS)
+
+    @staticmethod
+    def _resolve_results_id(test_run):
+        """
+        Grab the appropriate results file id.
+        `test_run` can be set either to None, which will default to the most recent run,
+        a string, which will search for a match timestamp in the results directory, or
+        an integer `n` which will grab the test run from `n` runs ago. 0 would be the same as None.
+        """
+        all_runs = get_all_experiment_runs()
+        correct_run = None
+        if test_run is None:
+            correct_run = all_runs[0]
+        elif isinstance(test_run, int):
+            correct_run = all_runs[test_run]
+        elif isinstance(test_run, str):
+            if test_run in all_runs:
+                correct_run = test_run
+            else:
+                raise ValueError("Experiment run: %s not found" % test_run)
+        else:
+            raise ValueError("test_run must be either None, an int, or a string")
+        return correct_run
+
+    @staticmethod
+    def _grab_results(results_id):
+        """
+        Read data file that corresponds with the provided results id and return
+        resulting pd.DataFrame() instance.
+        """
+        return pd.read_csv('{}/{}/Results.csv'.format(RESULTS_DIRECTORY, results_id))
+
+    def visualize(self):
+        """Pass visualization options defined in config to instantiated visualizations."""
+        # Grabs all settings that don't have a dict nested below.
+        global_options = {a: b for a, b in VISUALIZATION_OPTIONS.items() if not isinstance(b, dict)}
+        global_options['results'] = self.results
+        global_options['results_id'] = self.results_id
+        for visualizer in self.visualizers:
+            local_options = VISUALIZATION_OPTIONS.get(visualizer.name(), {})
+            local_options.update(global_options)
+            visualizer.visualize(**local_options)
+
+
+class Visualizer(BaseObject):
     """Base class for creating visualizations."""
 
     @abc.abstractmethod
     def visualize(self, results, display=True, write=True):
         """
         Create visualization for the given test_run.
-
         `display`=True will default to showing the generated visualizations as they are created.
         `write`=True will default to saving the generated image in the Results directory.
         """
@@ -35,7 +89,7 @@ class DataHandler(abc.ABCMeta):
         return viz_class
 
 
-class ClassificationVisualization(Visualization):
+class ClassificationVisualizer(Visualizer):
     """Base class for classification visualizations."""
 
     __metaclass__ = DataHandler
@@ -44,7 +98,6 @@ class ClassificationVisualization(Visualization):
     def handle_categories(cls, func):
         """
         Execute a category strategy on a result set.
-
         Force the user to make a choice about handling predictions for different classes.
         It should support either being one of the axes for the Main Visualization,
         or there should be a strategy for turning multiple entries into a single one
@@ -78,7 +131,6 @@ class ClassificationVisualization(Visualization):
     def handle_cv(cls, func):
         """
         Execute a cv strategy on a result_set.
-
         Same as handle_categories, but for multiple cv runs rather than multiple classes
         """
         @wraps(func)

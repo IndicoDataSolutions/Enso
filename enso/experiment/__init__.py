@@ -4,13 +4,15 @@ import logging
 from shutil import copyfile
 from time import gmtime, strftime
 from ast import literal_eval
+import abc
+from functools import wraps
 
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import StratifiedShuffleSplit
 
-from utils import feature_set_location, get_plugins
-from config import FEATURIZERS, DATA, EXPERIMENTS, METRICS, TEST_SETUP, RESULTS_DIRECTORY
+from enso.utils import feature_set_location, get_plugins, BaseObject
+from enso.config import FEATURIZERS, DATA, EXPERIMENTS, METRICS, TEST_SETUP, RESULTS_DIRECTORY
 
 
 class Experimentation(object):
@@ -67,7 +69,8 @@ class Experimentation(object):
             result = metric.evaluate(target, result)
             full_setting = {"Metric": metric.name(), 'Result': result}
             full_setting.update(internal_setting)
-            self.results.append(full_setting)
+            full_setting_df = pd.DataFrame.from_dict(full_setting)
+            self.results = self.results.append(full_setting_df, ignore_index=True)
 
     def _dump_results(self):
         """Responsible for recording config and dumping experiment results in result directory."""
@@ -82,7 +85,10 @@ class Experimentation(object):
 
         # The a is for archival, not just a typo
         config_record = "%s/Config.pya" % result_path
-        copyfile("config.py", config_record)
+        config_path = os.path.abspath(os.path.join(
+            os.path.dirname(os.path.dirname(__file__)), 'config.py'
+        ))
+        copyfile(config_path, config_record)
 
     @staticmethod
     def _split_dataset(dataset):
@@ -107,9 +113,72 @@ class Experimentation(object):
         return pd.read_csv(read_location, converters={'Features': literal_eval})
 
 
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    logging.info("Experimentation Started...")
-    experimentation = Experimentation()
-    logging.info("Running Experiments...")
-    experimentation.run_experiments()
+class CheckOutput(abc.ABCMeta):
+    """Decorator class to add output checks to different experiments classes."""
+
+    def __new__(cls, *args):
+        """Wrap predict method with appropriate decorator check."""
+        experiment_class = super(CheckOutput, cls).__new__(cls, *args)
+        experiment_class.predict = experiment_class.verify_output(experiment_class.predict)
+        return experiment_class
+
+
+class Experiment(BaseObject):
+    """Base class for all Experiments."""
+
+    __metaclass__ = CheckOutput
+
+    @abc.abstractmethod
+    def train(self, dataset, target):
+        """
+        General endpoint to run training for a given experiment.
+
+        dataset is a subselected version of the dataset to avoid test/train contamination.
+        Target refers to the column of interest.
+
+        Even if this method doesn't do anything it must be implemented
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def predict(self, dataset):
+        """
+        General endpoint to predict on the test set for a given experiment.
+
+        Dataset only contains relvant rows. Prediction format is dependant on class of experiment
+        """
+        raise NotImplementedError
+
+    @classmethod
+    def verify_output(cls, function):
+        """Check predict output to ensure it complies with the experiment type."""
+        return function
+
+
+class ClassificationExperiment(Experiment):
+    """Base class for classification experiments."""
+
+    @classmethod
+    def verify_output(cls, func):
+        """Verify the output of classification tasks."""
+        @wraps(func)
+        def wrapped_predict(self, dataset):
+            response = func(dataset)
+            # Must have a prediction for each entry
+            assert len(response) == len(dataset)
+            # All probabilities should sum to approx. 1
+            assert np.all(np.isclose(response.sum(axis=1), np.ones(len(response))))
+            return response
+        return func
+
+
+class RegressionExperiment(Experiment):
+    """Base class for regression experiments."""
+
+    pass
+
+
+class MatchingExperiment(Experiment):
+    """Base class for matching experiments."""
+
+    pass
