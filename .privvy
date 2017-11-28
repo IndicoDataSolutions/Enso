@@ -1,4 +1,8 @@
 {
+    "ReligiousTexts": {
+        "path": "Data/Classify/ReligiousTexts.csv",
+        "source": "s3://indico-enso/classify/ReligiousTexts.csv"
+    },
     "AirlineNegativityDataset": {
         "path": "Data/Classify/AirlineNegativity.csv",
         "source": "s3://indico-enso/classify/AirlineNegativity.csv"

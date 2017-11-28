@@ -16,11 +16,12 @@ FEATURES_DIRECTORY = "Features"
 
 # Datasets to featurize or run experiments on
 DATA = {
-    "Classify/TextSpam.small",
-    "Classify/IMDB.small",
-    "Classify/HotelReviews.small",
-    "Classify/AirlineNegativity.small",
-    "Classify/Irony",
+    # "Classify/TextSpam.small",
+    # "Classify/IMDB.small",
+    # "Classify/HotelReviews.small",
+    # "Classify/AirlineNegativity.small",
+    # "Classify/Irony",
+    "Classify/ReligiousTexts"
 }
 
 # Featurizers to activate

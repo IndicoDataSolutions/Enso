@@ -25,9 +25,7 @@ def get_plugins(plugin_dir, match_names):
 
     relevant_classes = []
     for filename in files:
-        if filename.endswith('.pyc'):
-            continue
-        if "__init__" in filename or "__main__" in filename:
+        if not filename.endswith('.py') or '__' in filename:
             continue
         module_name = filename.rpartition('.')[0]
         import_path = "%s.%s.%s" % ("enso", plugin_dir, module_name)

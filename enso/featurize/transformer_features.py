@@ -39,7 +39,6 @@ class TransformerFeaturizer(Featurizer):
 
     @classmethod
     def setup(cls):
-        print("Setting up transformer Featurizer...")
         if not cls.initialized:
             cls.initialized = True
             cls.config = Config()
@@ -49,9 +48,7 @@ class TransformerFeaturizer(Featurizer):
             saver = tf.train.Saver()
 
             cls.session = tf.Session()
-            print("Restoring from session")
             saver.restore(cls.session, '/transformer/data/models/SNLI/v0/2480000.ckpt')
-            print("Finished restoring from session")
 
     def featurize_list(self, series):
         example_batch = []

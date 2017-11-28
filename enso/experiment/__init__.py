@@ -83,7 +83,7 @@ class Experimentation(object):
         result_file = "%s/Results.csv" % result_path
         self.results.to_csv(result_file)
 
-        # The a is for archival, not just a typoOI
+        # The a is for archival, not just a typo
         config_record = "%s/Config.pya" % result_path
         config_path = os.path.abspath(os.path.join(
             os.path.dirname(os.path.dirname(__file__)), 'config.py'
