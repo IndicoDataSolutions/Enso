@@ -54,6 +54,8 @@ class TransformerFeaturizer(Featurizer):
         example_batch = []
         lengths_batch = []
         glove_features = []
+        transformer_features = []
+
         for text in series.values:
             token_ids = tokenize(text.lower().split())[:TransformerFeaturizer.config.max_length]
 
@@ -64,24 +66,28 @@ class TransformerFeaturizer(Featurizer):
             example_batch.append(token_ids)
             lengths_batch.append(length)
 
-        batch_size = 50
-        for batch_start in range(0, len(series.values), batch_size):
-            batch_end = batch_start + batch_size
-            batch = series.values[batch_start:batch_end]
-            glove_features.extend(vectorize(batch.tolist(), domain='standard'))
-
-        glove_features = np.vstack(glove_features)
+        batch_size = 100
 
         transformer = TransformerFeaturizer.transformer
         session = TransformerFeaturizer.session
 
-        embeddings = session.run(
-            transformer.doc_a_embedding,
-            feed_dict={
-                transformer.a_token_idxs: example_batch,
-                transformer.a_lengths: lengths_batch,
-                transformer.dropout_rate: 0.0
-            }
-        )
-        embeddings = np.hstack([glove_features, embeddings])
+        for batch_start in range(0, len(series.values), batch_size):
+            batch_end = batch_start + batch_size
+            batch_text = series.values[batch_start:batch_end]
+            batch_token_ids = example_batch[batch_start:batch_end]
+            batch_lengths = lengths_batch[batch_start:batch_end]
+            glove_features.extend(vectorize(batch_text.tolist(), domain='standard', url=False))
+            transformer_features.append(session.run(
+                transformer.doc_a_embedding,
+                feed_dict={
+                    transformer.a_token_idxs: batch_token_ids,
+                    transformer.a_lengths: batch_lengths,
+                    transformer.dropout_rate: 0.0
+                }
+            ))
+
+        glove_features = np.vstack(glove_features)
+        transformer_features = np.vstack(transformer_features)
+
+        embeddings = np.hstack([glove_features, transformer_features])
         return embeddings.tolist()

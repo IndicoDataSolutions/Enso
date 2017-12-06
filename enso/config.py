@@ -16,21 +16,34 @@ FEATURES_DIRECTORY = "Features"
 
 # Datasets to featurize or run experiments on
 DATA = {
-    # "Classify/TextSpam.small",
-    # "Classify/IMDB.small",
-    # "Classify/HotelReviews.small",
-    # "Classify/AirlineNegativity.small",
-    # "Classify/Irony",
-    "Classify/ReligiousTexts"
+    'Classify/AirlineComplaints',
+    'Classify/AirlineNegativity.small',
+    'Classify/Disaster',
+    'Classify/Economy',
+    'Classify/Emotion',
+    'Classify/Horror',
+    'Classify/HotelReviews.small',
+    'Classify/IMDB.small',
+    'Classify/IdiomEmotion',
+    'Classify/Irony',
+    'Classify/Reddit.10cls.1000',
+    'Classify/Reddit.20cls.500',
+    'Classify/Reddit.5cls.1000',
+    'Classify/ReligiousTexts',
+    'Classify/ShortAnswer',
+    'Classify/TextSpam.small'
 }
 
 # Featurizers to activate
 FEATURIZERS = {
-    "IndicoFinance",
     "IndicoStandard",
+    # "IndicoFastText"
+    # "IndicoTransformer"
+    "IndicoFinance",
     "IndicoSentiment",
     "IndicoTopics",
-    "TransformerFeaturizer"
+    # "IndicoEmotion",
+    # "IndicoUnsupervisedSentiment",
 }
 
 # Experiments to run
@@ -45,7 +58,7 @@ METRICS = {
 
 # Test setup metadata
 TEST_SETUP = {
-    "train_sizes": [25, 50, 100, 250, 500],
+    "train_sizes": [100, 250, 500, 1000],
     "n_splits": 5
 }
 

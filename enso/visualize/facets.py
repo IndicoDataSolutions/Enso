@@ -28,8 +28,6 @@ class FacetGridVisualizer(ClassificationVisualizer):
         """Create a tiled visualization of experiment results."""
         sns.set(style="ticks", color_codes=True)
         y_limits = (min(results.Result.values), 1.0)
-
-
         grid = sns.FacetGrid(
             results,
             col=x_tile,

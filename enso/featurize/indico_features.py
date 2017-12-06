@@ -42,3 +42,28 @@ class IndicoFinance(Featurizer):
     """Featurizer that uses indico's finance features."""
 
     featurize_list = featurization_factory("finance")
+
+
+class IndicoTransformer(Featurizer):
+    """Featurizer that uses indico's finance features."""
+
+    featurize_list = featurization_factory("transformer")
+
+
+class IndicoEmotion(Featurizer):
+    """Featurizer that uses indico's finance features."""
+
+    featurize_list = featurization_factory("emotion")
+
+
+class IndicoFastText(Featurizer):
+    """Featurizer that uses indico's finance features."""
+
+    featurize_list = featurization_factory("fasttext")
+
+
+class IndicoUnsupervisedSentiment(Featurizer):
+    """Featurizer that uses indico's finance features."""
+
+    featurize_list = featurization_factory("unsupervisedsentiment")
+
