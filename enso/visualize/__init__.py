@@ -4,6 +4,7 @@ import abc
 import ast
 import json
 from functools import wraps
+import os.path
 
 import pandas as pd
 import numpy as np
@@ -34,17 +35,16 @@ class Visualization(object):
         a string, which will search for a match timestamp in the results directory, or
         an integer `n` which will grab the test run from `n` runs ago. 0 would be the same as None.
         """
-        all_runs = get_all_experiment_runs()
         correct_run = None
-        if test_run is None:
+        if isinstance(test_run, str):
+            correct_run = test_run
+            if not os.path.exists(os.path.join(RESULTS_DIRECTORY, correct_run)):
+                raise ValueError("Experiment run: %s not found" % test_run)
+        elif test_run is None:
+            all_runs = get_all_experiment_runs()
             correct_run = all_runs[0]
         elif isinstance(test_run, int):
             correct_run = all_runs[test_run]
-        elif isinstance(test_run, str):
-            if test_run in all_runs:
-                correct_run = test_run
-            else:
-                raise ValueError("Experiment run: %s not found" % test_run)
         else:
             raise ValueError("test_run must be either None, an int, or a string")
         return correct_run
