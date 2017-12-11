@@ -89,6 +89,6 @@ ENV/
 .ropeproject
 
 # Data
-Data/*
-Features/*
+Data/Classify/*.csv
+Features/Classify/*.csv
 Results/*

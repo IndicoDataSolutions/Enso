@@ -31,10 +31,6 @@
         "path": "Data/Classify/Horror.csv",
         "source": "s3://indico-enso/classify/Horror.csv"
     },
-    "IndicoEmotion": {
-        "path": "Data/Classify/IndicoEmotion.csv",
-        "source": "s3://indico-enso/classify/IndicoEmotion.csv"
-    },
     "Reddit.10cls.1000": {
         "path": "Data/Classify/Reddit.10cls.1000.csv",
         "source": "s3://indico-enso/classify/Reddit.10cls.1000.csv"
