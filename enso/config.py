@@ -32,7 +32,7 @@ DATA = {
 # Featurizers to activate
 FEATURIZERS = {
     "IndicoStandard",
-    # "IndicoFastText",
+    "IndicoFastText",
     # "IndicoTransformer",
     # "IndicoFinance",
     # "IndicoTopics",
@@ -52,7 +52,8 @@ METRICS = {
 # Test setup metadata
 TEST_SETUP = {
     "train_sizes": [100, 250, 500, 1000],
-    "n_splits": 5
+    "n_splits": 5,
+    "samplers": ['Random', 'RandomA']
 }
 
 # Visualizations to display
@@ -66,13 +67,14 @@ VISUALIZATION_OPTIONS = {
     'save': True,
     'FacetGridVisualizer': {
         'x_tile': 'Dataset',
-        'y_tile': 'Experiment',
+        'y_tile': 'Featurizer',
         'x_axis': 'TrainSize',
         'y_axis': 'Result',
-        'lines': 'Featurizer',
+        'lines': 'Sampler',
         'category': 'merge',
         'cv': 'mean'
     }
 }
+
 
 N_CORES = 8

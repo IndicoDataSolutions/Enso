@@ -16,6 +16,7 @@ from sklearn.model_selection import StratifiedShuffleSplit
 import ipdb
 from tqdm import tqdm
 
+from enso.sample import Sampler
 from enso.utils import feature_set_location, get_plugins, BaseObject
 from enso.config import FEATURIZERS, DATA, EXPERIMENTS, METRICS, TEST_SETUP, RESULTS_DIRECTORY, N_CORES
 
@@ -32,7 +33,7 @@ class Experimentation(object):
         self.experiments = get_plugins("experiment", EXPERIMENTS)
         self.featurizers = get_plugins("featurize", FEATURIZERS)
         self.metrics = get_plugins("metrics", METRICS)
-        self.columns = ['Dataset', 'Featurizer', 'Experiment', 'Metric', 'TrainSize', 'Result']
+        self.columns = ['Dataset', 'Featurizer', 'Experiment', 'Metric', 'TrainSize', 'Sampler', 'Result']
         self.results = pd.DataFrame(columns=self.columns)
 
     def run_experiments(self):
@@ -44,13 +45,15 @@ class Experimentation(object):
                 logging.info("Currently using featurizer: %s" % featurizer.name())
                 dataset = self._load_dataset(dataset_name, featurizer)
                 for training_size in TEST_SETUP["train_sizes"]:
-                    current_setting = {
-                        'Dataset': dataset_name,
-                        'Featurizer': featurizer.name(),
-                        'TrainSize': training_size
-                    }
-                    future = POOL.submit(self._run_experiment, dataset, current_setting)
-                    futures[future] = current_setting
+                    for sampler in TEST_SETUP["samplers"]:
+                        current_setting = {
+                            'Dataset': dataset_name,
+                            'Featurizer': featurizer.name(),
+                            'TrainSize': training_size,
+                            'Sampler': sampler
+                        }
+                        future = POOL.submit(self._run_experiment, dataset, current_setting)
+                        futures[future] = current_setting
 
         for future in concurrent.futures.as_completed(futures):
             current_setting = futures[future]
@@ -62,8 +65,10 @@ class Experimentation(object):
     def _run_experiment(self, dataset, current_setting):
         """Responsible for running all experiments specified in config."""
         results = pd.DataFrame(columns=self.columns)
-        for splitter, target in self._split_dataset(dataset, current_setting['TrainSize']):
-            for train, test in splitter:
+        for splitter, target in self._split_dataset(dataset, current_setting['TrainSize'], current_setting['Sampler']):
+            for train_data, test in splitter:
+                sampler = Sampler.class_for(current_setting['Sampler'])
+                train = sampler(train_data, current_setting['TrainSize']).sample()
                 for experiment in self.experiments:
                     internal_setting = {'Experiment': experiment.name()}
                     internal_setting.update(current_setting)
@@ -121,12 +126,15 @@ class Experimentation(object):
         copyfile(config_path, config_record)
 
     @staticmethod
-    def _split_dataset(dataset, training_size):
+    def _split_dataset(dataset, training_size, sampler):
         target_list = [column for column in dataset.columns.values if column.startswith("Target")]
         logging.info("Training with train set of size: %s" % training_size)
         # Sklearn technically offers a train_size parameter that seems like it would be better
         # Unfortunately it doesn't work as expected and locks test size to train size
-        test_size = len(dataset) - training_size
+        test_size = int(len(dataset) *.5)
+        if test_size + training_size > len(dataset):
+            raise ValueError("Invalid training size provided.  Training size must be less than half of dataset size.")
+
         splitter = StratifiedShuffleSplit(TEST_SETUP["n_splits"], test_size=test_size)
         for target in target_list:
             # We can use np.zeros because it's stratifying the split
