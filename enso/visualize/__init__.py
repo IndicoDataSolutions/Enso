@@ -7,10 +7,14 @@ from functools import wraps
 
 import pandas as pd
 import numpy as np
+import matplotlib
 
 from enso.config import VISUALIZATIONS, VISUALIZATION_OPTIONS, RESULTS_DIRECTORY
 from enso.utils import get_plugins, get_all_experiment_runs
 from enso.utils import BaseObject
+
+# set matplotlib up for headless environment
+matplotlib.use("Agg")
 
 
 class Visualization(object):

@@ -3,8 +3,13 @@ import logging
 
 import pandas as pd
 
-from enso.config import FEATURIZERS, DATA
+import concurrent.futures
+from concurrent.futures import ProcessPoolExecutor
+from enso.config import FEATURIZERS, DATA, N_CORES
 from enso.utils import get_plugins, feature_set_location, BaseObject
+
+
+POOL = ProcessPoolExecutor(N_CORES)
 
 
 class Featurization(object):
@@ -16,11 +21,27 @@ class Featurization(object):
 
     def run(self):
         """Responsible for running actual featurization jobs."""
+        futures = {}
         for dataset_name in DATA:
             dataset = self._load_dataset(dataset_name)
             for featurizer in self.featurizers:
-                print("Featurizing {} with {}....".format(dataset_name, featurizer.__class__.__name__))
-                featurizer.generate(dataset, dataset_name)
+                logging.info("Featurizing {} with {}....".format(dataset_name, featurizer.__class__.__name__))
+                future = POOL.submit(featurizer.generate, dataset, dataset_name)
+                futures[future] = (featurizer, dataset_name)
+
+        for future in concurrent.futures.as_completed(futures):
+            featurizer, dataset_name = futures[future]
+            try:
+                future.result()
+                logging.info("Completed featurization of dataset `{dataset_name}` with featurizer `{featurizer}`.".format(
+                    dataset_name=dataset_name,
+                    featurizer=featurizer.__class__.__name__
+                ))
+            except Exception as e:
+                logging.exception("Failed featurization of dataset `{dataset_name}` with featurizer `{featurizer}`.".format(
+                    dataset_name=dataset_name,
+                    featurizer=featurizer.__class__.__name__
+                ))
 
     @staticmethod
     def _load_dataset(dataset_name):

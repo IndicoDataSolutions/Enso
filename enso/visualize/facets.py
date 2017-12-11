@@ -28,8 +28,6 @@ class FacetGridVisualizer(ClassificationVisualizer):
         """Create a tiled visualization of experiment results."""
         sns.set(style="ticks", color_codes=True)
         y_limits = (min(results.Result.values), 1.0)
-
-
         grid = sns.FacetGrid(
             results,
             col=x_tile,
@@ -44,4 +42,4 @@ class FacetGridVisualizer(ClassificationVisualizer):
         )
         grid = grid.map(sns.pointplot, x_axis, y_axis).add_legend()
         filename = os.path.join(RESULTS_DIRECTORY, results_id, "{}.png".format(self.__class__.__name__))
-        sns.plt.savefig(filename)
+        plt.savefig(filename)
