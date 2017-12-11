@@ -1,12 +1,5 @@
 import indicoio
 
-"""
-Configuring indicoio settings to point to local indico API instance
-"""
-indicoio.config.api_key = "cac939f48044ddf637a974b4baa290ca"
-indicoio.config.host = "172.17.0.1:8000"
-indicoio.config.url_protocol = "http"
-
 """Constants to configure the rest of Enso."""
 # Directory for storing results
 RESULTS_DIRECTORY = "Results"
@@ -14,6 +7,7 @@ RESULTS_DIRECTORY = "Results"
 # Directory for storing features
 FEATURES_DIRECTORY = "Features"
 
+EXPERIMENT_NAME = "benchmark-v1"
 
 # Datasets to featurize or run experiments on
 DATA = {

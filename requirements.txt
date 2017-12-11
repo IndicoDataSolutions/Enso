@@ -6,3 +6,4 @@ scikit-learn==0.19.0
 numpy>=1.13.1
 click==6.7
 git+ssh://git@github.com/sihrc/privvy.git@master#egg=master
+ipdb==0.10.3
