@@ -14,36 +14,35 @@ RESULTS_DIRECTORY = "Results"
 # Directory for storing features
 FEATURES_DIRECTORY = "Features"
 
+
 # Datasets to featurize or run experiments on
 DATA = {
     'Classify/AirlineComplaints',
-    'Classify/AirlineNegativity.small',
     'Classify/Disaster',
-    'Classify/Economy',
-    'Classify/Emotion',
-    'Classify/Horror',
-    'Classify/HotelReviews.small',
-    'Classify/IMDB.small',
-    'Classify/IdiomEmotion',
     'Classify/Irony',
-    'Classify/Reddit.10cls.1000',
-    'Classify/Reddit.20cls.500',
-    'Classify/Reddit.5cls.1000',
-    'Classify/ReligiousTexts',
-    'Classify/ShortAnswer',
-    'Classify/TextSpam.small'
+    # 'Classify/IMDB.small',
+    # 'Classify/Economy',
+    # 'Classify/Emotion',
+    # 'Classify/Horror',
+    # 'Classify/HotelReviews.small',
+    # 'Classify/IdiomEmotion',
+    # 'Classify/Reddit.10cls.1000',
+    # 'Classify/Reddit.20cls.500',
+    # 'Classify/Reddit.5cls.1000',
+    # 'Classify/ReligiousTexts',
+    # 'Classify/ShortAnswer',
+    # 'Classify/TextSpam'
+    # 'Classify/AirlineNegativity.small',
 }
 
 # Featurizers to activate
 FEATURIZERS = {
     "IndicoStandard",
-    # "IndicoFastText"
-    # "IndicoTransformer"
-    "IndicoFinance",
-    "IndicoSentiment",
-    "IndicoTopics",
-    # "IndicoEmotion",
-    # "IndicoUnsupervisedSentiment",
+    # "IndicoFastText",
+    # "IndicoTransformer",
+    # "IndicoFinance",
+    # "IndicoTopics",
+    # "IndicoSentiment",
 }
 
 # Experiments to run
@@ -82,3 +81,4 @@ VISUALIZATION_OPTIONS = {
     }
 }
 
+N_CORES = 8

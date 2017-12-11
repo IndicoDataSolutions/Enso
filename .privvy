@@ -11,6 +11,54 @@
         "path": "Data/Classify/AirlineNegativity.small.csv",
         "source": "s3://indico-enso/classify/AirlineNegativity.small.csv"
     },
+    "AirlineComplaintsDataset": {
+        "path": "Data/Classify/AirlineComplaints.csv",
+        "source": "s3://indico-enso/classify/AirlineComplaints.csv"
+    },
+    "Disaster": {
+        "path": "Data/Classify/Disaster.csv",
+        "source": "s3://indico-enso/classify/Disaster.csv"
+    },
+    "Economy": {
+        "path": "Data/Classify/Economy.csv",
+        "source": "s3://indico-enso/classify/Economy.csv"
+    },
+    "Emotion": {
+        "path": "Data/Classify/Emotion.csv",
+        "source": "s3://indico-enso/classify/Emotion.csv"
+    },
+    "Horror": {
+        "path": "Data/Classify/Horror.csv",
+        "source": "s3://indico-enso/classify/Horror.csv"
+    },
+    "IndicoEmotion": {
+        "path": "Data/Classify/IndicoEmotion.csv",
+        "source": "s3://indico-enso/classify/IndicoEmotion.csv"
+    },
+    "Reddit.10cls.1000": {
+        "path": "Data/Classify/Reddit.10cls.1000.csv",
+        "source": "s3://indico-enso/classify/Reddit.10cls.1000.csv"
+    },
+    "Reddit.20cls.500": {
+        "path": "Data/Classify/Reddit.20cls.500.csv",
+        "source": "s3://indico-enso/classify/Reddit.20cls.500.csv"
+    },
+    "Reddit.50cls.200": {
+        "path": "Data/Classify/Reddit.50cls.200.csv",
+        "source": "s3://indico-enso/classify/Reddit.50cls.200.csv"
+    },
+    "Reddit.5cls.1000": {
+        "path": "Data/Classify/Reddit.5cls.1000.csv",
+        "source": "s3://indico-enso/classify/Reddit.5cls.1000.csv"
+    },
+    "ReligiousTexts": {
+        "path": "Data/Classify/ReligiousTexts.csv",
+        "source": "s3://indico-enso/classify/ReligiousTexts.csv"
+    },
+    "ShortAnswer": {
+        "path": "Data/Classify/ShortAnswer.csv",
+        "source": "s3://indico-enso/classify/ShortAnswer.csv"
+    },
     "HotelReviewsDataset": {
         "path": "Data/Classify/HotelReviews.csv",
         "source": "s3://indico-enso/classify/HotelReviews.csv"
@@ -43,9 +91,6 @@
         "path": "Data/Classify/TextSpam.small.csv",
         "source": "s3://indico-enso/classify/TextSpam.small.csv"
     },
-
-
-
     "TextSpamIndicoSentimentFeatures": {
         "path": "Features/Classify/TextSpam_IndicoSentiment_features.csv",
         "source": "s3://indico-enso/classify/features/TextSpam_IndicoSentiment_features.csv"

@@ -42,4 +42,4 @@ class FacetGridVisualizer(ClassificationVisualizer):
         )
         grid = grid.map(sns.pointplot, x_axis, y_axis).add_legend()
         filename = os.path.join(RESULTS_DIRECTORY, results_id, "{}.png".format(self.__class__.__name__))
-        sns.plt.savefig(filename)
+        plt.savefig(filename)
