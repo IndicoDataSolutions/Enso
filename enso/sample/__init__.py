@@ -1,3 +1,6 @@
+from numpy.random import choice
+
+
 class Sampler(object):
     """Base class for all samples."""
 
@@ -16,11 +19,11 @@ class Sampler(object):
         raise ValueError("Invalid sampler attempted ({})".format(sampler_string))
 
 
-class Random(Sampler):
+class Default(Sampler):
     def sample(self):
         return self.data_points[0:self.train_size]
 
 
-class RandomA(Sampler):
+class Random(Sampler):
     def sample(self):
-        return self.data_points[(len(self.data_points)-self.train_size):]
+        return choice(self.data_points, self.train_size, replace=False)

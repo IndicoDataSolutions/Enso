@@ -13,7 +13,7 @@ EXPERIMENT_NAME = "benchmark-v1"
 DATA = {
     'Classify/AirlineComplaints',
     'Classify/Disaster',
-    'Classify/Irony',
+    #'Classify/Irony',
     # 'Classify/IMDB.small',
     # 'Classify/Economy',
     # 'Classify/Emotion',
@@ -53,7 +53,7 @@ METRICS = {
 TEST_SETUP = {
     "train_sizes": [100, 250, 500, 1000],
     "n_splits": 5,
-    "samplers": ['Random', 'RandomA']
+    "samplers": ['Default', 'Random']
 }
 
 # Visualizations to display
