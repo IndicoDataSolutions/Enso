@@ -14,6 +14,7 @@ RESULTS_DIRECTORY = "Results"
 # Directory for storing features
 FEATURES_DIRECTORY = "Features"
 
+EXPERIMENT_NAME = "benchmark-v1"
 
 # Datasets to featurize or run experiments on
 DATA = {
