@@ -4,8 +4,9 @@ from numpy.random import choice
 class Sampler(object):
     """Base class for all samples."""
 
-    def __init__(self, data_points, train_size):
-        self.data_points = data_points
+    def __init__(self, data, train_indices, train_size):
+        self.data = data
+        self.train_indices = train_indices
         self.train_size = train_size
 
     def sample(self):
@@ -21,9 +22,9 @@ class Sampler(object):
 
 class Default(Sampler):
     def sample(self):
-        return self.data_points[0:self.train_size]
+        return self.train_indices[0:self.train_size]
 
 
 class Random(Sampler):
     def sample(self):
-        return choice(self.data_points, self.train_size, replace=False)
+        return choice(self.train_indices, self.train_size, replace=False)
