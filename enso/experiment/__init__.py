@@ -65,7 +65,7 @@ class Experimentation(object):
     def _run_experiment(self, dataset, current_setting):
         """Responsible for running all experiments specified in config."""
         results = pd.DataFrame(columns=self.columns)
-        for splitter, target in self._split_dataset(dataset, current_setting['TrainSize'], current_setting['Sampler']):
+        for splitter, target in self._split_dataset(dataset, current_setting['TrainSize']):
             for train_indices, test in splitter:
                 sampler = Sampler.class_for(current_setting['Sampler'])
                 train = sampler(dataset['Features'], train_indices, current_setting['TrainSize']).sample()
@@ -126,7 +126,7 @@ class Experimentation(object):
         copyfile(config_path, config_record)
 
     @staticmethod
-    def _split_dataset(dataset, training_size, sampler):
+    def _split_dataset(dataset, training_size):
         target_list = [column for column in dataset.columns.values if column.startswith("Target")]
         logging.info("Training with train set of size: %s" % training_size)
         # Sklearn technically offers a train_size parameter that seems like it would be better
