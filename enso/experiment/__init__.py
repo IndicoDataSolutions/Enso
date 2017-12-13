@@ -67,8 +67,10 @@ class Experimentation(object):
         results = pd.DataFrame(columns=self.columns)
         for splitter, target in self._split_dataset(dataset, current_setting['TrainSize']):
             for train_indices, test in splitter:
-                sampler = Sampler.class_for(current_setting['Sampler'])
-                train = sampler(dataset['Features'], train_indices, current_setting['TrainSize']).sample()
+                train = Sampler.sample(current_setting['Sampler'],
+                                       dataset['Features'],
+                                       train_indices,
+                                       current_setting['TrainSize'])
                 for experiment in self.experiments:
                     internal_setting = {'Experiment': experiment.name()}
                     internal_setting.update(current_setting)

@@ -13,7 +13,11 @@ class Sampler(object):
         raise NotImplementedError
 
     @classmethod
-    def class_for(cls, sampler_string):
+    def sample(cls, sampler, data, train_indices, train_size):
+        return cls._class_for(sampler)(data, train_indices, train_size).sample()
+    
+    @classmethod
+    def _class_for(cls, sampler_string):
         for subclass in cls.__subclasses__():
             if subclass.__name__ == sampler_string:
                 return subclass
