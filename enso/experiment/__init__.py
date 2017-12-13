@@ -68,7 +68,7 @@ class Experimentation(object):
         for splitter, target in self._split_dataset(dataset, current_setting['TrainSize'], current_setting['Sampler']):
             for train_indices, test in splitter:
                 sampler = Sampler.class_for(current_setting['Sampler'])
-                train = sampler(dataset['Features'].iloc[train_indices], train_indices, current_setting['TrainSize']).sample()
+                train = sampler(dataset['Features'], train_indices, current_setting['TrainSize']).sample()
                 for experiment in self.experiments:
                     internal_setting = {'Experiment': experiment.name()}
                     internal_setting.update(current_setting)
