@@ -2,6 +2,11 @@ import numpy
 import logging
 from sklearn.metrics.pairwise import pairwise_distances
 
+
+def sample(sampler, data, train_indices, train_size):
+    return Sampler._class_for(sampler)(data, train_indices, train_size).sample()
+
+
 class Sampler(object):
     """Base class for all samples."""
 
@@ -13,10 +18,6 @@ class Sampler(object):
     def sample(self):
         raise NotImplementedError
 
-    @classmethod
-    def sample(cls, sampler, data, train_indices, train_size):
-        return cls._class_for(sampler)(data, train_indices, train_size).sample()
-    
     @classmethod
     def _class_for(cls, sampler_string):
         for subclass in cls.__subclasses__():

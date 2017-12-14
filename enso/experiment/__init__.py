@@ -16,7 +16,7 @@ from sklearn.model_selection import StratifiedShuffleSplit
 import ipdb
 from tqdm import tqdm
 
-from enso.sample import Sampler
+from enso.sample import sample
 from enso.utils import feature_set_location, get_plugins, BaseObject
 from enso.config import FEATURIZERS, DATA, EXPERIMENTS, METRICS, TEST_SETUP, RESULTS_DIRECTORY, N_CORES
 
@@ -67,7 +67,7 @@ class Experimentation(object):
         results = pd.DataFrame(columns=self.columns)
         for splitter, target in self._split_dataset(dataset, current_setting['TrainSize']):
             for train_indices, test in splitter:
-                train = Sampler.sample(current_setting['Sampler'],
+                train = sample(current_setting['Sampler'],
                                        dataset['Features'],
                                        train_indices,
                                        current_setting['TrainSize'])
