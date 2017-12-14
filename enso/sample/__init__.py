@@ -1,10 +1,11 @@
-import numpy
+import numpy as np
 import logging
 from sklearn.metrics.pairwise import pairwise_distances
 
 
 def sample(sampler, data, train_indices, train_size):
-    return Sampler._class_for(sampler)(data, train_indices, train_size).sample()
+    sampler = Sampler._class_for(sampler)(data, train_indices, train_size)
+    return sampler.sample()
 
 
 class Sampler(object):
@@ -28,20 +29,20 @@ class Sampler(object):
 
 class Random(Sampler):
     def sample(self):
-        return numpy.random.choice(self.train_indices, self.train_size, replace=False)
+        return np.random.choice(self.train_indices, self.train_size, replace=False)
 
 
 class KCenter(Sampler):
     @property
     def points(self):
-        return [numpy.array(point) for point in self.data]
+        return np.array(point) for point in self.data]
 
     def sample(self):
-        random_center = numpy.random.choice(self.train_indices)
+        random_center = np.random.choice(self.train_indices)
         centers = [random_center]
         while len(centers) < self.train_size:
-            mins = numpy.min(self.distances[centers], axis=0)
-            center = numpy.argmax(mins)
+            mins = np.min(self.distances[centers], axis=0)
+            center = np.argmax(mins)
             centers.append(center)
         return centers
     

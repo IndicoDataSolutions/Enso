@@ -41,7 +41,7 @@ class FacetGridVisualizer(ClassificationVisualizer):
             palette='deep'
         )
         grid = grid.map(sns.pointplot, x_axis, y_axis)
-        colors = sns.color_palette('deep').as_hex()[:2]
+        colors = sns.color_palette('deep').as_hex()[:len(grid.hue_names)]
         handles = [patches.Patch(color=col, label=label) for col, label in zip(colors, grid.hue_names)]
         plt.legend(handles=handles)
         filename = os.path.join(RESULTS_DIRECTORY, results_id, "{}.png".format(self.__class__.__name__))
