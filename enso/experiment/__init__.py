@@ -133,7 +133,7 @@ class Experimentation(object):
         logging.info("Training with train set of size: %s" % training_size)
         # Sklearn technically offers a train_size parameter that seems like it would be better
         # Unfortunately it doesn't work as expected and locks test size to train size
-        test_size = int(len(dataset) *.5)
+        test_size = int(len(dataset) * .3)
         if test_size + training_size > len(dataset):
             raise ValueError("Invalid training size provided.  Training size must be less than half of dataset size.")
 
