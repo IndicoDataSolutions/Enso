@@ -12,7 +12,7 @@ EXPERIMENT_NAME = "benchmark-v1"
 # Datasets to featurize or run experiments on
 DATA = {
     'Classify/AirlineComplaints',
-    #'Classify/Disaster',
+    'Classify/Disaster',
     #'Classify/Irony',
     # 'Classify/IMDB.small',
     # 'Classify/Economy',
@@ -24,15 +24,15 @@ DATA = {
     # 'Classify/Reddit.20cls.500',
     # 'Classify/Reddit.5cls.1000',
     # 'Classify/ReligiousTexts',
-    # 'Classify/ShortAnswer',
-    # 'Classify/TextSpam'
+    'Classify/ShortAnswer',
+    'Classify/TextSpam'
     # 'Classify/AirlineNegativity.small',
 }
 
 # Featurizers to activate
 FEATURIZERS = {
     "IndicoStandard",
-    #"IndicoFastText",
+    "IndicoFastText",
     # "IndicoTransformer",
     # "IndicoFinance",
     # "IndicoTopics",
@@ -53,7 +53,8 @@ METRICS = {
 TEST_SETUP = {
     "train_sizes": [100, 250, 500, 1000],
     "n_splits": 5,
-    "samplers": ['Random', 'KCenter']
+    "samplers": ['Random', 'KCenter'],
+    "sampling_size": .3
 }
 
 # Visualizations to display
