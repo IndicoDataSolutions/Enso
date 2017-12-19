@@ -4,4 +4,5 @@ import numpy as np
 
 class Random(Sampler):
     def sample(self):
-        return np.random.choice(self.train_indices, self.train_size, replace=False)
+        points = self.choose_starting_points()
+        return points + list(np.random.choice(self.train_indices, self.train_size - len(points), replace=False))

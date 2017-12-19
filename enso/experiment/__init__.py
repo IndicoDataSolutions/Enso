@@ -69,6 +69,7 @@ class Experimentation(object):
             for train_indices, test in splitter:
                 train = sample(current_setting['Sampler'],
                                        dataset['Features'],
+                                       list(dataset[target].iloc[train_indices]),
                                        train_indices,
                                        current_setting['TrainSize'])
                 for experiment in self.experiments:
