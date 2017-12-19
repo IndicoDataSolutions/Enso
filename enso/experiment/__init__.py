@@ -135,7 +135,7 @@ class Experimentation(object):
         # Unfortunately it doesn't work as expected and locks test size to train size
         test_size = int(len(dataset) * .3)
         if test_size + training_size > len(dataset):
-            raise ValueError("Invalid training size provided.  Training size must be less than half of dataset size.")
+            raise ValueError("Invalid training size provided.  Training size must be less than .3 of dataset size.")
 
         splitter = StratifiedShuffleSplit(TEST_SETUP["n_splits"], test_size=test_size)
         for target in target_list:
