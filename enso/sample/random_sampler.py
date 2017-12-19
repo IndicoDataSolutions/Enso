@@ -1,4 +1,5 @@
 from . import Sampler
+import numpy as np
 
 
 class Random(Sampler):

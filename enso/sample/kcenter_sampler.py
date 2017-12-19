@@ -1,14 +1,13 @@
 from . import Sampler
+from sklearn.metrics.pairwise import pairwise_distances
+import numpy as np
 
 
 class KCenter(Sampler):
-    @property
-    def points(self):
-        return [np.array(point) for point in self.data]
+    DISTANCE_FUNCTION="euclidean"
 
     def sample(self):
-        random_center = np.random.choice(self.train_indices)
-        centers = [random_center]
+        centers = [self.choose_random()]
         while len(centers) < self.train_size:
             mins = np.min(self.distances[centers], axis=0)
             center = np.argmax(mins)

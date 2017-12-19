@@ -53,7 +53,7 @@ METRICS = {
 TEST_SETUP = {
     "train_sizes": [100, 250, 500, 1000],
     "n_splits": 5,
-    "samplers": ['Random', 'KCenter'],
+    "samplers": ['Random', 'KCenter', 'Orthogonal'],
     "sampling_size": .3
 }
 
