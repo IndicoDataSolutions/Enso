@@ -1,5 +1,4 @@
 from . import Sampler
-from sklearn.metrics.pairwise import pairwise_distances
 import numpy as np
 
 

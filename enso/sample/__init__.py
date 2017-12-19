@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.metrics.pairwise import pairwise_distances
 
 
 def sample(sampler, data, train_indices, train_size):
