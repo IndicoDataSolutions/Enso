@@ -16,6 +16,7 @@ from sklearn.model_selection import StratifiedShuffleSplit
 import ipdb
 from tqdm import tqdm
 
+from enso.resample import resample
 from enso.sample import sample
 from enso.utils import feature_set_location, get_plugins, BaseObject
 from enso.config import FEATURIZERS, DATA, EXPERIMENTS, METRICS, TEST_SETUP, RESULTS_DIRECTORY, N_CORES
@@ -33,7 +34,7 @@ class Experimentation(object):
         self.experiments = get_plugins("experiment", EXPERIMENTS)
         self.featurizers = get_plugins("featurize", FEATURIZERS)
         self.metrics = get_plugins("metrics", METRICS)
-        self.columns = ['Dataset', 'Featurizer', 'Experiment', 'Metric', 'TrainSize', 'Sampler', 'Result']
+        self.columns = ['Dataset', 'Featurizer', 'Experiment', 'Metric', 'TrainSize', 'Sampler', 'Resampling', 'Result']
         self.results = pd.DataFrame(columns=self.columns)
 
     def run_experiments(self):
@@ -46,14 +47,16 @@ class Experimentation(object):
                 dataset = self._load_dataset(dataset_name, featurizer)
                 for training_size in TEST_SETUP["train_sizes"]:
                     for sampler in TEST_SETUP["samplers"]:
-                        current_setting = {
-                            'Dataset': dataset_name,
-                            'Featurizer': featurizer.name(),
-                            'TrainSize': training_size,
-                            'Sampler': sampler
-                        }
-                        future = POOL.submit(self._run_experiment, dataset, current_setting)
-                        futures[future] = current_setting
+                        for resampling in TEST_SETUP["resamplings"]:
+                            current_setting = {
+                                'Dataset': dataset_name,
+                                'Featurizer': featurizer.name(),
+                                'TrainSize': training_size,
+                                'Sampler': sampler,
+                                'Resampling': resampling
+                            }
+                            future = POOL.submit(self._run_experiment, dataset, current_setting)
+                            futures[future] = current_setting
 
         for future in concurrent.futures.as_completed(futures):
             current_setting = futures[future]
@@ -81,7 +84,7 @@ class Experimentation(object):
                         logging.info("Training: %s" % internal_setting)
                         training_data = list(dataset['Features'].iloc[train])
                         training_labels = list(dataset[target].iloc[train])
-                        experiment.train(training_data, training_labels)
+                        experiment.train(*resample(current_setting['Resampling'], training_data, training_labels))
 
                         test_set = list(dataset['Features'].iloc[test])
                         result = experiment.predict(test_set)

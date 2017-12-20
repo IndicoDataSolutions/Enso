@@ -180,7 +180,8 @@ class ClassificationVisualizer(Visualizer):
                     (results['Metric'] == row['Metric']) &
                     (results['TrainSize'] == row['TrainSize']) &
                     (results['Featurizer'] == row['Featurizer']) &
-                    (results['Sampler'] == row['Sampler'])
+                    (results['Sampler'] == row['Sampler']) &
+                    (results['Resampling'] == row['Resampling'])
                 ]
 
     @staticmethod
@@ -192,5 +193,6 @@ class ClassificationVisualizer(Visualizer):
             row['Metric'],
             row['TrainSize'],
             row['Featurizer'],
-            row['Sampler']
+            row['Sampler'],
+            row['Resampling']
         )

@@ -53,8 +53,9 @@ METRICS = {
 TEST_SETUP = {
     "train_sizes": [10, 30, 50, 100, 200],
     "n_splits": 10,
-    "samplers": ['Random', 'KCenter', 'Orthogonal'],
-    "sampling_size": .3
+    "samplers": ['Random', 'Orthogonal'],
+    "sampling_size": .3,
+    "resamplings": ['none', 'SMOTE', 'ADASYN']
 }
 
 # Visualizations to display
@@ -68,10 +69,10 @@ VISUALIZATION_OPTIONS = {
     'save': True,
     'FacetGridVisualizer': {
         'x_tile': 'Dataset',
-        'y_tile': 'Featurizer',
+        'y_tile': 'Sampler',
         'x_axis': 'TrainSize',
         'y_axis': 'Result',
-        'lines': 'Sampler',
+        'lines': 'Resampling',
         'category': 'merge',
         'cv': 'mean'
     }

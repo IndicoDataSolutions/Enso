@@ -7,3 +7,4 @@ numpy>=1.13.1
 click==6.7
 git+ssh://git@github.com/sihrc/privvy.git@master#egg=master
 ipdb==0.10.3
+imblearn==0.0
