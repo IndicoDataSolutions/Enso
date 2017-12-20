@@ -48,4 +48,4 @@ class Sampler(object):
 
     @classmethod
     def _class_for(cls, sampler_string):
-        return get_plugins("sample", set([sampler_string]))[0]
+        return get_plugins("sample", set([sampler_string]), return_class=True)[0]

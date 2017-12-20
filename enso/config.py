@@ -12,18 +12,18 @@ EXPERIMENT_NAME = "benchmark-v1"
 # Datasets to featurize or run experiments on
 DATA = {
     #'Classify/AirlineComplaints',
-    'Classify/Disaster',
+    #'Classify/Disaster',
     'Classify/Irony',
-    'Classify/IMDB.small',
-    'Classify/Economy',
-    #'Classify/Emotion',
-    # 'Classify/Horror',
+    #'Classify/IMDB.small',
+    #'Classify/Economy',
+    'Classify/Emotion',
+     'Classify/Horror',
     # 'Classify/HotelReviews.small',
-    # 'Classify/IdiomEmotion',
+    #'Classify/IdiomEmotion',
     # 'Classify/Reddit.10cls.1000',
     # 'Classify/Reddit.20cls.500',
     # 'Classify/Reddit.5cls.1000',
-    # 'Classify/ReligiousTexts',
+    #'Classify/ReligiousTexts',
     #'Classify/ShortAnswer',
     #'Classify/TextSpam'
     # 'Classify/AirlineNegativity.small',
@@ -51,7 +51,7 @@ METRICS = {
 
 # Test setup metadata
 TEST_SETUP = {
-    "train_sizes": [10, 30, 50, 100, 200],
+    "train_sizes": [30, 50, 100, 200, 500],
     "n_splits": 10,
     "samplers": ['Random', 'Orthogonal'],
     "sampling_size": .3,

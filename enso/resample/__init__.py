@@ -7,4 +7,8 @@ def resample(resample_type, train_data, train_labels):
         return train_data, train_labels
     else:
         instance = globals()[resample_type]()
-        return instance.fit_sample(train_data, train_labels)
+        try:
+            return instance.fit_sample(train_data, train_labels)
+        except ValueError:
+            # this error occurs if there are already even number of samples
+            return train_data, train_labels
