@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.metrics.pairwise import pairwise_distances
 from enso.config import TEST_SETUP
+from enso.utils import get_plugins
 
 
 def sample(sampler, data, train_labels, train_indices, train_size):
@@ -47,10 +48,4 @@ class Sampler(object):
 
     @classmethod
     def _class_for(cls, sampler_string):
-        from enso.sample.kcenter_sampler import KCenter
-        from enso.sample.random_sampler import Random
-        from enso.sample.orthogonal_sampler import Orthogonal
-        for subclass in cls.__subclasses__():
-            if subclass.__name__ == sampler_string:
-                return subclass
-        raise ValueError("Invalid sampler attempted ({})".format(sampler_string))
+        return get_plugins("sample", [sampler_string])[0]
