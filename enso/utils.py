@@ -18,7 +18,7 @@ def feature_set_location(dataset_name, featurizer):
     return write_location + dump_name
 
 
-def get_plugins(plugin_dir, match_names):
+def get_plugins(plugin_dir, match_names, return_class=False):
     """Responsible for grabbing objects from specified plugin directories."""
     full_plugin_dir_path = os.path.abspath(os.path.join(os.path.dirname(__file__), plugin_dir))
     root, dirs, files = next(os.walk(full_plugin_dir_path))
@@ -40,7 +40,10 @@ def get_plugins(plugin_dir, match_names):
             Config doesn't match classes present.\n%s: %s\nConfig: %s
         """ % (plugin_dir, names, match_names))
 
-    return [relevant_class() for relevant_class in relevant_classes]
+    if return_class:
+        return relevant_classes
+    else:
+        return [relevant_class() for relevant_class in relevant_classes]
 
 
 def get_all_experiment_runs():
