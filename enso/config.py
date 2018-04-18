@@ -7,55 +7,75 @@ RESULTS_DIRECTORY = "Results"
 # Directory for storing features
 FEATURES_DIRECTORY = "Features"
 
-EXPERIMENT_NAME = "benchmark-v1"
+EXPERIMENT_NAME = "SklearnComparison"
 
 # Datasets to featurize or run experiments on
 DATA = {
-    #'Classify/AirlineComplaints',
-    #'Classify/Disaster',
+    # 'Classify/AirlineComplaints',
+    'Classify/AirlineNegativity.medium',
     'Classify/Irony',
-    #'Classify/IMDB.small',
-    #'Classify/Economy',
-    'Classify/Emotion',
-     'Classify/Horror',
+    # 'Classify/Disaster.medium',
+    # 'Classify/Horror.small',
+
+    'Classify/Reddit.10cls.1000',
+    'Classify/Reddit.20cls.500',
+    'Classify/Reddit.5cls.1000',
+
+    # 'Classify/ReligiousTexts',
+    # 'Classify/ShortAnswer',
+    'Classify/TextSpam',
+    'Classify/Disaster',
+    # 'Classify/Economy',
+    # 'Classify/BIA',
+    'Classify/IMDB.small',
     # 'Classify/HotelReviews.small',
-    #'Classify/IdiomEmotion',
-    # 'Classify/Reddit.10cls.1000',
-    # 'Classify/Reddit.20cls.500',
-    # 'Classify/Reddit.5cls.1000',
-    #'Classify/ReligiousTexts',
-    #'Classify/ShortAnswer',
-    #'Classify/TextSpam'
-    # 'Classify/AirlineNegativity.small',
 }
 
 # Featurizers to activate
 FEATURIZERS = {
-    "IndicoStandard",
-    #"IndicoFastText",
-    # "IndicoTransformer",
+    "IndicoTransformer",
+    # "IndicoStandard",
+    # "IndicoSentiment",
+    # "IndicoFastText",
     # "IndicoFinance",
     # "IndicoTopics",
-    # "IndicoSentiment",
+    # "ElmoFeaturizer",
+    # "IndicoTransformerSequence",
+    # "IndicoStandardSequence",
 }
 
 # Experiments to run
 EXPERIMENTS = {
-    "GridSearchLR",
+    # "LR",
+    # "NaiveBayes",
+    # "RandomForest",
+    "RBFSVM",
+    # "ReduceMaxClassifier",
+    # "NormedDotAttnClassifier",
+    # "ReduceMeanClassifier",
+    # "FancyL2DotAttnClassifier",
+    # "StrongRegDotAttnClassifier",
+    # "MulticlassDotAttnClassifier",
+    # "MultiheadAttnClassifier",
+    # "MultiheadAttnV2Classifier",
+    # "RegularizedMLPAttnClassifier",
+    # "SummaryStatsClassifier"
 }
 
 # Metrics to compute
 METRICS = {
-    "RocAuc"
+    "LogLoss",
+    "Accuracy",
+    "MacroRocAuc",
 }
 
 # Test setup metadata
 TEST_SETUP = {
     "train_sizes": [30, 50, 100, 200, 500],
     "n_splits": 10,
-    "samplers": ['Random', 'Orthogonal'],
+    "samplers": ['Random'],
     "sampling_size": .3,
-    "resamplings": ['none', 'SMOTE', 'ADASYN']
+    "resamplings": ['RandomOverSampler']
 }
 
 # Visualizations to display
@@ -68,15 +88,17 @@ VISUALIZATION_OPTIONS = {
     'display': True,
     'save': True,
     'FacetGridVisualizer': {
-        'x_tile': 'Dataset',
-        'y_tile': 'Sampler',
+        'x_tile': 'Metric',
+        'y_tile': 'Dataset',
         'x_axis': 'TrainSize',
         'y_axis': 'Result',
-        'lines': 'Resampling',
+        'lines': ['Experiment', 'Featurizer', 'Hyperparams'],
         'category': 'merge',
-        'cv': 'mean'
+        'cv': 'mean',
+        'filename': 'TestResult'
     }
 }
 
 
-N_CORES = 8
+N_GPUS = 3
+N_CORES = 4

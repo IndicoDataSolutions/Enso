@@ -10,11 +10,11 @@ import pandas as pd
 from enso.config import RESULTS_DIRECTORY, FEATURES_DIRECTORY
 
 
-def feature_set_location(dataset_name, featurizer):
+def feature_set_location(dataset_name, featurizer_name):
     """Responsible for generating filenames for generated feature sets."""
     base_dir, _, filename = dataset_name.rpartition('/')
     write_location = "%s/%s/" % (FEATURES_DIRECTORY, base_dir)
-    dump_name = "%s_%s_features.csv" % (filename, featurizer.__class__.__name__)
+    dump_name = "%s_%s_features.csv" % (filename, featurizer_name)
     return write_location + dump_name
 
 

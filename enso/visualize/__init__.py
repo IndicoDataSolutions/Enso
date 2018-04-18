@@ -55,7 +55,14 @@ class Visualization(object):
         Read data file that corresponds with the provided results id and return
         resulting pd.DataFrame() instance.
         """
-        return pd.read_csv('{}/{}/Results.csv'.format(RESULTS_DIRECTORY, results_id))
+        df = pd.read_csv('{}/{}/Results.csv'.format(RESULTS_DIRECTORY, results_id))
+        try:
+            df.drop(columns=["Unnamed: 0"], axis=1, inplace=True)
+        except ValueError:
+            # no problem
+            df['ID'] = df['ID'].astype(str)
+            pass
+        return df
 
     def visualize(self):
         """Pass visualization options defined in config to instantiated visualizations."""

@@ -1,4 +1,5 @@
 import numpy as np
+import random
 from sklearn.metrics.pairwise import pairwise_distances
 from enso.config import TEST_SETUP
 from enso.utils import get_plugins
@@ -27,9 +28,13 @@ class Sampler(object):
         return self._classes
 
     def choose_starting_points(self):
+        """
+        Ensures a minimum of one label per class is chosen
+        """
         points = []
         for klass in self.classes:
-            index = self.train_labels.index(klass)
+            indices = [i for i, val in enumerate(self.train_labels) if val == klass]
+            index = random.choice(indices)
             points.append(self.train_indices[index])
         return points
 

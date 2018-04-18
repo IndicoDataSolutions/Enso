@@ -1,5 +1,6 @@
 """Module for creating facet visualization."""
 import os.path
+import json
 
 import seaborn as sns
 import matplotlib.patches as patches
@@ -23,11 +24,25 @@ class FacetGridVisualizer(ClassificationVisualizer):
         category=None,
         cv=None,
         results_id=None,
+        filename='FacetGridVisualizer',
         **kwargs
     ):
         """Create a tiled visualization of experiment results."""
         sns.set(style="ticks", color_codes=True)
-        y_limits = (min(results.Result.values), 1.0)
+
+        # TODO: REMOVE ME -- THIS IS CUSTOM LOGIC FOR BIA DISPLAY
+        # results = results[~results.ID.isin(["1", "2"])]
+
+        # allow joining multiple series into a single key for plotted lines
+
+        # results = results[results['Hyperparams'].apply(lambda x: json.loads(x).get('l2_attn')) != 0.1]
+        if isinstance(lines, (tuple, list)):
+            results['key'] = results[lines].apply(lambda x: ','.join(x), axis=1)
+            lines = 'key'
+
+        n_lines = len(results[lines].unique())
+        rc = {'lines.linewidth': 1, 'lines.markersize': 1}
+        sns.set_context("paper", rc=rc)
         grid = sns.FacetGrid(
             results,
             col=x_tile,
@@ -36,13 +51,15 @@ class FacetGridVisualizer(ClassificationVisualizer):
             size=5,
             legend_out=False,
             margin_titles=True,
-            sharey=True,
-            ylim=y_limits,
-            palette='deep'
+            sharey=False,
+            sharex=False,
+            # ylim=y_limits,
+            palette=sns.color_palette("hls", n_lines)
         )
         grid = grid.map(sns.pointplot, x_axis, y_axis)
-        colors = sns.color_palette('deep').as_hex()[:len(grid.hue_names)]
+        colors = sns.color_palette("hls", n_lines).as_hex()[:len(grid.hue_names)]
         handles = [patches.Patch(color=col, label=label) for col, label in zip(colors, grid.hue_names)]
         plt.legend(handles=handles)
-        filename = os.path.join(RESULTS_DIRECTORY, results_id, "{}.png".format(self.__class__.__name__))
+        plt.tight_layout()
+        filename = os.path.join(RESULTS_DIRECTORY, results_id, "{}.png".format(filename))
         plt.savefig(filename)

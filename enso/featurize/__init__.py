@@ -4,12 +4,13 @@ import logging
 import pandas as pd
 
 import concurrent.futures
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 from enso.config import FEATURIZERS, DATA, N_CORES
 from enso.utils import get_plugins, feature_set_location, BaseObject
+from sklearn.externals import joblib
 
 
-POOL = ProcessPoolExecutor(N_CORES)
+POOL = ThreadPoolExecutor(N_CORES)
 
 
 class Featurization(object):
@@ -69,11 +70,10 @@ class Featurizer(BaseObject):
                 Featurizers must implement the featurize_list, or the featurize method
             """)
         new_dataset = dataset.copy()  # Don't want to modify the underlying dataframe
-        new_dataset['Text'] = features
-        new_dataset.rename(columns={'Text': 'Features'}, inplace=True)
+        new_dataset['Features'] = features
         self._write(new_dataset, dataset_name)
 
     def _write(self, featurized_dataset, dataset_name):
         """Responsible for taking a featurized dataset and writing it out to the filesystem."""
-        dump_location = feature_set_location(dataset_name, self)
-        featurized_dataset.to_csv(dump_location)
+        dump_location = feature_set_location(dataset_name, self.__class__.__name__)
+        joblib.dump(featurized_dataset, dump_location)
