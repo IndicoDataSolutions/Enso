@@ -14,12 +14,12 @@ class NaiveBayes(Experiment):
         super().__init__(*args, **kwargs)
         self.model = GaussianNB()
 
-    def train(self, training_data, training_labels):
+    def fit(self, X, y):
         """Run grid search to optimize hyper-parameters, then trains the final model."""
-        self.model.fit(training_data, training_labels)
+        self.model.fit(X, y)
 
-    def predict(self, dataset, **kwargs):
+    def predict(self, X, **kwargs):
         """Predict results on test set based on current internal model."""
         labels = self.model.classes_
-        probabilities = self.model.predict_proba(dataset)
+        probabilities = self.model.predict_proba(X)
         return pd.DataFrame({label: probabilities[:, i] for i, label in enumerate(labels)})

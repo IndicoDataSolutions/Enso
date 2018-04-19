@@ -20,19 +20,19 @@ class GridSearch(ClassificationExperiment):
         self.base_model = None
         self.best_model = None
 
-    def train(self, training_data, training_labels):
+    def fit(self, X, y):
         """Run grid search to optimize hyper-parameters, then trains the final model."""
         classifier = GridSearchCV(
             self.base_model(),
             param_grid=self.param_grid
         )
-        classifier.fit(training_data, training_labels)
+        classifier.fit(X, y)
 
         self.best_model = self.base_model(**classifier.best_params_)
-        self.best_model.fit(training_data, training_labels)
+        self.best_model.fit(X, y)
 
-    def predict(self, dataset, **kwargs):
+    def predict(self, X, **kwargs):
         """Predict results on test set based on current internal model."""
         labels = self.best_model.classes_
-        probabilities = self.best_model.predict_proba(dataset)
+        probabilities = self.best_model.predict_proba(X)
         return pd.DataFrame({label: probabilities[:, i] for i, label in enumerate(labels)})

@@ -192,22 +192,23 @@ class Experiment(BaseObject):
 
     param_grid = {}
 
-    @abc.abstractmethod
-    def train(self, dataset, target):
-        """
-        General endpoint to run training for a given experiment.
+    def fit(self, X, y):
+        r"""
+        General endpoint to kick off training of a given target model.
 
-        dataset is a subselected version of the dataset to avoid test/train contamination.
-        Target refers to the column of interest.
-
-        Even if this method doesn't do anything it must be implemented
+        :param X: `np.ndarray` of input features sampled from training data.
+        :param y: `np.ndarray` of corresponding targets sampled from training data.
         """
         raise NotImplementedError
 
     @abc.abstractmethod
-    def predict(self, dataset):
+    def predict(self, X):
         """
-        General endpoint to predict on the test set for a given experiment.
+        Produce `pandas.DataFrame` that maps class labels to class probabilities given test inputs.
+
+        :param X: `np.ndarray` of input features from test data.
+        :return: :class: `pandas.DataFrame` object
+        :rtype: pandas.DataFrame
 
         Dataset only contains relvant rows. Prediction format is dependant on class of experiment
         """
