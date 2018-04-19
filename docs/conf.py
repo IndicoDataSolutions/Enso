@@ -20,8 +20,8 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Enso'
-copyright = '2018, Slater Victoroff, Madison May'
-author = 'Slater Victoroff, Madison May'
+copyright = '2018, Slater Victoroff, Madison May, Maritza Ebling'
+author = 'Slater Victoroff, Madison May, Maritza Ebling'
 
 # The short X.Y version
 version = ''
@@ -131,7 +131,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'Enso.tex', 'Enso Documentation',
-     'Slater Victoroff, Madison May', 'manual'),
+     'Slater Victoroff, Madison May', 'Maritza Ebling', 'manual'),
 ]
 
 
