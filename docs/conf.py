@@ -131,7 +131,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'Enso.tex', 'Enso Documentation',
-     'Slater Victoroff, Madison May', 'Maritza Ebling', 'manual'),
+     'Slater Victoroff, Madison May, Maritza Ebling', 'manual'),
 ]
 
 
