@@ -7,7 +7,7 @@ RESULTS_DIRECTORY = "Results"
 # Directory for storing features
 FEATURES_DIRECTORY = "Features"
 
-EXPERIMENT_NAME = "SklearnComparison"
+EXPERIMENT_NAME = "SklearnComparisonTransformer"
 
 # Datasets to featurize or run experiments on
 DATA = {
@@ -46,9 +46,9 @@ FEATURIZERS = {
 
 # Experiments to run
 EXPERIMENTS = {
-    # "LR",
-    # "NaiveBayes",
-    # "RandomForest",
+    "LR",
+    "NaiveBayes",
+    "RandomForest",
     "RBFSVM",
     # "ReduceMaxClassifier",
     # "NormedDotAttnClassifier",

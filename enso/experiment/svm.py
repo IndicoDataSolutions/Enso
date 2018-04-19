@@ -8,7 +8,7 @@ from enso.experiment import Experiment
 class RBFSVM(Experiment):
     """Basic implementation of a grid-search optimized Logistic Regression."""
 
-    param_grid = {'C': [0.01, 0.1, 1.0, 10., 100.], 'gamma': [0.1, 1.0, 10.], 'probability': [True]}
+    param_grid = {}
 
     def __init__(self, *args, **kwargs):
         """Initialize internal classifier."""
@@ -17,7 +17,7 @@ class RBFSVM(Experiment):
 
     def train(self, training_data, training_labels):
         """Run grid search to optimize hyper-parameters, then trains the final model."""
-        classifier = GridSearchCV(self.model(), self.param_grid)
+        classifier = GridSearchCV(self.model(), {'C': [0.01, 0.1, 1.0, 10., 100.], 'gamma': [0.1, 1.0, 10.], 'probability': [True]})
         classifier.fit(training_data, training_labels)
 
         self.active_model = self.model(**classifier.best_params_)
