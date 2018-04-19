@@ -92,11 +92,13 @@ class Visualizer(BaseObject):
         super().__init__(*args, **kwargs)
 
     @abc.abstractmethod
-    def visualize(self, results, display=True, write=True):
+    def visualize(self, results, **kwargs):
         """
         Create visualization for the given test_run.
         Setting `display` to `True` will default to showing the generated visualizations as they are created,
         while setting `write` to `True` will default to saving the generated image in the Results directory.
+
+        :param results: pd.DataFrame of results, loaded from results .csv file.
         """
         raise NotImplementedError
 
