@@ -5,7 +5,7 @@ from enso.experiment.grid_search import GridSearch
 
 
 class RandomForestCV(GridSearch):
-    """Basic implementation of a grid-search optimized RandomForest."""
+    """Implementation of a grid-search optimized RandomForest."""
 
     def __init__(self, *args, **kwargs):
         """Initialize internal classifier."""

@@ -7,7 +7,7 @@ from enso.experiment.grid_search import GridSearch
 
 
 class LogisticRegressionCV(GridSearch):
-    """Basic implementation of a grid-search optimized Logistic Regression."""
+    """Implementation of a grid-search optimized Logistic Regression model."""
 
 
 

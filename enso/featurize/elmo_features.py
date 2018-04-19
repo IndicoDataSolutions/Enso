@@ -13,7 +13,7 @@ class ElmoFeaturizer(Featurizer):
     def load(self):
         self.elmo_embedder = ElmoEmbedder()
 
-    def featurize_list(self, dataset, batch_size=10):
+    def featurize_batch(self, dataset, batch_size=10):
         all_features = []
         for batch_start in tqdm(range(0, len(dataset), batch_size)):
             batch_docs = list(dataset[batch_start:batch_start + batch_size])

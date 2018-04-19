@@ -10,6 +10,65 @@ Welcome to Enso's documentation!
 
 An overview of the developer interface to Enso.
 
-.. autoclass:: Experiment
-.. autoclass:: Featurizer
-.. autoclass:: Visualizer
+
+Enso workflow
+==============
+
+Enso is tool intended to provide a standard interface for the benchmarking of embedding and transfer learning methods for natural language processing tasks.  Although there are other effective approaches to applying transfer learning to natural language processing, it's built on the assumption that the approach to "transfer learning" adheres to the below flow:
+
+- "Featurization" of a given dataset via a pre-trained source model (`python -m enso.featurize`)
+- Separation of re-represented data into train and test sets
+- Training of a target model using the featurized training examples as inputs (`python -m enso.experiment`)
+- Benchmarking of target model on featurized test examples
+- Visualization and manual inspection of results (`python -m enso.visualize`)
+
+
+Featurization
+=============
+.. autoclass:: enso.featurize.Featurizer
+    :inherited-members:
+
+
+Target Model Training
+=====================
+
+Base Classes
+-------------
+.. autoclass:: enso.experiment.Experiment
+    :inherited-members:
+
+.. autoclass:: enso.experiment.ClassificationExperiment
+    :inherited-members:
+
+.. autoclass:: enso.experiment.grid_search.GridSearch
+    :inherited-members:
+
+
+Included Experiments:
+------------------------------
+
+.. autoclass:: enso.experiment.logistic_regression.LogisticRegressionCV
+    :inherited-members:
+
+.. autoclass:: enso.experiment.naive_bayes.NaiveBayes
+    :inherited-members:
+
+.. autoclass:: enso.experiment.random_forest.RandomForestCV
+    :inherited-members:
+
+.. autoclass:: enso.experiment.svm.SupportVectorMachineCV
+    :inherited-members:
+
+
+Visualization of Results
+========================
+
+Base Classes
+------------
+.. autoclass:: enso.visualize.Visualizer
+    :inherited-members:
+
+Included Visualizers
+---------------------
+.. autoclass:: enso.visualize.facet.FacetGridVisualizer
+    :inherited-members:

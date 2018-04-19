@@ -5,7 +5,7 @@ from enso.experiment import Experiment
 
 
 class NaiveBayes(Experiment):
-    """Basic implementation of a grid-search optimized Logistic Regression."""
+    """Gaussian naive bayes model."""
 
     param_grid = {}
 
@@ -15,7 +15,6 @@ class NaiveBayes(Experiment):
         self.model = GaussianNB()
 
     def fit(self, X, y):
-        """Run grid search to optimize hyper-parameters, then trains the final model."""
         self.model.fit(X, y)
 
     def predict(self, X, **kwargs):

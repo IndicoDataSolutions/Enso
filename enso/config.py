@@ -1,4 +1,5 @@
 import indicoio
+import multiprocessing
 
 """Constants to configure the rest of Enso."""
 # Directory for storing results
@@ -101,4 +102,4 @@ VISUALIZATION_OPTIONS = {
 
 
 N_GPUS = 3
-N_CORES = 4
+N_CORES = multiprocessing.cpu_count()

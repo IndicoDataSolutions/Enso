@@ -30,12 +30,6 @@ class FacetGridVisualizer(ClassificationVisualizer):
         """Create a tiled visualization of experiment results."""
         sns.set(style="ticks", color_codes=True)
 
-        # TODO: REMOVE ME -- THIS IS CUSTOM LOGIC FOR BIA DISPLAY
-        # results = results[~results.ID.isin(["1", "2"])]
-
-        # allow joining multiple series into a single key for plotted lines
-
-        # results = results[results['Hyperparams'].apply(lambda x: json.loads(x).get('l2_attn')) != 0.1]
         if isinstance(lines, (tuple, list)):
             results['key'] = results[lines].apply(lambda x: ','.join(x), axis=1)
             lines = 'key'
@@ -53,7 +47,6 @@ class FacetGridVisualizer(ClassificationVisualizer):
             margin_titles=True,
             sharey=False,
             sharex=False,
-            # ylim=y_limits,
             palette=sns.color_palette("hls", n_lines)
         )
         grid = grid.map(sns.pointplot, x_axis, y_axis)

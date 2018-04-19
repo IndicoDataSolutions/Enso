@@ -26,57 +26,57 @@ def featurization_factory(domain, **kwargs):
 class IndicoStandard(Featurizer):
     """Featurizer that uses indico's standard features."""
 
-    featurize_list = featurization_factory("standard")
+    featurize_batch = featurization_factory("standard")
 
 
 class IndicoSentiment(Featurizer):
     """Featurizer that uses indico's sentiment features."""
 
-    featurize_list = featurization_factory("sentiment")
+    featurize_batch = featurization_factory("sentiment")
 
 
 class IndicoTopics(Featurizer):
     """Featurizer that uses indico's topics features."""
 
-    featurize_list = featurization_factory("topics")
+    featurize_batch = featurization_factory("topics")
 
 
 class IndicoFinance(Featurizer):
     """Featurizer that uses indico's finance features."""
 
-    featurize_list = featurization_factory("finance")
+    featurize_batch = featurization_factory("finance")
 
 
 class IndicoTransformer(Featurizer):
     """Featurizer that uses indico's mean pooled transformer features."""
 
-    featurize_list = featurization_factory("transformer")
+    featurize_batch = featurization_factory("transformer")
 
 
 class IndicoTransformerSequence(Featurizer):
     """Featurizer that uses indico's transformer sequence features."""
 
-    featurize_list = featurization_factory("transformer", sequence=True)
+    featurize_batch = featurization_factory("transformer", sequence=True)
 
 
 class IndicoStandardSequence(Featurizer):
     """Featurizer that uses indico's standard sequence features"""
 
-    featurize_list = featurization_factory("standard", sequence=True)
+    featurize_batch = featurization_factory("standard", sequence=True)
 
 
 class IndicoEmotion(Featurizer):
     """Featurizer that uses indico's finance features."""
 
-    featurize_list = featurization_factory("emotion")
+    featurize_batch = featurization_factory("emotion")
 
 
 class IndicoFastText(Featurizer):
     """Featurizer that uses indico's finance features."""
 
-    featurize_list = featurization_factory("fasttext")
+    featurize_batch = featurization_factory("fasttext")
 
 class IndicoElmo(Featurizer):
     """Featurizer that uses indico's finance features."""
 
-    featurize_list = featurization_factory("elmo")
+    featurize_batch = featurization_factory("elmo")

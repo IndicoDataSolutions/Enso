@@ -1,7 +1,5 @@
 """
-.. automodule:: featurize
-
-    Entrypoint for running featurization according to config.py.
+Entrypoint for featurizing datasets according to the specifications of `config.py`.
 """
 
 import logging
@@ -9,24 +7,25 @@ import logging
 import pandas as pd
 
 import concurrent.futures
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from enso.config import FEATURIZERS, DATA, N_CORES
 from enso.utils import get_plugins, feature_set_location, BaseObject
 from sklearn.externals import joblib
 
 
-POOL = ThreadPoolExecutor(N_CORES)
-
-
 class Featurization(object):
-    """Class for wrapped featurization functionality."""
+    """
+    Orchestrates the application of the selected featurizers to a set of featurizers
+    according to the settings specified in `config.py`
+    """
 
     def __init__(self):
-        """Responsible for searching featurizer module and importing those specified in config."""
+        """
+        Responsible for searching featurizer module and importing those specified in config.
+        """
         self.featurizers = get_plugins('featurize', FEATURIZERS)
 
-    def run(self):
-        """Responsible for running actual featurization jobs."""
+    def _run(self, POOL):
         futures = {}
         for featurizer in self.featurizers:
             featurizer.load()
@@ -50,6 +49,18 @@ class Featurization(object):
                     featurizer=featurizer.__class__.__name__
                 ))
 
+    def run(self, n_jobs=N_CORES):
+        """
+        Responsible for ensuring every active featurizer is applied to every active dataset.
+        Featurization is parallelized by default, with `n_jobs` set to number of cores specified in
+        config.py.  If n_jobs is set to 1 or less, featurization is run in a single threaded setting.
+        """
+        if n_jobs > 1:
+            POOL = ProcessPoolExecutor(n_jobs)
+            self._run(POOL)
+        else:
+            self._run(ThreadPoolExecutor(1))
+
     @staticmethod
     def _load_dataset(dataset_name):
         """Responsible for finding datasets and reading them into dataframes."""
@@ -62,7 +73,12 @@ class Featurization(object):
 
 
 class Featurizer(BaseObject):
-    """Base class for building featurizers."""
+    """
+    Base class for building featurizers.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def load(self):
         """
@@ -75,10 +91,21 @@ class Featurizer(BaseObject):
         pass
 
     def generate(self, dataset, dataset_name):
-        """Responsible for generating appropriately named feature datasets."""
+        """
+        Given a `dataset` pandas DataFrame and string `dataset_name`,
+        add column `"Features"` to the provided `pd.DataFrame` and serialize the result
+        to the results folder listed in `config.py`.
+
+        If a given featurizer exposes a :func:`featurize_batch` method, that method will be
+        called to perform featurization.  Otherwise, :class:`Featurizer`'s will fall
+        back to calling :func:`featurize` on each individual example.
+
+        :param dataset: `pd.DataFrame` object that must contain a `Text` column.
+        :param dataset_name: `str` name to use as a save location in the `config.FEATURES_DIRECTORY`.
+        """
         features = []
-        if callable(getattr(self, "featurize_list", None)):
-            features = self.featurize_list(dataset['Text'])
+        if callable(getattr(self, "featurize_batch", None)):
+            features = self.featurize_batch(dataset['Text'])
         elif callable(getattr(self, "featurize", None)):
             features = [self.featurize(entry) for entry in dataset['Text']]
         else:
@@ -93,3 +120,18 @@ class Featurizer(BaseObject):
         """Responsible for taking a featurized dataset and writing it out to the filesystem."""
         dump_location = feature_set_location(dataset_name, self.__class__.__name__)
         joblib.dump(featurized_dataset, dump_location)
+
+    def featurize_batch(self, X, batch_size=32):
+        """
+        :param X: `pd.Series` that contains raw text to featurize
+        :param batch_size: int number of examples to process per batch
+        :returns: list of np.ndarray representations of text
+        """
+        raise NotImplementedError
+
+    def featurize(self, text):
+        """
+        :param text: text of a singular example
+        :returns: `np.ndarray` representation of text
+        """
+        raise NotImplementedError

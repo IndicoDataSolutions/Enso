@@ -78,5 +78,7 @@ class BaseObject(object):
     """Base object for all plugins."""
 
     def name(self):
-        """Helper function to grab class names cleanly."""
+        """
+        Prints the name of the current class to aid logging and result formatting.
+        """
         return self.__class__.__name__

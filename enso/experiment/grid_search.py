@@ -10,18 +10,28 @@ class GridSearch(ClassificationExperiment):
     """
     Base class for classification models that select hyperparameters via cross validation.
     Assumes the `base_model` property set on child classes inherits from
-    `sklearn.base.BaseEstimator` and implements `predict_proba`.
+    `sklearn.base.BaseEstimator` and implements `predict_proba` and `score`.
+
+    :cvar base_model: Class name of base model, must be set by child classes.
+    :cvar param_grid: Dictionary that maps from class paramaters to an array of values to search over.  Must be set by child classes.
     """
+
+    param_grid = {}
+    base_model = None
 
     def __init__(self, *args, **kwargs):
         """Initialize internal classifier."""
         super().__init__(*args, **kwargs)
-        self.param_grid = {}
-        self.base_model = None
         self.best_model = None
 
     def fit(self, X, y):
-        """Run grid search to optimize hyper-parameters, then trains the final model."""
+        """
+        Runs grid search over `self.param_grid` on `self.base_model` to optimize hyper-parameters using
+        KFolds cross-validation, then retrains using the selected parameters on the full training set.
+
+        :param X: `np.ndarray` of input features sampled from training data.
+        :param y: `np.ndarray` of corresponding targets sampled from training data.
+        """
         classifier = GridSearchCV(
             self.base_model(),
             param_grid=self.param_grid

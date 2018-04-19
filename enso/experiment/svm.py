@@ -5,7 +5,7 @@ from enso.experiment.grid_search import GridSearch
 
 
 class SupportVectorMachineCV(GridSearch):
-    """Basic implementation of a grid-search optimized Logistic Regression."""
+    """Implementation of a grid-search optimized RBF-SVM."""
 
     def __init__(self, *args, **kwargs):
         """Initialize internal classifier."""

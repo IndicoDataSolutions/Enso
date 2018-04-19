@@ -1,4 +1,6 @@
-"""Main method for running experiments as configured in config.py."""
+"""
+Main method for running experiments according to the specifications of `config.py`.
+"""
 import os
 import logging
 from shutil import copyfile
@@ -22,7 +24,6 @@ from enso.resample import resample
 from enso.sample import sample
 from enso.utils import feature_set_location, get_plugins, BaseObject
 from enso.config import FEATURIZERS, DATA, EXPERIMENTS, METRICS, TEST_SETUP, RESULTS_DIRECTORY, N_GPUS, N_CORES
-
 
 POOL = ProcessPoolExecutor(N_CORES)
 
@@ -175,26 +176,38 @@ class Experimentation(object):
         return joblib.load(read_location)
 
 
-class CheckOutput(object):
+class VerifyOutput(object):
     """Decorator class to add output checks to different experiments classes."""
 
     def __new__(cls, *args):
         """Wrap predict method with appropriate decorator check."""
-        experiment_class = super(CheckOutput, cls).__new__(cls, *args)
-        experiment_class.predict = experiment_class.verify_output(experiment_class.predict)
+        experiment_class = super(VerifyOutput, cls).__new__(cls, *args)
+        experiment_class.predict = experiment_class._verify_output(experiment_class.predict)
         return experiment_class
 
 
 class Experiment(BaseObject):
-    """Base class for all Experiments."""
+    """
+    Base class for all :class:`Experiment`'s.
 
-    __metaclass__ = CheckOutput
+    If hyperparameter selection is necessary for a given target model, the :class:`Experiment`
+    is responsible for performing hyperparameter selection withing the context of :func:`fit`.
 
-    param_grid = {}
+    """
 
+    __metaclass__ = VerifyOutput
+
+    def __init__(self, *args, **kwargs):
+        """
+        Instantiate a new experiment
+        """
+        super().__init__(*args, **kwargs)
+
+    @abc.abstractmethod
     def fit(self, X, y):
-        r"""
-        General endpoint to kick off training of a given target model.
+        """
+        Method to begin training of a given target model provided a set of input features
+        and corresponding targets.
 
         :param X: `np.ndarray` of input features sampled from training data.
         :param y: `np.ndarray` of corresponding targets sampled from training data.
@@ -204,27 +217,38 @@ class Experiment(BaseObject):
     @abc.abstractmethod
     def predict(self, X):
         """
-        Produce `pandas.DataFrame` that maps class labels to class probabilities given test inputs.
+        Produce a `pd.DataFrame` object contains target model predictions.
 
         :param X: `np.ndarray` of input features from test data.
-        :return: :class: `pandas.DataFrame` object
-        :rtype: pandas.DataFrame
+        :return: `pd.DataFrame` of target model predictions
 
-        Dataset only contains relvant rows. Prediction format is dependant on class of experiment
+        Prediction format is dependant on class of experiment.
         """
         raise NotImplementedError
 
     @classmethod
-    def verify_output(cls, function):
-        """Check predict output to ensure it complies with the experiment type."""
+    def _verify_output(cls, function):
+        """
+        Check predict output to ensure it complies with the experiment type.
+        """
         return function
 
 
 class ClassificationExperiment(Experiment):
     """Base class for classification experiments."""
 
+    @abc.abstractmethod
+    def predict(self, X):
+        """
+        Produce a `pd.DataFrame` object that maps class labels to class probabilities given test inputs.
+
+        :param X: `np.ndarray` of input features from test data.
+        :return: `pd.DataFrame` object. Each column should represent a class, and each row should represent an array of probabilities across classes.
+        """
+        raise NotImplementedError
+
     @classmethod
-    def verify_output(cls, func):
+    def _verify_output(cls, func):
         """Verify the output of classification tasks."""
         @wraps(func)
         def wrapped_predict(self, dataset):
@@ -240,10 +264,12 @@ class ClassificationExperiment(Experiment):
 class RegressionExperiment(Experiment):
     """Base class for regression experiments."""
 
-    pass
+    def __init__(self, *args, **kwargs):
+        raise NotImplementedError
 
 
 class MatchingExperiment(Experiment):
     """Base class for matching experiments."""
 
-    pass
+    def __init__(self, *args, **kwargs):
+        raise NotImplementedError

@@ -1,4 +1,6 @@
-"""Main file for creating visualizations."""
+"""
+Entrypoint for creating visualizations according to the specifications of `config.py`.
+"""
 import logging
 import abc
 import ast
@@ -19,7 +21,10 @@ matplotlib.use("Agg")
 
 
 class Visualization(object):
-    """Object for visualization orchestration."""
+    """
+    Orchestrates the application of a set of visualizers to a given result file
+    using the settings specified in `config.py`
+    """
 
     def __init__(self, test_run=None):
         """Visualize results from a given test run."""
@@ -65,8 +70,10 @@ class Visualization(object):
         return df
 
     def visualize(self):
-        """Pass visualization options defined in config to instantiated visualizations."""
-        # Grabs all settings that don't have a dict nested below.
+        """
+        Provided with a detailed configuration from `config.py`, iterates over all available :class:`Visualizer`'s and
+        runs their respective :func:`Visualizer.visualize` methods using the provided settings.
+        """
         global_options = {a: b for a, b in VISUALIZATION_OPTIONS.items() if not isinstance(b, dict)}
         global_options['results'] = self.results
         global_options['results_id'] = self.results_id
@@ -77,20 +84,27 @@ class Visualization(object):
 
 
 class Visualizer(BaseObject):
-    """Base class for creating visualizations."""
+    """
+    Base class for creating visualizations.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @abc.abstractmethod
     def visualize(self, results, display=True, write=True):
         """
         Create visualization for the given test_run.
-        `display`=True will default to showing the generated visualizations as they are created.
-        `write`=True will default to saving the generated image in the Results directory.
+        Setting `display` to `True` will default to showing the generated visualizations as they are created,
+        while setting `write` to `True` will default to saving the generated image in the Results directory.
         """
         raise NotImplementedError
 
 
 class DataHandler(abc.ABCMeta):
-    """Handles cross-validation and category strategies on results before passing them on."""
+    """
+    Handles cross-validation and category strategies on results before passing them on.
+    """
 
     def __new__(cls, *args, **kwargs):
         """Decorate visualize method with cv and category handlers."""
@@ -101,7 +115,9 @@ class DataHandler(abc.ABCMeta):
 
 
 class ClassificationVisualizer(Visualizer):
-    """Base class for classification visualizations."""
+    """
+    Base class for classification visualizations.
+    """
 
     __metaclass__ = DataHandler
 
