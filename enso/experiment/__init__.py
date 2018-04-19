@@ -81,44 +81,35 @@ class Experimentation(object):
                     current_setting['TrainSize']
                 )
                 for experiment_cls in self.experiments:
-                    param_keys = experiment_cls.param_grid.keys()
-                    print(experiment_cls, experiment_cls.param_grid)
-                    param_values = itertools.product(*experiment_cls.param_grid.values())
-                    for param_setting in param_values:
-                        setting_dict = dict(zip(param_keys, param_setting))
-                        experiment = experiment_cls(**setting_dict)
-                        for setting, value in setting_dict.items():
-                            if callable(value):
-                                setting_dict[setting] = value.__name__
+                    experiment = experiment_cls()
 
-                        name = experiment.name()
-                        internal_setting = {
-                            'Experiment': name,
-                            'Hyperparams': json.dumps(setting_dict)
-                        }
-                        internal_setting.update(current_setting)
-                        print("Training with settings {}".format(internal_setting))
-                        try:
-                            # You might find yourself wondering why we're using lists here instead of np arrays
-                            # The answer is that pandas sucks.
-                            train_set = list(dataset['Features'].iloc[train])
-                            train_labels = list(dataset[target].iloc[train])
-                            test_set = list(dataset['Features'].iloc[test])
-                            test_labels = list(dataset[target].iloc[test])
-                            experiment.train(*resample(current_setting['Resampling'], train_set, train_labels))
+                    name = experiment.name()
+                    internal_setting = {
+                        'Experiment': name
+                    }
+                    internal_setting.update(current_setting)
+                    print("Training with settings {}".format(internal_setting))
+                    try:
+                        # You might find yourself wondering why we're using lists here instead of np arrays
+                        # The answer is that pandas sucks.
+                        train_set = list(dataset['Features'].iloc[train])
+                        train_labels = list(dataset[target].iloc[train])
+                        test_set = list(dataset['Features'].iloc[test])
+                        test_labels = list(dataset[target].iloc[test])
+                        experiment.train(*resample(current_setting['Resampling'], train_set, train_labels))
 
-                            test_pred = experiment.predict(test_set, subset='TEST')
-                            train_pred = experiment.predict(train_set, subset='TRAIN')
-                            result = self._measure_experiment(
-                                target=test_labels,
-                                result=test_pred,
-                                train_target=train_labels,
-                                train_result=train_pred,
-                                internal_setting=internal_setting
-                            )
-                            self._dump_results(result, experiment_name=self.name)
-                        except Exception:
-                            logging.exception("Failed to run experiment: {}".format(internal_setting))
+                        test_pred = experiment.predict(test_set, subset='TEST')
+                        train_pred = experiment.predict(train_set, subset='TRAIN')
+                        result = self._measure_experiment(
+                            target=test_labels,
+                            result=test_pred,
+                            train_target=train_labels,
+                            train_result=train_pred,
+                            internal_setting=internal_setting
+                        )
+                        self._dump_results(result, experiment_name=self.name)
+                    except Exception:
+                        logging.exception("Failed to run experiment: {}".format(internal_setting))
         return results
 
     def _measure_experiment(self, target, result, train_target=None, train_result=None, internal_setting=None, test_key='Result', train_key='TrainResult'):
@@ -184,7 +175,7 @@ class Experimentation(object):
         return joblib.load(read_location)
 
 
-class CheckOutput(abc.ABCMeta):
+class CheckOutput(object):
     """Decorator class to add output checks to different experiments classes."""
 
     def __new__(cls, *args):

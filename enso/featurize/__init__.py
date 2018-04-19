@@ -1,4 +1,9 @@
-"""Main method for running featurization according to config.py."""
+"""
+.. automodule:: featurize
+
+    Entrypoint for running featurization according to config.py.
+"""
+
 import logging
 
 import pandas as pd

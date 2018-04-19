@@ -7,7 +7,7 @@ RESULTS_DIRECTORY = "Results"
 # Directory for storing features
 FEATURES_DIRECTORY = "Features"
 
-EXPERIMENT_NAME = "SklearnComparisonTransformer"
+EXPERIMENT_NAME = "Refactoring"
 
 # Datasets to featurize or run experiments on
 DATA = {
@@ -33,8 +33,8 @@ DATA = {
 
 # Featurizers to activate
 FEATURIZERS = {
-    "IndicoTransformer",
-    # "IndicoStandard",
+    # "IndicoTransformer",
+    "IndicoStandard",
     # "IndicoSentiment",
     # "IndicoFastText",
     # "IndicoFinance",
@@ -46,10 +46,10 @@ FEATURIZERS = {
 
 # Experiments to run
 EXPERIMENTS = {
-    "LR",
+    "LogisticRegressionCV",
     "NaiveBayes",
-    "RandomForest",
-    "RBFSVM",
+    "RandomForestCV",
+    "SupportVectorMachineCV",
     # "ReduceMaxClassifier",
     # "NormedDotAttnClassifier",
     # "ReduceMeanClassifier",
@@ -92,7 +92,7 @@ VISUALIZATION_OPTIONS = {
         'y_tile': 'Dataset',
         'x_axis': 'TrainSize',
         'y_axis': 'Result',
-        'lines': ['Experiment', 'Featurizer', 'Hyperparams'],
+        'lines': ['Experiment', 'Featurizer'],
         'category': 'merge',
         'cv': 'mean',
         'filename': 'TestResult'
