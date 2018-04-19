@@ -28,9 +28,10 @@ class Featurization(object):
     def run(self):
         """Responsible for running actual featurization jobs."""
         futures = {}
-        for dataset_name in DATA:
-            dataset = self._load_dataset(dataset_name)
-            for featurizer in self.featurizers:
+        for featurizer in self.featurizers:
+            featurizer.load()
+            for dataset_name in DATA:
+                dataset = self._load_dataset(dataset_name)
                 logging.info("Featurizing {} with {}....".format(dataset_name, featurizer.__class__.__name__))
                 future = POOL.submit(featurizer.generate, dataset, dataset_name)
                 futures[future] = (featurizer, dataset_name)
@@ -63,8 +64,18 @@ class Featurization(object):
 class Featurizer(BaseObject):
     """Base class for building featurizers."""
 
+    def load(self):
+        """
+        Method called in flow of `python -m enso.featurize` to prevent loading
+        pre-trained models into memory on file import.
+
+        If loading a pre-trained model into memory is not required, `Featurizer.load()`
+        defaults to `pass`.
+        """
+        pass
+
     def generate(self, dataset, dataset_name):
-        """Responsible for generating appropriatelynamed feature datasets."""
+        """Responsible for generating appropriately named feature datasets."""
         features = []
         if callable(getattr(self, "featurize_list", None)):
             features = self.featurize_list(dataset['Text'])

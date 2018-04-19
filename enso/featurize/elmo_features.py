@@ -7,17 +7,18 @@ from nltk.tokenize import word_tokenize
 from enso.featurize import Featurizer
 
 
-# FEATURIZER = ElmoEmbedder()
-
 
 class ElmoFeaturizer(Featurizer):
+
+    def load(self):
+        self.elmo_embedder = ElmoEmbedder()
 
     def featurize_list(self, dataset, batch_size=10):
         all_features = []
         for batch_start in tqdm(range(0, len(dataset), batch_size)):
             batch_docs = list(dataset[batch_start:batch_start + batch_size])
             batch_tokens = [word_tokenize(doc) for doc in batch_docs]
-            embeddings = FEATURIZER.embed_batch(batch_tokens)
+            embeddings = self.elmo_model.embed_batch(batch_tokens)
             embeddings = [
                 np.hstack(
                     [embedding[i,:,:] for i in range(embedding.shape[0])]

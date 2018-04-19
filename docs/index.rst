@@ -6,15 +6,10 @@
 Welcome to Enso's documentation!
 ================================
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+.. module:: enso
 
+An overview of the developer interface to Enso.
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. autoclass:: Experiment
+.. autoclass:: Featurizer
+.. autoclass:: Visualizer
