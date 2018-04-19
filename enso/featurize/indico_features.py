@@ -6,76 +6,76 @@ from tqdm import tqdm
 from enso.featurize import Featurizer
 
 
-def featurization_factory(domain, **kwargs):
-    """Responsible for creating indico featurization functions."""
-    @staticmethod
-    def indico_feature_func(dataset, batch_size):
+class BaseIndicoFeaturizer(Featurizer):
+    """
+    Base model from which all indico `Featurizer`'s inherit.
+    """
+    domain = None
+    sequence = False
+
+    def featurize_batch(self, X, batch_size=32, **kwargs):
+        """
+        :param X: `pd.Series` that contains raw text to featurize
+        :param batch_size: int number of examples to process per batch
+        :returns: list of np.ndarray representations of text
+        """
         all_features = []
         for i in tqdm(range(0, len(dataset), batch_size)):
             chunk_data = list(dataset[i:i + batch_size])
-            all_features.extend(vectorize(chunk_data, domain=domain, **kwargs))
+            all_features.extend(vectorize(
+                chunk_data, domain=self.domain, sequence=self.sequence, **kwargs
+            ))
         return all_features
-    return indico_feature_func
 
 
-class IndicoStandard(Featurizer):
+class IndicoStandard(BaseIndicoFeaturizer):
     """Featurizer that uses indico's standard features."""
+    domain = 'standard'
 
-    featurize_batch = featurization_factory("standard")
 
-
-class IndicoSentiment(Featurizer):
+class IndicoSentiment(BaseIndicoFeaturizer):
     """Featurizer that uses indico's sentiment features."""
+    domain = 'sentiment'
 
-    featurize_batch = featurization_factory("sentiment")
 
-
-class IndicoTopics(Featurizer):
+class IndicoTopics(BaseIndicoFeaturizer):
     """Featurizer that uses indico's topics features."""
+    domain = 'topics'
 
-    featurize_batch = featurization_factory("topics")
 
-
-class IndicoFinance(Featurizer):
+class IndicoFinance(BaseIndicoFeaturizer):
     """Featurizer that uses indico's finance features."""
+    domain = 'finance'
 
-    featurize_batch = featurization_factory("finance")
 
-
-class IndicoTransformer(Featurizer):
+class IndicoTransformer(BaseIndicoFeaturizer):
     """Featurizer that uses indico's transformer features."""
+    domain = 'transformer'
 
-    featurize_batch = featurization_factory("transformer")
 
-
-class IndicoEmotion(Featurizer):
+class IndicoEmotion(BaseIndicoFeaturizer):
     """Featurizer that uses indico's emotion features."""
+    domain = 'emotion'
 
-    featurize_batch = featurization_factory("emotion")
 
-
-class IndicoFastText(Featurizer):
+class IndicoFastText(BaseIndicoFeaturizer):
     """Featurizer that uses indico's fasttext features."""
-
-    featurize_batch = featurization_factory("fasttext")
-
+    domain = 'fasttext'
 
 
-# To remain undocumented for now until further API design decisions are made
-class IndicoElmo(Featurizer):
+# NOTE: To remain undocumented for now until further API design decisions are made
+class IndicoElmo(BaseIndicoFeaturizer):
     """Featurizer that uses indico's finance features."""
+    domain = 'elmo'
 
-    featurize_batch = featurization_factory("elmo")
 
-
-class IndicoTransformerSequence(Featurizer):
+class IndicoTransformerSequence(BaseIndicoFeaturizer):
     """Featurizer that uses indico's transformer sequence features."""
+    domain = 'transformer'
+    sequence = True
 
-    featurize_batch = featurization_factory("transformer", sequence=True)
 
-
-class IndicoStandardSequence(Featurizer):
+class IndicoStandardSequence(BaseIndicoFeaturizer):
     """Featurizer that uses indico's standard sequence features"""
-
-    featurize_batch = featurization_factory("standard", sequence=True)
-
+    domain = 'standard'
+    sequence = True

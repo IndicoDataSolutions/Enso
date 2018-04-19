@@ -27,7 +27,9 @@ DATA = {
 
 # Featurizers to activate
 FEATURIZERS = {
-    "IndicoStandard",
+    # "SpacyGloveFeaturizer",
+    "SpacyCNNFeaturizer",
+    "IndicoStandard"
 }
 
 # Experiments to run
@@ -77,4 +79,4 @@ VISUALIZATION_OPTIONS = {
 
 
 N_GPUS = 3
-N_CORES = multiprocessing.cpu_count()
+N_CORES = 1 # multiprocessing.cpu_count()

@@ -25,6 +25,9 @@ Enso is tool intended to provide a standard interface for the benchmarking of em
 - The process is repeated for all combinations of featurizers, dataset sizes, target model architectures, etc.
 - Results are visualized and manually inspected (`python -m enso.visualize`)
 
+Running Experiments with Enso
+=============================
+Each component of Enso is designed to be extensible and customizable.  Base classes for :class:`enso.Featurizer`, :class:`enso.Sampler`, :class:`enso.Experiment`, :class:`enso.Metric` and :class:`enso.Visualizer` are provided in order to enable anyone to implement and test their own ideas.  Subclass those base classes and modify `enso/config.py` to run your own experiments, and consider contributing the results back to the community to help other community members test against better baselines.
 
 Featurization
 =============
@@ -35,8 +38,20 @@ Base Classes
     :inherited-members:
 
 
-Included Featurizers
+Local Featurizers
+-----------------
+These Featurizers will be run on your local machine to embed training and test examples.
+
+.. autoclass:: enso.featurize.spacy_features.SpacyCNNFeaturizer
+    :inherited-members:
+
+.. autoclass:: enso.featurize.spacy_features.SpacyGloveFeaturizer
+    :inherited-members:
+
+Hosted Featurizers
 --------------------
+The organization behind `enso`, indico, hosts a variety of pre-trained models that you can employ as source models for your experiments. These API wrappers assume that an `INDICO_API_KEY` env variable is present in order to authenticate calls made to the indico API. If you would like to test / benchmark indico's hosted embeddings on larger data volumes, reach out to contact@indico.io and inquire about free API credit for academic use.
+
 .. autoclass:: enso.featurize.indico_features.IndicoStandard
     :inherited-members:
 

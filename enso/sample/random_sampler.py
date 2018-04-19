@@ -18,5 +18,5 @@ class Random(Sampler):
 
         :returns: np.array of example indices selected by random sampling
         """
-        points = self.choose_starting_points()
+        points = self._choose_starting_points()
         return points + list(np.random.choice(self.train_indices, self.train_size - len(points), replace=False))

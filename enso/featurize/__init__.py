@@ -104,9 +104,9 @@ class Featurizer(BaseObject):
         :param dataset_name: `str` name to use as a save location in the `config.FEATURES_DIRECTORY`.
         """
         features = []
-        if callable(getattr(self, "featurize_batch", None)):
+        try:
             features = self.featurize_batch(dataset['Text'])
-        elif callable(getattr(self, "featurize", None)):
+        except (NotImplementedError, AttributeError):
             features = [self.featurize(entry) for entry in dataset['Text']]
         else:
             raise NotImplementedError("""

@@ -21,7 +21,7 @@ class KCenter(Sampler):
 
         :returns: np.array of example indices selected by `KCenter`.
         """
-        centers = self.choose_starting_points()
+        centers = self._choose_starting_points()
         while len(centers) < self.train_size:
             mins = np.min(self.distances[centers], axis=0)
             center = np.argmax(mins)

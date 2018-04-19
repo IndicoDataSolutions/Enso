@@ -21,7 +21,7 @@ class Orthogonal(Sampler):
 
         :returns: np.array of example indices selected by `Orthogonal`.
         """
-        centers = self.choose_starting_points()
+        centers = self._choose_starting_points()
         while len(centers) < self.train_size:
             reduced = np.prod(self.distances[centers], 0)
             center = np.argmax(np.absolute(reduced))
