@@ -28,12 +28,73 @@ Enso is tool intended to provide a standard interface for the benchmarking of em
 
 Featurization
 =============
+
+Base Classes
+------------
 .. autoclass:: enso.featurize.Featurizer
     :inherited-members:
 
 
+Included Featurizers
+--------------------
+.. autoclass:: enso.featurize.indico_features.IndicoStandard
+    :inherited-members:
+
+.. autoclass:: enso.featurize.indico_features.IndicoSentiment
+    :inherited-members:
+
+.. autoclass:: enso.featurize.indico_features.IndicoFinance
+    :inherited-members:
+
+.. autoclass:: enso.featurize.indico_features.IndicoTopics
+    :inherited-members:
+
+.. autoclass:: enso.featurize.indico_features.IndicoTransformer
+    :inherited-members:
+
+.. autoclass:: enso.featurize.indico_features.IndicoEmotion
+    :inherited-members:
+
+.. autoclass:: enso.featurize.indico_features.IndicoFastText
+    :inherited-members:
+
+
+Sampling
+========
+Apply a strategy to select training examples to provide to the target model.
+
+Base Classes
+------------
+.. autoclass:: enso.sample.Sampler
+    :inherited-members:
+
+Included Samplers
+-----------------
+.. autoclass:: enso.sample.random_sampler.Random
+    :inherited-members:
+
+.. autoclass:: enso.sample.orthogonal_sampler.Orthogonal
+    :inherited-members:
+
+.. autoclass:: enso.sample.kcenter_sampler.KCenter
+    :inherited-members:
+
+
+Resampling
+==========
+After a subset of examples is selected, certain examples may be duplicated or removed to adjust
+the class frequency statistics of the training data.
+
+Included Resampling Options
+---------------------------
+.. autofunction:: enso.resample.oversample
+
+
 Target Model Training
 =====================
+After featurization and sampling, a target model is trained on the selected training data.
+Each `Experiment` must be self-contained -- if hyperparameter selection is required, it should
+be packaged as part of the `Experiment` child class.
 
 Base Classes
 -------------
@@ -73,5 +134,5 @@ Base Classes
 
 Included Visualizers
 ---------------------
-.. autoclass:: enso.visualize.facet.FacetGridVisualizer
+.. autoclass:: enso.visualize.facets.FacetGridVisualizer
     :inherited-members:

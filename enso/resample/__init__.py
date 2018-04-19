@@ -3,12 +3,15 @@ import random
 
 import numpy as np
 
-from imblearn.over_sampling import SMOTE, ADASYN, RandomOverSampler
-
 
 def oversample(X, y, max_ratio=50):
     """
-    Ensure each class occurs with approximately even frequency in the training set
+    Ensure each class occurs with approximately even frequency in the training set by
+    duplicating examples from relatively rare classes.
+
+    :param X: `np.ndarray` of input features
+    :param y: `np.ndarray` of corresponding targets
+    :param max_ratio: input examples should be duplicated no more than this amount
     """
     X, y = np.asarray(X), np.asarray(y)
     class_counts = Counter(y)

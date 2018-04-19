@@ -43,9 +43,29 @@ class IndicoFinance(Featurizer):
 
 
 class IndicoTransformer(Featurizer):
-    """Featurizer that uses indico's mean pooled transformer features."""
+    """Featurizer that uses indico's transformer features."""
 
     featurize_batch = featurization_factory("transformer")
+
+
+class IndicoEmotion(Featurizer):
+    """Featurizer that uses indico's emotion features."""
+
+    featurize_batch = featurization_factory("emotion")
+
+
+class IndicoFastText(Featurizer):
+    """Featurizer that uses indico's fasttext features."""
+
+    featurize_batch = featurization_factory("fasttext")
+
+
+
+# To remain undocumented for now until further API design decisions are made
+class IndicoElmo(Featurizer):
+    """Featurizer that uses indico's finance features."""
+
+    featurize_batch = featurization_factory("elmo")
 
 
 class IndicoTransformerSequence(Featurizer):
@@ -59,20 +79,3 @@ class IndicoStandardSequence(Featurizer):
 
     featurize_batch = featurization_factory("standard", sequence=True)
 
-
-class IndicoEmotion(Featurizer):
-    """Featurizer that uses indico's finance features."""
-
-    featurize_batch = featurization_factory("emotion")
-
-
-class IndicoFastText(Featurizer):
-    """Featurizer that uses indico's finance features."""
-
-    featurize_batch = featurization_factory("fasttext")
-
-
-class IndicoElmo(Featurizer):
-    """Featurizer that uses indico's finance features."""
-
-    featurize_batch = featurization_factory("elmo")

@@ -37,7 +37,7 @@ class Experimentation(object):
         self.experiments = get_plugins("experiment", EXPERIMENTS, return_class=True)
         self.featurizers = get_plugins("featurize", FEATURIZERS)
         self.metrics = get_plugins("metrics", METRICS)
-        self.columns = ['Dataset', 'Featurizer', 'Experiment', 'Metric', 'TrainSize', 'Sampler', 'Resampler', 'Result', 'TrainResult', 'Hyperparams']
+        self.columns = ['Dataset', 'Featurizer', 'Experiment', 'Metric', 'TrainSize', 'Sampler', 'Resampler', 'Result', 'TrainResult']
         self.results = pd.DataFrame(columns=self.columns)
 
     def run_experiments(self):
@@ -55,7 +55,7 @@ class Experimentation(object):
                                 'Featurizer': featurizer.name(),
                                 'TrainSize': training_size,
                                 'Sampler': sampler,
-                                'Resampler': resampling
+                                'Resampler': resampler
                             }
                             future = POOL.submit(self._run_experiment, dataset_name, current_setting)
                             futures[future] = current_setting
@@ -89,7 +89,7 @@ class Experimentation(object):
                         'Experiment': name
                     }
                     internal_setting.update(current_setting)
-                    print("Training with settings {}".format(internal_setting))
+                    logging.info("Training with settings {}".format(internal_setting))
                     try:
                         # You might find yourself wondering why we're using lists here instead of np arrays
                         # The answer is that pandas sucks.
