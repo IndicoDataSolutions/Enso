@@ -3,7 +3,7 @@ import numpy as np
 
 
 class Orthogonal(Sampler):
-    DISTANCE_FUNCTION="cosine"
+    DISTANCE_FUNCTION = "cosine"
 
     def sample(self):
         centers = self.choose_starting_points()

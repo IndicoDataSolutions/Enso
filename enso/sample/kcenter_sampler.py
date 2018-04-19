@@ -3,7 +3,7 @@ import numpy as np
 
 
 class KCenter(Sampler):
-    DISTANCE_FUNCTION="euclidean"
+    DISTANCE_FUNCTION = "euclidean"
 
     def sample(self):
         centers = self.choose_starting_points()

@@ -5,19 +5,14 @@ from tqdm import tqdm
 
 from enso.featurize import Featurizer
 
-# indicoio.config.url_protocol = "http"
-# indicoio.config.host = "localhost:8000"
-
-CHUNK_SIZE = 50
-
 
 def featurization_factory(domain, **kwargs):
     """Responsible for creating indico featurization functions."""
     @staticmethod
-    def indico_feature_func(dataset):
+    def indico_feature_func(dataset, batch_size):
         all_features = []
-        for i in tqdm(range(0, len(dataset), CHUNK_SIZE)):
-            chunk_data = list(dataset[i:i + CHUNK_SIZE])
+        for i in tqdm(range(0, len(dataset), batch_size)):
+            chunk_data = list(dataset[i:i + batch_size])
             all_features.extend(vectorize(chunk_data, domain=domain, **kwargs))
         return all_features
     return indico_feature_func
@@ -75,6 +70,7 @@ class IndicoFastText(Featurizer):
     """Featurizer that uses indico's finance features."""
 
     featurize_batch = featurization_factory("fasttext")
+
 
 class IndicoElmo(Featurizer):
     """Featurizer that uses indico's finance features."""

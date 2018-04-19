@@ -37,7 +37,7 @@ class Experimentation(object):
         self.experiments = get_plugins("experiment", EXPERIMENTS, return_class=True)
         self.featurizers = get_plugins("featurize", FEATURIZERS)
         self.metrics = get_plugins("metrics", METRICS)
-        self.columns = ['Dataset', 'Featurizer', 'Experiment', 'Metric', 'TrainSize', 'Sampler', 'Resampling', 'Result', 'TrainResult', 'Hyperparams']
+        self.columns = ['Dataset', 'Featurizer', 'Experiment', 'Metric', 'TrainSize', 'Sampler', 'Resampler', 'Result', 'TrainResult', 'Hyperparams']
         self.results = pd.DataFrame(columns=self.columns)
 
     def run_experiments(self):
@@ -49,13 +49,13 @@ class Experimentation(object):
                 logging.info("Currently using featurizer: %s" % featurizer.name())
                 for training_size in TEST_SETUP["train_sizes"]:
                     for sampler in TEST_SETUP["samplers"]:
-                        for resampling in TEST_SETUP["resamplings"]:
+                        for resampler in TEST_SETUP["resamplers"]:
                             current_setting = {
                                 'Dataset': dataset_name,
                                 'Featurizer': featurizer.name(),
                                 'TrainSize': training_size,
                                 'Sampler': sampler,
-                                'Resampling': resampling
+                                'Resampler': resampling
                             }
                             future = POOL.submit(self._run_experiment, dataset_name, current_setting)
                             futures[future] = current_setting
@@ -97,7 +97,7 @@ class Experimentation(object):
                         train_labels = list(dataset[target].iloc[train])
                         test_set = list(dataset['Features'].iloc[test])
                         test_labels = list(dataset[target].iloc[test])
-                        experiment.train(*resample(current_setting['Resampling'], train_set, train_labels))
+                        experiment.fit(*resample(current_setting['Resampler'], train_set, train_labels))
 
                         test_pred = experiment.predict(test_set, subset='TEST')
                         train_pred = experiment.predict(train_set, subset='TRAIN')

@@ -12,37 +12,22 @@ EXPERIMENT_NAME = "Refactoring"
 
 # Datasets to featurize or run experiments on
 DATA = {
-    # 'Classify/AirlineComplaints',
     'Classify/AirlineNegativity.medium',
     'Classify/Irony',
-    # 'Classify/Disaster.medium',
-    # 'Classify/Horror.small',
-
+    'Classify/Disaster.medium',
+    'Classify/Horror.small',
     'Classify/Reddit.10cls.1000',
     'Classify/Reddit.20cls.500',
     'Classify/Reddit.5cls.1000',
-
-    # 'Classify/ReligiousTexts',
-    # 'Classify/ShortAnswer',
+    'Classify/ReligiousTexts',
     'Classify/TextSpam',
     'Classify/Disaster',
-    # 'Classify/Economy',
-    # 'Classify/BIA',
     'Classify/IMDB.small',
-    # 'Classify/HotelReviews.small',
 }
 
 # Featurizers to activate
 FEATURIZERS = {
-    # "IndicoTransformer",
     "IndicoStandard",
-    # "IndicoSentiment",
-    # "IndicoFastText",
-    # "IndicoFinance",
-    # "IndicoTopics",
-    # "ElmoFeaturizer",
-    # "IndicoTransformerSequence",
-    # "IndicoStandardSequence",
 }
 
 # Experiments to run
@@ -51,16 +36,6 @@ EXPERIMENTS = {
     "NaiveBayes",
     "RandomForestCV",
     "SupportVectorMachineCV",
-    # "ReduceMaxClassifier",
-    # "NormedDotAttnClassifier",
-    # "ReduceMeanClassifier",
-    # "FancyL2DotAttnClassifier",
-    # "StrongRegDotAttnClassifier",
-    # "MulticlassDotAttnClassifier",
-    # "MultiheadAttnClassifier",
-    # "MultiheadAttnV2Classifier",
-    # "RegularizedMLPAttnClassifier",
-    # "SummaryStatsClassifier"
 }
 
 # Metrics to compute
@@ -76,7 +51,7 @@ TEST_SETUP = {
     "n_splits": 10,
     "samplers": ['Random'],
     "sampling_size": .3,
-    "resamplings": ['RandomOverSampler']
+    "resamplers": ['RandomOverSampler']
 }
 
 # Visualizations to display
