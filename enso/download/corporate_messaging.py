@@ -7,8 +7,8 @@ from enso.download import generic_download
 
 if __name__ == "__main__":
     generic_download(
-        url="https://www.figure-eight.com/wp-content/uploads/2016/03/Airline-Sentiment-2-w-AA.csv",
+        url="https://www.figure-eight.com/wp-content/uploads/2016/03/Corporate-messaging-DFE.csv",
         text_column="text",
-        target_column="negativereason",
-        filename="AirlineNegativity.csv"
+        target_column="category",
+        filename="CorporateMessaging.csv"
     )

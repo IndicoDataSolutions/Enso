@@ -13,36 +13,48 @@ RESULTS_DIRECTORY = "Results"
 FEATURES_DIRECTORY = "Features"
 
 # Directory for storing experiment results
-EXPERIMENT_NAME = "Refactoring"
+EXPERIMENT_NAME = "Demo"
 
 # Datasets to featurize or run experiments on
 DATA = {
-    'Classify/AirlineNegativity.medium',
-    'Classify/Irony',
-    'Classify/Disaster.medium',
-    'Classify/Horror.small',
-    'Classify/Reddit.10cls.1000',
-    'Classify/Reddit.20cls.500',
-    'Classify/Reddit.5cls.1000',
-    'Classify/ReligiousTexts',
-    'Classify/TextSpam',
-    'Classify/Disaster',
-    'Classify/IMDB.small',
+    'Classify/AirlineNegativity',
+    'Classify/AirlineSentiment',
+    'Classify/BrandEmotion',
+    'Classify/BrandEmotionCause',
+    'Classify/ChemicalDiseaseCauses',
+    'Classify/CorporateMessaging',
+    'Classify/CustomerReviews',
+    'Classify/DetailedEmotion',
+    'Classify/DrugReviewType',
+    'Classify/DrugReviewIntent',
+    'Classify/Economy',
+    'Classify/Emotion',
+    'Classify/GlobalWarming',
+    'Classify/MovieReviews',
+    'Classify/MPQA',
+    'Classify/NewYearsResolutions',
+    'Classify/PoliticalTweetBias',
+    'Classify/PoliticalTweetClassification',
+    'Classify/PoliticalTweetAlignment',
+    'Classify/PoliticalTweetSubjectivity',
+    'Classify/PoliticalTweetTarget',
+    'Classify/SocialMediaDisasters',
+    'Classify/SST-binary',
+    'Classify/Subjectivity'
 }
 
 # Featurizers to activate
 FEATURIZERS = {
-    # "SpacyGloveFeaturizer",
-    "SpacyCNNFeaturizer",
-    # "IndicoStandard"
+    "SpacyGloveFeaturizer",
+    # "SpacyCNNFeaturizer",
 }
 
 # Experiments to run
 EXPERIMENTS = {
     "LogisticRegressionCV",
-    "NaiveBayes",
-    "RandomForestCV",
-    "SupportVectorMachineCV",
+    # "NaiveBayes",
+    # "RandomForestCV",
+    # "SupportVectorMachineCV",
 }
 
 # Metrics to compute

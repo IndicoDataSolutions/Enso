@@ -11,5 +11,5 @@ if __name__ == "__main__":
         url="https://s3.amazonaws.com/enso-data/SST-binary.csv",
         text_column="Text",
         target_column="Target",
-        filename="STT-binary.csv"
+        filename="SST-binary.csv"
     )

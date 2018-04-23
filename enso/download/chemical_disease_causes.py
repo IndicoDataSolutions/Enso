@@ -11,5 +11,5 @@ if __name__ == "__main__":
         url="https://www.figure-eight.com/wp-content/uploads/2016/03/chemicals-and-disease-DFE.csv",
         text_column="form_sentence",
         target_column="verify_relationship",
-        filename="SocialMediaDisasters.csv"
+        filename="ChemicalDiseaseCauses.csv"
     )
