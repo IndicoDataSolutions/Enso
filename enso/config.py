@@ -2,12 +2,17 @@ import indicoio
 import multiprocessing
 
 """Constants to configure the rest of Enso."""
+
+# Directory for storing data
+DATA_DIRECTORY = "Data"
+
 # Directory for storing results
 RESULTS_DIRECTORY = "Results"
 
 # Directory for storing features
 FEATURES_DIRECTORY = "Features"
 
+# Directory for storing experiment results
 EXPERIMENT_NAME = "Refactoring"
 
 # Datasets to featurize or run experiments on
@@ -29,7 +34,7 @@ DATA = {
 FEATURIZERS = {
     # "SpacyGloveFeaturizer",
     "SpacyCNNFeaturizer",
-    "IndicoStandard"
+    # "IndicoStandard"
 }
 
 # Experiments to run

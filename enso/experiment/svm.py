@@ -9,6 +9,7 @@ class SupportVectorMachineCV(GridSearch):
 
     def __init__(self, *args, **kwargs):
         """Initialize internal classifier."""
+        super().__init__(*args, **kwargs)
         self.base_model = SVC
         self.param_grid = {
             'C': [0.01, 0.1, 1.0, 10., 100.],

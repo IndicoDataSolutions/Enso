@@ -67,8 +67,8 @@ class Featurization(object):
         df = pd.read_csv("Data/%s.csv" % dataset_name)
         if 'Text' not in df:
             raise ValueError("File: %s has no column 'Text'" % dataset_name)
-        if 'Target_1' not in df:
-            raise ValueError("File %s has no column 'Target_1'" % dataset_name)
+        if 'Target' not in df:
+            raise ValueError("File %s has no column 'Target'" % dataset_name)
         return df
 
 
@@ -107,11 +107,12 @@ class Featurizer(BaseObject):
         try:
             features = self.featurize_batch(dataset['Text'])
         except (NotImplementedError, AttributeError):
-            features = [self.featurize(entry) for entry in dataset['Text']]
-        else:
-            raise NotImplementedError("""
-                Featurizers must implement the featurize_list, or the featurize method
-            """)
+            try:
+                features = [self.featurize(entry) for entry in dataset['Text']]
+            except (NotImplementedError, AttributeError):
+                raise NotImplementedError("""
+                    Featurizers must implement the featurize_list, or the featurize method
+                """)
         new_dataset = dataset.copy()  # Don't want to modify the underlying dataframe
         new_dataset['Features'] = features
         self._write(new_dataset, dataset_name)

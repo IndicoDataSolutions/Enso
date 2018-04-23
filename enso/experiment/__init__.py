@@ -156,6 +156,7 @@ class Experimentation(object):
     def _split_dataset(dataset, training_size):
         target_list = [column for column in dataset.columns.values if column.startswith("Target")]
         logging.info("Training with train set of size: %s" % training_size)
+
         # Sklearn technically offers a train_size parameter that seems like it would be better
         # Unfortunately it doesn't work as expected and locks test size to train size
         test_size = int(len(dataset) * TEST_SETUP["sampling_size"])
@@ -176,7 +177,7 @@ class Experimentation(object):
         return joblib.load(read_location)
 
 
-class VerifyOutput(object):
+class VerifyOutput(BaseObject):
     """Decorator class to add output checks to different experiments classes."""
 
     def __new__(cls, *args):
