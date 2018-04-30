@@ -29,6 +29,25 @@ Running Experiments with Enso
 =============================
 Each component of Enso is designed to be extensible and customizable.  Base classes for :class:`enso.Featurizer`, :class:`enso.Sampler`, :class:`enso.Experiment`, :class:`enso.Metric` and :class:`enso.Visualizer` are provided in order to enable anyone to implement and test their own ideas.  Subclass those base classes and modify `enso/config.py` to run your own experiments, and consider contributing the results back to the community to help other community members test against better baselines.
 
+Enso Configuration
+==================
+
+Experiment settings are managed through the modification of `enso/config.py`. The main parameters of interest are:
+ - `DATASETS`: A list of the datasets that you want to include in your experiments.
+ - `FEATURES`: A list of pre-computed features to include in your experiments. Only features for your specified datasets will be used.
+ - `EXPERIMENTS`: A list of the experiments to run on top of the feature sets that have selected.
+ - `METRICS`: A list of metrics you'd like to see for the combination of experiments being run
+ - `TEST_SETUP`: More detailed test information, likely to vary quite a bit from run to run.
+   - `train_sizes`: A list of training set sizes to be experimented with.
+   - `n_splits`: The number of CV splits to perform on each run.
+ - `VISUALIZATIONS`: A list of the visualizations to create for result visualization.
+ - `VISUALIZATION_SETUP`: More detailed visualization information with visualization-specific options.
+   - `<visualization_name>`: Mapping of all the visualization-specific options you want to pass
+
+Dataset Formatting
+==================
+In order to be a valid dataset, each dataset csv in the `Data` folder must include a `"Text"` column and a `"Target"` column.  For now, the "Target" column must be a string class label.  No rows may have missing values.
+
 Featurization
 =============
 
