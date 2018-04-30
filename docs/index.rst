@@ -16,14 +16,15 @@ Enso workflow
 
 Enso is tool intended to provide a standard interface for the benchmarking of embedding and transfer learning methods for natural language processing tasks.  Although there are other effective approaches to applying transfer learning to natural language processing, it's built on the assumption that the approach to "transfer learning" adheres to the below flow.  This approach is designed to replicate a scenario where a pool of unlabeled data is available, and labelers with subject matter expertise have a limited amount of time to provide labels for a subset of the unlabeled data.
 
-- All examples in the dataset are "featurized" via a pre-trained source model (`python -m enso.featurize`)
-- Re-represented data is separated into train and test sets
-- A fixed number of examples from the train set is selected to use as training data via the selected sampling strategy
-- The training data subset is optionally over or under-sampled to account for variation in class balance
-- A target model is trained using the featurized training examples as inputs (`python -m enso.experiment`)
-- The target model is benchmarked on all featurized test examples
-- The process is repeated for all combinations of featurizers, dataset sizes, target model architectures, etc.
-- Results are visualized and manually inspected (`python -m enso.visualize`)
+* Download pre-ETL'ed source datasets for testing (`python -m enso.download`)
+* All examples in the dataset are "featurized" via a pre-trained source model (`python -m enso.featurize`)
+* Re-represented data is separated into train and test sets
+* A fixed number of examples from the train set is selected to use as training data via the selected sampling strategy
+* The training data subset is optionally over or under-sampled to account for variation in class balance
+* A target model is trained using the featurized training examples as inputs (`python -m enso.experiment`)
+* The target model is benchmarked on all featurized test examples
+* The process is repeated for all combinations of featurizers, dataset sizes, target model architectures, etc.
+* Results are visualized and manually inspected (`python -m enso.visualize`)
 
 Running Experiments with Enso
 =============================
@@ -33,16 +34,17 @@ Enso Configuration
 ==================
 
 Experiment settings are managed through the modification of `enso/config.py`. The main parameters of interest are:
- - `DATASETS`: A list of the datasets that you want to include in your experiments.
- - `FEATURES`: A list of pre-computed features to include in your experiments. Only features for your specified datasets will be used.
- - `EXPERIMENTS`: A list of the experiments to run on top of the feature sets that have selected.
- - `METRICS`: A list of metrics you'd like to see for the combination of experiments being run
- - `TEST_SETUP`: More detailed test information, likely to vary quite a bit from run to run.
-   - `train_sizes`: A list of training set sizes to be experimented with.
-   - `n_splits`: The number of CV splits to perform on each run.
- - `VISUALIZATIONS`: A list of the visualizations to create for result visualization.
- - `VISUALIZATION_SETUP`: More detailed visualization information with visualization-specific options.
-   - `<visualization_name>`: Mapping of all the visualization-specific options you want to pass
+
+ * `DATASETS`: A list of the datasets that you want to include in your experiments.
+ * `FEATURES`: A list of pre-computed features to include in your experiments. Only features for your specified datasets will be used.
+ * `EXPERIMENTS`: A list of the experiments to run on top of the feature sets that have selected.
+ * `METRICS`: A list of metrics you'd like to see for the combination of experiments being run
+ * `TEST_SETUP`: More detailed test information, likely to vary quite a bit from run to run.
+     * `train_sizes`: A list of training set sizes to be experimented with.
+     * `n_splits`: The number of CV splits to perform on each run.
+ * `VISUALIZATIONS`: A list of the visualizations to create for result visualization.
+ * `VISUALIZATION_SETUP`: More detailed visualization information with visualization-specific options.
+     * `<visualization_name>`: Mapping of all the visualization-specific options you want to pass
 
 Dataset Formatting
 ==================
