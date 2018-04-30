@@ -1,65 +1,76 @@
 import indicoio
-
-"""
-Configuring indicoio settings to point to local indico API instance
-"""
-indicoio.config.api_key = "cac939f48044ddf637a974b4baa290ca"
-indicoio.config.host = "172.17.0.1:8000"
-indicoio.config.url_protocol = "http"
+import multiprocessing
 
 """Constants to configure the rest of Enso."""
+
+# Directory for storing data
+DATA_DIRECTORY = "Data"
+
 # Directory for storing results
 RESULTS_DIRECTORY = "Results"
 
 # Directory for storing features
 FEATURES_DIRECTORY = "Features"
 
-EXPERIMENT_NAME = "benchmark-v1"
+# Directory for storing experiment results
+EXPERIMENT_NAME = "Demo"
 
 # Datasets to featurize or run experiments on
 DATA = {
-    'Classify/AirlineComplaints',
-    'Classify/Disaster',
-    'Classify/Irony',
-    # 'Classify/IMDB.small',
-    # 'Classify/Economy',
-    # 'Classify/Emotion',
-    # 'Classify/Horror',
-    # 'Classify/HotelReviews.small',
-    # 'Classify/IdiomEmotion',
-    # 'Classify/Reddit.10cls.1000',
-    # 'Classify/Reddit.20cls.500',
-    # 'Classify/Reddit.5cls.1000',
-    # 'Classify/ReligiousTexts',
-    # 'Classify/ShortAnswer',
-    # 'Classify/TextSpam'
-    # 'Classify/AirlineNegativity.small',
+    'Classify/AirlineNegativity',
+    'Classify/AirlineSentiment',
+    'Classify/BrandEmotion',
+    'Classify/BrandEmotionCause',
+    'Classify/ChemicalDiseaseCauses',
+    'Classify/CorporateMessaging',
+    'Classify/CustomerReviews',
+    'Classify/DetailedEmotion',
+    'Classify/DrugReviewType',
+    'Classify/DrugReviewIntent',
+    'Classify/Economy',
+    'Classify/Emotion',
+    'Classify/GlobalWarming',
+    'Classify/MovieReviews',
+    'Classify/MPQA',
+    'Classify/NewYearsResolutions',
+    'Classify/PoliticalTweetBias',
+    'Classify/PoliticalTweetClassification',
+    'Classify/PoliticalTweetAlignment',
+    'Classify/PoliticalTweetSubjectivity',
+    'Classify/PoliticalTweetTarget',
+    'Classify/SocialMediaDisasters',
+    'Classify/SST-binary',
+    'Classify/Subjectivity'
 }
 
 # Featurizers to activate
 FEATURIZERS = {
-    "IndicoStandard",
-    # "IndicoFastText",
-    # "IndicoTransformer",
-    # "IndicoFinance",
-    # "IndicoTopics",
-    # "IndicoSentiment",
+    "SpacyGloveFeaturizer",
+    # "SpacyCNNFeaturizer",
 }
 
 # Experiments to run
 EXPERIMENTS = {
-    "GridSearchLR",
+    "LogisticRegressionCV",
+    # "NaiveBayes",
+    # "RandomForestCV",
+    # "SupportVectorMachineCV",
 }
 
 # Metrics to compute
 METRICS = {
-    "RocAuc"
+    "LogLoss",
+    "Accuracy",
+    "MacroRocAuc",
 }
 
 # Test setup metadata
 TEST_SETUP = {
-    "train_sizes": [100, 250, 500, 1000],
-    "n_splits": 5
+    "train_sizes": [30, 50, 100, 200, 500],
+    "n_splits": 10,
+    "samplers": ['Random'],
+    "sampling_size": .3,
+    "resamplers": ['RandomOverSampler']
 }
 
 # Visualizations to display
@@ -72,14 +83,17 @@ VISUALIZATION_OPTIONS = {
     'display': True,
     'save': True,
     'FacetGridVisualizer': {
-        'x_tile': 'Dataset',
-        'y_tile': 'Experiment',
+        'x_tile': 'Metric',
+        'y_tile': 'Dataset',
         'x_axis': 'TrainSize',
         'y_axis': 'Result',
-        'lines': 'Featurizer',
+        'lines': ['Experiment', 'Featurizer'],
         'category': 'merge',
-        'cv': 'mean'
+        'cv': 'mean',
+        'filename': 'TestResult'
     }
 }
 
-N_CORES = 8
+
+N_GPUS = 3
+N_CORES = 1 # multiprocessing.cpu_count()

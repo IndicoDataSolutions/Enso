@@ -10,15 +10,15 @@ import pandas as pd
 from enso.config import RESULTS_DIRECTORY, FEATURES_DIRECTORY
 
 
-def feature_set_location(dataset_name, featurizer):
+def feature_set_location(dataset_name, featurizer_name):
     """Responsible for generating filenames for generated feature sets."""
     base_dir, _, filename = dataset_name.rpartition('/')
     write_location = "%s/%s/" % (FEATURES_DIRECTORY, base_dir)
-    dump_name = "%s_%s_features.csv" % (filename, featurizer.__class__.__name__)
+    dump_name = "%s_%s_features.csv" % (filename, featurizer_name)
     return write_location + dump_name
 
 
-def get_plugins(plugin_dir, match_names):
+def get_plugins(plugin_dir, match_names, return_class=False):
     """Responsible for grabbing objects from specified plugin directories."""
     full_plugin_dir_path = os.path.abspath(os.path.join(os.path.dirname(__file__), plugin_dir))
     root, dirs, files = next(os.walk(full_plugin_dir_path))
@@ -40,7 +40,10 @@ def get_plugins(plugin_dir, match_names):
             Config doesn't match classes present.\n%s: %s\nConfig: %s
         """ % (plugin_dir, names, match_names))
 
-    return [relevant_class() for relevant_class in relevant_classes]
+    if return_class:
+        return relevant_classes
+    else:
+        return [relevant_class() for relevant_class in relevant_classes]
 
 
 def get_all_experiment_runs():
@@ -75,5 +78,7 @@ class BaseObject(object):
     """Base object for all plugins."""
 
     def name(self):
-        """Helper function to grab class names cleanly."""
+        """
+        Prints the name of the current class to aid logging and result formatting.
+        """
         return self.__class__.__name__

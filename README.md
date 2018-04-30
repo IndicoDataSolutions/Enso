@@ -93,7 +93,7 @@ There's a lot of information we're trying to store in the `Results.csv` file for
 approach this problem, and we've opted for one where there's quite a lot of repeated information, but the data
 structure is quite usable for any visualization applications that the user wants to run on the backend. The specific list
 and order of fields is below. This is set within the `experiment.py` file in the `Experimentation.columns` attribute
-`ID,Dataset,Featurizer,Experiment,Metric,TrainSize,Result`
+`ID,Dataset,Featurizer,Experiment,Metric,TrainSize,Sampler,Resampling,Result`
 
 ## Visualization Details ##
 Visualizations are made to accept a set of kwargs, and a results csv, then generating appropriate visualizations.
