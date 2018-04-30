@@ -16,7 +16,7 @@ Enso workflow
 
 Enso is tool intended to provide a standard interface for the benchmarking of embedding and transfer learning methods for natural language processing tasks.  Although there are other effective approaches to applying transfer learning to natural language processing, it's built on the assumption that the approach to "transfer learning" adheres to the below flow.  This approach is designed to replicate a scenario where a pool of unlabeled data is available, and labelers with subject matter expertise have a limited amount of time to provide labels for a subset of the unlabeled data.
 
-* Download a set of preformatted source datasets for benchmarking (`python -m enso.download`)
+* Download pre-ETL'ed source datasets for testing (`python -m enso.download`)
 * All examples in the dataset are "featurized" via a pre-trained source model (`python -m enso.featurize`)
 * Re-represented data is separated into train and test sets
 * A fixed number of examples from the train set is selected to use as training data via the selected sampling strategy
