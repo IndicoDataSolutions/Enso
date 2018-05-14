@@ -3,15 +3,33 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Enso's documentation!
+Enso
 ================================
 
 .. module:: enso
 
-An overview of the developer interface to Enso.
+Enso is tool intended to provide a standard interface for the benchmarking of embedding and transfer learning methods for natural language processing tasks.
 
 
-Enso workflow
+Installation
+------------
+Enso is compatible with Python 3.4+.
+
+You can install `enso` via pip:
+
+```bash
+pip install enso
+```
+
+or directly via `setup.py`:
+
+```
+git clone git@github.com:IndicoDataSolutions/Enso.git
+python setup.py install
+```
+
+
+Enso usage and workflow
 ==============
 
 Enso is tool intended to provide a standard interface for the benchmarking of embedding and transfer learning methods for natural language processing tasks.  Although there are other effective approaches to applying transfer learning to natural language processing, it's built on the assumption that the approach to "transfer learning" adheres to the below flow.  This approach is designed to replicate a scenario where a pool of unlabeled data is available, and labelers with subject matter expertise have a limited amount of time to provide labels for a subset of the unlabeled data.
@@ -92,6 +110,9 @@ The organization behind `enso`, indico, hosts a variety of pre-trained models th
     :inherited-members:
 
 .. autoclass:: enso.featurize.indico_features.IndicoFastText
+    :inherited-members:
+
+.. autoclass:: enso.featurize.indico_features.IndicoElmo
     :inherited-members:
 
 

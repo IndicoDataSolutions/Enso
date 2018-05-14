@@ -1,6 +1,25 @@
 # ENSO #
-Enso is tool intended to provide a standard interface for the benchmarking of embedding and transfer learning methods for natural language processing tasks.  
+Enso is tool intended to provide a standard interface for the benchmarking of embedding and transfer learning methods for natural language processing tasks.
 
+Installation
+------------
+Enso is compatible with Python 3.4+.
+
+You can install `enso` via pip:
+
+```bash
+pip install enso
+```
+
+or directly via `setup.py`:
+
+```
+git clone git@github.com:IndicoDataSolutions/Enso.git
+python setup.py install
+```
+
+Usage and Workflow
+------------------
 Although there are other effective approaches to applying transfer learning to natural language processing, it's built on the assumption that the approach to "transfer learning" adheres to the below flow.  This approach is designed to replicate a scenario where a pool of unlabeled data is available, and labelers with subject matter expertise have a limited amount of time to provide labels for a subset of the unlabeled data.
 
 - All examples in the dataset are "featurized" via a pre-trained source model (`python -m enso.featurize`)

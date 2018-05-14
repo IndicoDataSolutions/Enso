@@ -93,3 +93,6 @@ Data/Raw/*
 Data/Classify/*.csv
 Features/Classify/*.csv
 Results/*
+
+# Docs
+docs/_build
