@@ -95,4 +95,5 @@ Features/Classify/*.csv
 Results/*
 
 # Docs
-docs/_build
+docs/_build/*
+docs/html/*
