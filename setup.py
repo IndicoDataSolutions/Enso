@@ -15,7 +15,7 @@ REQUIREMENTS = [
 
 setup(
     name='enso',
-    version='0.1.0',
+    version='0.1.1',
     description='Testing feature-sets and learning algorithms for transfer learning.',
     author='indico',
     author_email='engineering@indico.io',
