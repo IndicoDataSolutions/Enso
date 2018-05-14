@@ -9,8 +9,6 @@ from enso.experiment.grid_search import GridSearch
 class LogisticRegressionCV(GridSearch):
     """Implementation of a grid-search optimized Logistic Regression model."""
 
-
-
     def __init__(self, *args, **kwargs):
         """Initialize internal classifier."""
         super().__init__(*args, **kwargs)

@@ -20,8 +20,8 @@ class BaseIndicoFeaturizer(Featurizer):
         :returns: list of np.ndarray representations of text
         """
         all_features = []
-        for i in tqdm(range(0, len(dataset), batch_size)):
-            chunk_data = list(dataset[i:i + batch_size])
+        for i in tqdm(range(0, len(X), batch_size)):
+            chunk_data = list(X[i:i + batch_size])
             all_features.extend(vectorize(
                 chunk_data, domain=self.domain, sequence=self.sequence, **kwargs
             ))
@@ -63,10 +63,16 @@ class IndicoFastText(BaseIndicoFeaturizer):
     domain = 'fasttext'
 
 
-# NOTE: To remain undocumented for now until further API design decisions are made
 class IndicoElmo(BaseIndicoFeaturizer):
     """Featurizer that uses indico's finance features."""
     domain = 'elmo'
+
+
+# NOTE: To remain undocumented for now until further API design decisions are made
+class IndicoElmoSequence(BaseIndicoFeaturizer):
+    """Featurizer that uses indico's finance features."""
+    domain = 'elmo'
+    sequence = True
 
 
 class IndicoTransformerSequence(BaseIndicoFeaturizer):
