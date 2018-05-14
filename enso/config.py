@@ -17,57 +17,33 @@ EXPERIMENT_NAME = "Demo"
 
 # Datasets to featurize or run experiments on
 DATA = {
-    'Classify/AirlineNegativity',
     'Classify/AirlineSentiment',
-    'Classify/BrandEmotion',
-    'Classify/BrandEmotionCause',
-    'Classify/ChemicalDiseaseCauses',
-    'Classify/CorporateMessaging',
-    'Classify/CustomerReviews',
-    'Classify/DetailedEmotion',
-    'Classify/DrugReviewType',
-    'Classify/DrugReviewIntent',
-    'Classify/Economy',
-    'Classify/Emotion',
-    'Classify/GlobalWarming',
     'Classify/MovieReviews',
     'Classify/MPQA',
-    'Classify/NewYearsResolutions',
-    'Classify/PoliticalTweetBias',
-    'Classify/PoliticalTweetClassification',
-    'Classify/PoliticalTweetAlignment',
     'Classify/PoliticalTweetSubjectivity',
-    'Classify/PoliticalTweetTarget',
-    'Classify/SocialMediaDisasters',
-    'Classify/SST-binary',
-    'Classify/Subjectivity'
 }
 
 # Featurizers to activate
 FEATURIZERS = {
     "SpacyGloveFeaturizer",
-    # "SpacyCNNFeaturizer",
+    "SpacyCNNFeaturizer"
 }
 
 # Experiments to run
 EXPERIMENTS = {
     "LogisticRegressionCV",
-    # "NaiveBayes",
-    # "RandomForestCV",
-    # "SupportVectorMachineCV",
 }
 
 # Metrics to compute
 METRICS = {
-    "LogLoss",
     "Accuracy",
     "MacroRocAuc",
 }
 
 # Test setup metadata
 TEST_SETUP = {
-    "train_sizes": [30, 50, 100, 200, 500],
-    "n_splits": 10,
+    "train_sizes": range(50, 550, 50),
+    "n_splits": 25,
     "samplers": ['Random'],
     "sampling_size": .3,
     "resamplers": ['RandomOverSampler']
