@@ -6,7 +6,7 @@ REQUIREMENTS = open('requirements.txt').readlines()
 
 setup(
     name='enso',
-    version='0.1.3',
+    version='0.1.4',
     description='Testing feature-sets and learning algorithms for transfer learning.',
     author='indico',
     author_email='engineering@indico.io',
