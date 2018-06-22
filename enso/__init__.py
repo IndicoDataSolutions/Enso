@@ -5,4 +5,4 @@ from enso.sample import Sampler
 from enso.metrics import Metric
 
 
-__version__, version, VERSION = ('0.1.3',) * 3
+__version__, version, VERSION = ('0.1.4',) * 3
