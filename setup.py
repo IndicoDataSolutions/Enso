@@ -2,20 +2,11 @@
 import os
 from setuptools import setup, find_packages
 
-REQUIREMENTS = [
-    "pandas>=0.20.3",
-    "seaborn>=0.8.1",
-    "tqdm>=4.19.4",
-    "IndicoIo>=1.1.1",
-    "scikit-learn==0.19.0",
-    "numpy>=1.13.1",
-    "click==6.7",
-    "bs4==0.0.1"
-]
+REQUIREMENTS = open('requirements.txt').readlines()
 
 setup(
     name='enso',
-    version='0.1.2',
+    version='0.1.3',
     description='Testing feature-sets and learning algorithms for transfer learning.',
     author='indico',
     author_email='engineering@indico.io',
