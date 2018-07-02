@@ -1,4 +1,4 @@
-![enso](https://i.imgur.com/Oj3O1xQ.jpg)
+![enso](https://i.imgur.com/4Zrj23O.png)
 
 Enso
 ----
