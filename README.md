@@ -27,6 +27,10 @@ Download the included datasets by running:
 python -m enso.download
 ```
 
+Documentation
+-------------
+Complete API documentation is available at [enso.readthedocs.io](http://enso.readthedocs.io/en/latest/).
+
 Usage and Workflow
 ------------------
 Although there are other effective approaches to applying transfer learning to natural language processing, it's built on the assumption that the approach to "transfer learning" adheres to the below flow.  This approach is designed to replicate a scenario where a pool of unlabeled data is available, and labelers with subject matter expertise have a limited amount of time to provide labels for a subset of the unlabeled data.
