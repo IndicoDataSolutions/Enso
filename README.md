@@ -1,4 +1,5 @@
-# ENSO #
+![enso](https://i.imgur.com/Oj3O1xQ.jpg)
+
 Enso is tool intended to provide a standard interface for the benchmarking of embedding and transfer learning methods for natural language processing tasks.
 
 Installation
