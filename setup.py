@@ -11,6 +11,7 @@ REQUIREMENTS = [
     'numpy>=1.13.1',
     'click>=6.7',
     'bs4>=0.0.1',
+    'finetune>=0.1.0'
 ]
 
 setup(
