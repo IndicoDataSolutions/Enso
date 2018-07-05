@@ -1,8 +1,9 @@
 from abc import abstractmethod
 
 import pandas as pd
-from enso.experiment import ClassificationExperiment
+from sklearn.model_selection import GridSearchCV
 
+from enso.experiment import ClassificationExperiment
 
 
 class GridSearch(ClassificationExperiment):

@@ -1,7 +1,7 @@
 import os
 
-from finetune import LanguageModelClassifier
 import pandas as pd
+from finetune import LanguageModelClassifier
 
 from enso.experiment import ClassificationExperiment
 from enso.config import RESULTS_DIRECTORY
@@ -21,10 +21,7 @@ class Finetune(ClassificationExperiment):
 
     def fit(self, X, y):
         """
-        Runs grid search over `self.param_grid` on `self.base_model` to optimize hyper-parameters using
-        KFolds cross-validation, then retrains using the selected parameters on the full training set.
-
-        :param X: `np.ndarray` of input features sampled from training data.
+        :param X: `np.ndarray` of raw text sampled from training data.
         :param y: `np.ndarray` of corresponding targets sampled from training data.
         """
         self.model.fit(X, y)

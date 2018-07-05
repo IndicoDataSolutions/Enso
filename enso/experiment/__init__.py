@@ -3,6 +3,7 @@ Main method for running experiments according to the specifications of `config.p
 """
 import os
 import logging
+import time
 from shutil import copyfile
 from time import gmtime, strftime
 from ast import literal_eval
@@ -24,6 +25,7 @@ from enso.resample import resample
 from enso.sample import sample
 from enso.utils import feature_set_location, get_plugins, BaseObject
 from enso.config import FEATURIZERS, DATA, EXPERIMENTS, METRICS, TEST_SETUP, RESULTS_DIRECTORY, N_GPUS, N_CORES
+from multiprocessing import Process
 
 POOL = ProcessPoolExecutor(N_CORES)
 
@@ -68,6 +70,37 @@ class Experimentation(object):
             except Exception:
                 logging.exception("Exception occurred for {}".format(current_setting))
 
+    def _run_sub_experiment(self, experiment_cls, dataset, train, test, target, current_setting):
+        experiment = experiment_cls()
+
+        name = experiment.name()
+        internal_setting = {
+            'Experiment': name
+        }
+        internal_setting.update(current_setting)
+        logging.info("Training with settings {}".format(internal_setting))
+        try:
+            # You might find yourself wondering why we're using lists here instead of np arrays
+            # The answer is that pandas sucks.
+            train_set = list(dataset['Features'].iloc[train])
+            train_labels = list(dataset[target].iloc[train])
+            test_set = list(dataset['Features'].iloc[test])
+            test_labels = list(dataset[target].iloc[test])
+            experiment.fit(*resample(current_setting['Resampler'], train_set, train_labels))
+
+            test_pred = experiment.predict(test_set, subset='TEST')
+            train_pred = experiment.predict(train_set, subset='TRAIN')
+            result = self._measure_experiment(
+                target=test_labels,
+                result=test_pred,
+                train_target=train_labels,
+                train_result=train_pred,
+                internal_setting=internal_setting
+            )
+            self._dump_results(result, experiment_name=self.name)
+        except Exception:
+            logging.exception("Failed to run experiment: {}".format(internal_setting))
+        
     def _run_experiment(self, dataset_name, current_setting):
         """Responsible for running all experiments specified in config."""
         results = pd.DataFrame(columns=self.columns)
@@ -82,35 +115,27 @@ class Experimentation(object):
                     current_setting['TrainSize']
                 )
                 for experiment_cls in self.experiments:
-                    experiment = experiment_cls()
-
-                    name = experiment.name()
-                    internal_setting = {
-                        'Experiment': name
-                    }
-                    internal_setting.update(current_setting)
-                    logging.info("Training with settings {}".format(internal_setting))
                     try:
-                        # You might find yourself wondering why we're using lists here instead of np arrays
-                        # The answer is that pandas sucks.
-                        train_set = list(dataset['Features'].iloc[train])
-                        train_labels = list(dataset[target].iloc[train])
-                        test_set = list(dataset['Features'].iloc[test])
-                        test_labels = list(dataset[target].iloc[test])
-                        experiment.fit(*resample(current_setting['Resampler'], train_set, train_labels))
-
-                        test_pred = experiment.predict(test_set, subset='TEST')
-                        train_pred = experiment.predict(train_set, subset='TRAIN')
-                        result = self._measure_experiment(
-                            target=test_labels,
-                            result=test_pred,
-                            train_target=train_labels,
-                            train_result=train_pred,
-                            internal_setting=internal_setting
-                        )
-                        self._dump_results(result, experiment_name=self.name)
+                        # Ideally we wouldn't have to do this in a process, but at the moment 
+                        # creating a process and killing the process after execution is the
+                        # only way to force TF to free it's GPU memory.
+                        p = Process(target=self._run_sub_experiment, kwargs={
+                            'experiment_cls': experiment_cls,
+                            'dataset': dataset,
+                            'train': train,
+                            'test': test,
+                            'target': target,
+                            'current_setting': current_setting
+                        })
+                        p.start()
+                        p.join()
                     except Exception:
-                        logging.exception("Failed to run experiment: {}".format(internal_setting))
+                        logging.exception("Exception occurred for {}".format(current_setting))
+                    finally:
+                        p.terminate()
+                        while p.is_alive():
+                            time.sleep(0.1)
+
         return results
 
     def _measure_experiment(self, target, result, train_target=None, train_result=None, internal_setting=None, test_key='Result', train_key='TrainResult'):
