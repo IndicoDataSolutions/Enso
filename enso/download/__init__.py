@@ -32,6 +32,5 @@ def generic_download(url, text_column, target_column, filename, save=True, task_
 
     return new_df
 
-
 def html_to_text(text):
     return BeautifulSoup(text, "html5lib").get_text()

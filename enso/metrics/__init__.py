@@ -33,3 +33,8 @@ class MatchingMetric(Metric):
     """Base class for matching metrics."""
 
     pass
+
+
+class SequenceLabelingMetric(Metric):
+    """ Base class for Sequence Labeling metrics"""
+    pass

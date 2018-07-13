@@ -1,7 +1,11 @@
 import os
+import json
 
 import pandas as pd
-from finetune import LanguageModelClassifier
+
+from indicoio.custom import Collection
+from finetune import LanguageModelClassifier, LanguageModelSequence
+from finetune.utils import finetune_to_indico_sequence, indico_to_finetune_sequence
 
 from enso.experiment import ClassificationExperiment
 from enso.config import RESULTS_DIRECTORY
@@ -30,3 +34,40 @@ class Finetune(ClassificationExperiment):
         """Predict results on test set based on current internal model."""
         preds = self.model.predict_proba(X)
         return pd.DataFrame.from_records(preds)
+
+
+class FinetuneSequenceLabel(ClassificationExperiment):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model = LanguageModelSequence(autosave_path=os.path.join(RESULTS_DIRECTORY, '.autosave'))
+
+    def fit(self, X, y):
+        X = list(zip(X, [json.loads(y_) for y_ in y]))
+        data = indico_to_finetune_sequence(X, "<PAD>")
+        self.model.fit(data)
+
+    def predict(self, X, **kwargs):
+        predictions = self.model.predict(list(zip(*[X])))
+        return [json.dumps(targ[1]) for targ in finetune_to_indico_sequence(predictions, "<PAD>")]
+
+
+class IndicoSequenceLabel(ClassificationExperiment):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model = Collection("Enso-Sequence-Labeling")
+        try:
+            self.model.clear()
+        except:
+            pass
+
+    def fit(self, X, y):
+        X = list(zip(X, [json.loads(y_) for y_ in y]))
+        for x in X:
+            self.model.add_data([x])
+            break
+        self.model.train()
+        self.model.wait()
+
+    def predict(self, X, **kwargs):
+        predictions = self.model.predict(X)
+        return [json.dumps(targ) for targ in predictions]

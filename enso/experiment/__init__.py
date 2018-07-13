@@ -179,7 +179,11 @@ class Experimentation(object):
 
     @staticmethod
     def _split_dataset(dataset, training_size):
-        target_list = [column for column in dataset.columns.values if column.startswith("Target")]
+        if type(dataset) == list:
+            target_list = [0]
+        else:
+            target_list = [column for column in dataset.columns.values if column.startswith("Target")]
+
         logging.info("Training with train set of size: %s" % training_size)
 
         # Sklearn technically offers a train_size parameter that seems like it would be better

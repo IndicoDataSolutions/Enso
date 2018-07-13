@@ -46,3 +46,6 @@ class LogLoss(ClassificationMetric):
         binary_labels = np.hstack([binary_labels[column].values.reshape(-1, 1) for column in result.columns])
         predicted_labels = np.hstack([result[column].values.reshape(-1, 1) for column in result.columns])
         return log_loss(binary_labels, predicted_labels)
+
+
+
