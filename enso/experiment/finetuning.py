@@ -1,7 +1,7 @@
 import os
 
 import pandas as pd
-from finetune import LanguageModelClassifier
+from finetune import Classifier
 
 from enso.experiment import ClassificationExperiment
 from enso.config import RESULTS_DIRECTORY
@@ -17,7 +17,7 @@ class Finetune(ClassificationExperiment):
     def __init__(self, *args, **kwargs):
         """Initialize internal classifier."""
         super().__init__(*args, **kwargs)
-        self.model = LanguageModelClassifier(autosave_path=os.path.join(RESULTS_DIRECTORY, '.autosave'))
+        self.model = Classifier(lm_loss_coef=0.)
 
     def fit(self, X, y):
         """

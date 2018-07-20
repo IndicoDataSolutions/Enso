@@ -13,25 +13,58 @@ RESULTS_DIRECTORY = "Results"
 FEATURES_DIRECTORY = "Features"
 
 # Directory for storing experiment results
-EXPERIMENT_NAME = "Demo"
+EXPERIMENT_NAME = "Finetune-0.2.0"
 
 # Datasets to featurize or run experiments on
 DATA = {
-    'Classify/AirlineSentiment',
-    'Classify/MovieReviews',
-    'Classify/MPQA',
-    'Classify/PoliticalTweetSubjectivity',
+    "Classify/AirlineComplaints",
+    "Classify/AirlineNegativity",
+    "Classify/AirlineSentiment",
+    "Classify/BrandEmotion",
+    "Classify/BrandEmotionCause",
+    "Classify/ChemicalDiseaseCauses",
+    "Classify/CorporateMessaging",
+    "Classify/CustomerReviews",
+    "Classify/DetailedEmotion",
+    "Classify/Disaster",
+    "Classify/DrugReviewIntent",
+    "Classify/DrugReviewType",
+    "Classify/Economy",
+    "Classify/Emotion",
+    "Classify/GlobalWarming",
+    "Classify/Horror",
+    "Classify/HotelReviews",
+    "Classify/IMDB",
+    "Classify/Irony",
+    "Classify/MPQA",
+    "Classify/MovieReviews",
+    "Classify/NewYearsResolutions",
+    "Classify/PoliticalTweetAlignment",
+    "Classify/PoliticalTweetBias",
+    "Classify/PoliticalTweetClassification",
+    "Classify/PoliticalTweetSubjectivity",
+    "Classify/PoliticalTweetTarget",
+    "Classify/Reddit.10cls.1000",
+    "Classify/Reddit.20cls.500",
+    "Classify/Reddit.50cls.200",
+    "Classify/Reddit.5cls.1000",
+    "Classify/ReligiousTexts",
+    "Classify/ShortAnswer",
+    "Classify/SocialMediaDisasters",
+    "Classify/Subjectivity",
+    "Classify/TextSpam",
 }
 
 # Featurizers to activate
 FEATURIZERS = {
-    "SpacyGloveFeaturizer",
-    "SpacyCNNFeaturizer"
+    # "SpacyGloveFeaturizer",
+    # "SpacyCNNFeaturizer"
+    "PlainTextFeaturizer"
 }
 
 # Experiments to run
 EXPERIMENTS = {
-    "LogisticRegressionCV",
+    "Finetune",
 }
 
 # Metrics to compute
@@ -46,7 +79,7 @@ TEST_SETUP = {
     "n_splits": 25,
     "samplers": ['Random'],
     "sampling_size": .3,
-    "resamplers": ['RandomOverSampler']
+    "resamplers": ["None"]
 }
 
 # Visualizations to display
