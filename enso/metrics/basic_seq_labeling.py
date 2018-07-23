@@ -49,8 +49,7 @@ class OverlapPrecision(SequenceLabelingMetric):
     def evaluate(self, ground_truth, result):
         """Return AUC metric."""
         truth, res = convert_to_per_char_labs(ground_truth, result)
-        return precision_score(truth, res)
-
+        return precision_score(truth, res, average="weighted")
 
 class OverlapRecall(SequenceLabelingMetric):
     """ Accuracy of overlaps """
@@ -58,4 +57,4 @@ class OverlapRecall(SequenceLabelingMetric):
     def evaluate(self, ground_truth, result):
         """Return AUC metric."""
         truth, res = convert_to_per_char_labs(ground_truth, result)
-        return recall_score(truth, res)
+        return recall_score(truth, res, average="weighted")

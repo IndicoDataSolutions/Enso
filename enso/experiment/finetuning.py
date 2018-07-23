@@ -42,10 +42,10 @@ class FinetuneSequenceLabel(ClassificationExperiment):
         self.model = SequenceLabeler(autosave_path=os.path.join(RESULTS_DIRECTORY, '.autosave'))
 
     def fit(self, X, y):
-        self.model.fit(X, y)
+        self.model.fit(X, [json.loads(y_) for y_ in y])
 
     def predict(self, X, **kwargs):
-        predictions = self.model.predict(list(zip(*[X])))
+        predictions = self.model.predict(X)
         return [json.dumps(targ) for targ in predictions]
 
 
@@ -60,6 +60,7 @@ class IndicoSequenceLabel(ClassificationExperiment):
             self.model.clear()
         except:
             pass
+
         X = list(zip(X, [json.loads(y_) for y_ in y]))
         for x in X:
             self.model.add_data([x])
@@ -67,7 +68,13 @@ class IndicoSequenceLabel(ClassificationExperiment):
         self.model.wait()
 
     def predict(self, X, **kwargs):
-        predictions = self.model.predict(X)
+        batch_size = 5
+        num_samples = len(X)
+        num_batches = num_samples//batch_size
+        predictions = []
+        for i in range(num_batches):
+            data = X[i*batch_size: (i+1)*batch_size]
+            predictions.extend(self.model.predict(data))
         return [json.dumps(targ) for targ in predictions]
 
     def __del__(self):
