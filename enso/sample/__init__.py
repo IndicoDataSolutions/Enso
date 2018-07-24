@@ -39,9 +39,8 @@ class Sampler(object):
         self.train_labels = train_labels
         self.train_indices = train_indices
         self.train_size = train_size
-#        if len(self.classes) > train_size:
-#s            raise ValueError("The train size can not be smaller than the number of classes.")
-        # TODO(BEN) - speak to madison about a fix for this.
+        if len(self.classes) > train_size:
+            raise ValueError("The train size can not be smaller than the number of classes.")
 
     @property
     def classes(self):

@@ -17,14 +17,14 @@ import concurrent.futures
 from concurrent.futures import ProcessPoolExecutor
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit
 from sklearn.externals import joblib
 from tqdm import tqdm
 
 from enso.resample import resample
 from enso.sample import sample
 from enso.utils import feature_set_location, get_plugins, BaseObject
-from enso.config import FEATURIZERS, DATA, EXPERIMENTS, METRICS, TEST_SETUP, RESULTS_DIRECTORY, N_GPUS, N_CORES
+from enso.config import FEATURIZERS, DATA, EXPERIMENTS, METRICS, TEST_SETUP, RESULTS_DIRECTORY, N_GPUS, N_CORES, MODE
 from multiprocessing import Process
 
 POOL = ProcessPoolExecutor(N_CORES)
@@ -192,7 +192,13 @@ class Experimentation(object):
         if test_size + training_size > len(dataset):
             raise ValueError("Invalid training size provided.  Training size must be less than {} of dataset size.".format(TEST_SETUP["sampling_size"]))
 
-        splitter = StratifiedShuffleSplit(TEST_SETUP["n_splits"], test_size=test_size)
+        if MODE == "Classification":
+            splitter = StratifiedShuffleSplit(TEST_SETUP["n_splits"], test_size=test_size)
+        elif MODE == "SequenceLabeling":
+            splitter = ShuffleSplit(TEST_SETUP["n_splits"], test_size=test_size)
+        else:
+            raise ValueError("config.MODE needs to be either Classification or SequenceLabeling")
+
         for target in target_list:
             # We can use np.zeros because it's stratifying the split
             # based on the categories. Removing the indexing saves time.

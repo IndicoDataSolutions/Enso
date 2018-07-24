@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup as bs
 from bs4.element import Tag
 import codecs
 import json
+from nltk.tokenize import sent_tokenize
 
 from enso import config
 
@@ -20,26 +21,28 @@ if __name__ == "__main__":
     soup = bs(r.content.decode("utf-8"), "html5lib")
     docs = []
     for elem in soup.find_all("document"):
-        texts = []
-        texts_no_labels = []
-        just_labels = []
-
         single_entry = ["", []]
-        char_loc = 0
         for c in elem.find("textwithnamedentities").children:
             if type(c) == Tag:
-                if c.name == "namedentityintext":
-                    single_entry[1].append(
-                        {
-                            "start": char_loc,
-                            "end": char_loc + len(c.text),
-                            "label": "NAME"
-                        }
-                    )
+                sent_parts = sent_tokenize(c.text)
+                if len(sent_parts) == 1:
+                    sent_parts = [c.text]
 
-                single_entry[0] += c.text
-                char_loc += len(c.text)
+                for i, text in enumerate(sent_parts):
+                    if i == 1:
+                        docs.append(single_entry)
+                        single_entry = ["", []]
 
-            docs.append(single_entry)
+                    if c.name == "namedentityintext":
+                        single_entry[1].append(
+                            {
+                                "start": len(single_entry[0]),
+                                "end": len(single_entry[0]) + len(c.text),
+                                "label": "NAME"
+                            }
+                        )
+                    single_entry[0] += text
+
+        docs.append(single_entry)
     with open(save_path, "wt") as fp:
         json.dump(docs, fp, indent=1)
