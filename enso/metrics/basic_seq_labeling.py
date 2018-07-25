@@ -17,12 +17,10 @@ def label_chars(sequence, null_label="none"):
     return output
 
 
-def convert_to_per_char_labs(ground_truth, result, null_label="none"):
-    truth = (json.loads(g) for g in ground_truth)
-    res = (json.loads(r) for r in result)
+def convert_to_per_char_labs(truth, result, null_label="none"):
     true_out = []
     res_out = []
-    for truth_b, res_b in zip(truth, res):
+    for truth_b, res_b in zip(truth, result):
         truth_per_char = label_chars(truth_b, null_label)
         res_per_char = label_chars(res_b, null_label)
 

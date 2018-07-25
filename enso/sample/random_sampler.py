@@ -1,4 +1,4 @@
-from . import Sampler
+from . import Sampler, SequenceSampler
 import numpy as np
 
 

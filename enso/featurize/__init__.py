@@ -118,7 +118,7 @@ class Featurizer(BaseObject):
             features = self._features_from_text(text)
             new_dataset = pd.DataFrame(data={
                 "Text": text,
-                "Targets": [json.dumps(d[1]) for d in dataset],
+                "Targets": [d[1] for d in dataset],
                 "Features": features
             })
 
