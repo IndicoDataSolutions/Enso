@@ -13,8 +13,9 @@ import numpy as np
 import matplotlib
 
 from enso.config import VISUALIZATIONS, VISUALIZATION_OPTIONS, RESULTS_DIRECTORY
-from enso.utils import get_plugins, get_all_experiment_runs
+from enso.utils import get_all_experiment_runs
 from enso.utils import BaseObject
+from enso.registry import Registry, ModeKeys
 
 # set matplotlib up for headless environment
 matplotlib.use("Agg")
@@ -30,7 +31,7 @@ class Visualization(object):
         """Visualize results from a given test run."""
         self.results_id = self._resolve_results_id(test_run)
         self.results = self._grab_results(self.results_id)
-        self.visualizers = get_plugins("visualize", VISUALIZATIONS)
+        self.visualizers = [Registry.get_visualizer(v)() for v in VISUALIZATIONS]
 
     @staticmethod
     def _resolve_results_id(test_run):
@@ -131,6 +132,7 @@ class ClassificationVisualizer(Visualizer):
         It should support either being one of the axes for the Main Visualization,
         or there should be a strategy for turning multiple entries into a single one
         """
+
         @wraps(func)
         def wrapped_visualize(self, results, **kwargs):
             category = kwargs.get('category', None)
@@ -154,6 +156,7 @@ class ClassificationVisualizer(Visualizer):
                 raise ValueError("""
                     Category must either have a strategy listed, or be a displayed variable.
                 """)
+
         return func
 
     @classmethod
@@ -162,6 +165,7 @@ class ClassificationVisualizer(Visualizer):
         Execute a cv strategy on a result_set.
         Same as handle_categories, but for multiple cv runs rather than multiple classes
         """
+
         @wraps(func)
         def wrapped_visualize(self, results, **kwargs):
             cv = kwargs.get('cv', None)
@@ -189,6 +193,7 @@ class ClassificationVisualizer(Visualizer):
                 raise ValueError("""
                     Split must either have a strategy listed, or be a displayed variable.
                 """)
+
         return func
 
     @classmethod
@@ -207,7 +212,7 @@ class ClassificationVisualizer(Visualizer):
                     (results['Featurizer'] == row['Featurizer']) &
                     (results['Sampler'] == row['Sampler']) &
                     (results['Resampling'] == row['Resampling'])
-                ]
+                    ]
 
     @staticmethod
     def _row_repr(row):
@@ -221,3 +226,6 @@ class ClassificationVisualizer(Visualizer):
             row['Sampler'],
             row['Resampling']
         )
+
+
+from enso.visualize import facets

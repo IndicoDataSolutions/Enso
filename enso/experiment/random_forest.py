@@ -2,8 +2,10 @@ from sklearn.ensemble import RandomForestClassifier
 import pandas as pd
 
 from enso.experiment.grid_search import GridSearch
+from enso.registry import Registry, ModeKeys
 
 
+@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "not PlainTextFeaturizer")])
 class RandomForestCV(GridSearch):
     """Implementation of a grid-search optimized RandomForest."""
 

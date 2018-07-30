@@ -4,8 +4,10 @@ import numpy as np
 
 from enso.metrics import ClassificationMetric
 from enso.utils import labels_to_binary
+from enso.registry import Registry, ModeKeys
 
 
+@Registry.register_metric(ModeKeys.CLASSIFY)
 class WeightedRocAuc(ClassificationMetric):
     """Classwise ROC AUC metric."""
 
@@ -18,6 +20,7 @@ class WeightedRocAuc(ClassificationMetric):
         return roc_auc_score(binary_labels, predicted_labels, average='weighted')
 
 
+@Registry.register_metric(ModeKeys.CLASSIFY)
 class MacroRocAuc(ClassificationMetric):
     """Classwise ROC AUC metric."""
 
@@ -30,6 +33,7 @@ class MacroRocAuc(ClassificationMetric):
         return roc_auc_score(binary_labels, predicted_labels, average='macro')
 
 
+@Registry.register_metric(ModeKeys.CLASSIFY)
 class Accuracy(ClassificationMetric):
     """Return class accuracy"""
     def evaluate(self, ground_truth, result):
@@ -37,6 +41,7 @@ class Accuracy(ClassificationMetric):
         return accuracy_score(ground_truth, predicted)
 
 
+@Registry.register_metric(ModeKeys.CLASSIFY)
 class LogLoss(ClassificationMetric):
     """LogLoss"""
 

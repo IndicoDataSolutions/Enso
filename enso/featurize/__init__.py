@@ -10,7 +10,8 @@ import pandas as pd
 import concurrent.futures
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from enso.config import FEATURIZERS, DATA, N_CORES
-from enso.utils import get_plugins, feature_set_location, BaseObject
+from enso.utils import feature_set_location, BaseObject
+from enso.registry import Registry
 from sklearn.externals import joblib
 
 
@@ -24,7 +25,7 @@ class Featurization(object):
         """
         Responsible for searching featurizer module and importing those specified in config.
         """
-        self.featurizers = get_plugins('featurize', FEATURIZERS)
+        self.featurizers = [Registry.get_featurizer(f)() for f in FEATURIZERS]
 
     def _run(self, POOL):
         futures = {}
@@ -68,7 +69,7 @@ class Featurization(object):
     def _load_dataset(dataset_name):
         """Responsible for finding datasets and reading them into dataframes."""
         dataset = "Data/%s" % dataset_name  # TODO Data is hard coded although seems configurable from config.
-        if "Classification" in dataset:
+        if "Classify" in dataset:
             df = pd.read_csv("%s.csv" % dataset)
             if 'Text' not in df:
                 raise ValueError("File: %s has no column 'Text'" % dataset_name)
@@ -155,7 +156,6 @@ class Featurizer(BaseObject):
                 """)
         return features
 
-
     def _write(self, featurized_dataset, dataset_name):
         """Responsible for taking a featurized dataset and writing it out to the filesystem."""
         dump_location = feature_set_location(dataset_name, self.__class__.__name__)
@@ -175,3 +175,8 @@ class Featurizer(BaseObject):
         :returns: `np.ndarray` representation of text
         """
         raise NotImplementedError
+
+
+from enso.featurize import indico_features
+from enso.featurize import plain_text
+from enso.featurize import spacy_features

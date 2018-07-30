@@ -1,16 +1,18 @@
 import spacy
-import numpy as np
 
 from spacy.cli.download import download
 from enso.featurize import Featurizer
 
+from enso.registry import Registry, ModeKeys
 
 
+@Registry.register_featurizer(ModeKeys.ANY)
 class SpacyCNNFeaturizer(Featurizer):
     """
     Featurizer that embeds documents using the mean of spacy's text CNN embedding model.
 
     """
+
     def load(self):
         """
         If the pre-trained `en_core_web_lg` model is not already stored on disk, it will be automatically downloaded
@@ -29,10 +31,12 @@ class SpacyCNNFeaturizer(Featurizer):
         return [self.nlp(x).vector for x in X]
 
 
+@Registry.register_featurizer(ModeKeys.ANY)
 class SpacyGloveFeaturizer(Featurizer):
     """
     Featurizer that embeds documents using the mean of a document's glove vectors.
     """
+
     def load(self):
         """
         If the pre-trained `en_vectors_web_lg` model is not already stored on disk, it will be automatically downloaded

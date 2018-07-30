@@ -2,8 +2,10 @@ from sklearn.svm import SVC
 import pandas as pd
 
 from enso.experiment.grid_search import GridSearch
+from enso.registry import Registry, ModeKeys
 
 
+@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "not PlainTextFeaturizer")])
 class SupportVectorMachineCV(GridSearch):
     """Implementation of a grid-search optimized RBF-SVM."""
 

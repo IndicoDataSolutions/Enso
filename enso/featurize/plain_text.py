@@ -1,9 +1,10 @@
 """File for storing the featurizers that indico offers via API."""
-from indicoio.custom import vectorize
-
 from enso.featurize import Featurizer
 
+from enso.registry import Registry, ModeKeys
 
+
+@Registry.register_featurizer(ModeKeys.ANY)
 class PlainTextFeaturizer(Featurizer):
     """
     Essentially a no op -- return raw text.  

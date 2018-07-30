@@ -3,6 +3,7 @@ import json
 
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 from enso.metrics import SequenceLabelingMetric
+from enso.registry import Registry, ModeKeys
 
 
 def overlap(x1, x2):
@@ -31,7 +32,7 @@ def convert_to_per_char_labs(truth, result, null_label="none"):
     return true_out, res_out
 
 
-
+@Registry.register_metric(ModeKeys.SEQUENCE)
 class OverlapAccuracy(SequenceLabelingMetric):
     """ Accuracy of overlaps """
 
@@ -41,6 +42,7 @@ class OverlapAccuracy(SequenceLabelingMetric):
         return accuracy_score(truth, res)
 
 
+@Registry.register_metric(ModeKeys.SEQUENCE)
 class OverlapPrecision(SequenceLabelingMetric):
     """ precision of overlaps """
 
@@ -49,6 +51,8 @@ class OverlapPrecision(SequenceLabelingMetric):
         truth, res = convert_to_per_char_labs(ground_truth, result)
         return precision_score(truth, res, average="weighted")
 
+
+@Registry.register_metric(ModeKeys.SEQUENCE)
 class OverlapRecall(SequenceLabelingMetric):
     """ Accuracy of overlaps """
 

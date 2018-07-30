@@ -1,7 +1,9 @@
 from . import Sampler
 import numpy as np
+from enso.registry import ModeKeys, Registry
 
 
+@Registry.register_sampler(ModeKeys.ANY)
 class NoSampler(Sampler):
     """
     Randomly selects examples from the training dataset.

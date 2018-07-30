@@ -2,7 +2,6 @@
 import abc
 
 from enso.utils import BaseObject
-from enso.config import MODE
 
 
 class Metric(BaseObject):
@@ -21,28 +20,18 @@ class Metric(BaseObject):
 class ClassificationMetric(Metric):
     """Base class for classification metrics."""
 
-    def __new__(cls):
-        if MODE != "Classification":
-            raise ValueError("Incorrect Metrics for {} task".format(MODE))
-        return super().__new__(cls)
-
 
 class RegressionMetric(Metric):
     """Base class for regression metrics."""
-
-    pass
 
 
 class MatchingMetric(Metric):
     """Base class for matching metrics."""
 
-    pass
-
 
 class SequenceLabelingMetric(Metric):
     """ Base class for Sequence Labeling metrics"""
-    def __new__(cls):
-        if MODE != "SequenceLabeling":
-            raise ValueError("Incorrect Metrics for {} task".format(MODE))
-        return super().__new__(cls)
 
+
+from enso.metrics import basic_classification
+from enso.metrics import basic_seq_labeling

@@ -7,18 +7,15 @@ labeled examples that are more informative than a simple random sample of traini
 import numpy as np
 import random
 from sklearn.metrics.pairwise import pairwise_distances
-from enso.config import TEST_SETUP, MODE
-from enso.utils import get_plugins
-
-import itertools
+from enso.registry import Registry
 
 
 def sample(sampler, data, train_labels, train_indices, train_size):
-    sampler = Sampler._class_for(sampler)(data, train_labels, train_indices, train_size)
+    sampler = Registry.get_sampler(sampler)(data, train_labels, train_indices, train_size)
     return sampler.sample()
 
 
-class ClassifySampler:
+class Sampler:
     """
     Base class for all `Sampler`'s
 
@@ -80,76 +77,7 @@ class ClassifySampler:
         raise NotImplementedError
 
 
-class SequenceSampler:
-    """
-    Base class for all `SequenceSampler`'s
-
-    :param data: pd.Series of feature vectors
-    :param train_labels: pd.Series of targets
-    :param train_indices: pd.Series of example indices
-    :param train_size: int number of examples to select
-    """
-
-    def __init__(self, data, train_labels, train_indices, train_size):
-        """
-        Given a set of training data and a desired size, uses a strategy to
-        select a subset of datapoints to use as labeled training data.
-        All arguments are taken at initialization.  The :func:`sample` function
-        may be called multiple times on a single `Sampler` object.
-
-
-        """
-        self.data = data
-
-        stripped_labels = []
-        for item in train_labels:
-            per_sample = []
-            for label in item:
-                per_sample.append(label["label"])
-            stripped_labels.append(per_sample)
-
-        self.train_labels = stripped_labels
-
-        self.train_indices = train_indices
-        self.train_size = train_size
-        if len(self.classes) > train_size:
-            raise ValueError("The train size can not be smaller than the number of classes.")
-
-    @property
-    def classes(self):
-        if not hasattr(self, '_classes'):
-            self._classes = set(itertools.chain.from_iterable(self.train_labels))
-        return self._classes
-
-    def _choose_starting_points(self):
-        """
-        Ensures a minimum of one label per class is chosen
-        """
-        points = []
-        for cls in self.classes:
-            indices = [i for i, val in enumerate(self.train_labels) if cls in val]
-            index = random.choice(indices)
-            points.append(self.train_indices[index])
-        return points
-
-    @property
-    def distances(self):
-        raise NotImplementedError
-
-    @property
-    def points(self):
-        raise NotImplementedError
-
-    def sample(self):
-        """
-        Given the settings provided at initialization, apply the provided sampling strategy
-
-        :returns: np.array of example indices selected by `Sampler`.
-        """
-        raise NotImplementedError
-
-
-class Sampler(SequenceSampler if MODE == "SequenceLabeling" else ClassifySampler):
-    @classmethod
-    def _class_for(cls, sampler_string):
-        return get_plugins("sample", set([sampler_string]), return_class=True)[0]
+from enso.sample import kcenter_sampler
+from enso.sample import no_sampler
+from enso.sample import orthogonal_sampler
+from enso.sample import random_sampler

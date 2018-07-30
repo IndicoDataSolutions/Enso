@@ -1,10 +1,7 @@
 """General util functions."""
 import os
 import os.path
-import inspect
 from time import strptime
-from importlib import import_module
-
 import pandas as pd
 
 from enso.config import RESULTS_DIRECTORY, FEATURES_DIRECTORY
@@ -16,34 +13,6 @@ def feature_set_location(dataset_name, featurizer_name):
     write_location = "%s/%s/" % (FEATURES_DIRECTORY, base_dir)
     dump_name = "%s_%s_features.csv" % (filename, featurizer_name)
     return write_location + dump_name
-
-
-def get_plugins(plugin_dir, match_names, return_class=False):
-    """Responsible for grabbing objects from specified plugin directories."""
-    full_plugin_dir_path = os.path.abspath(os.path.join(os.path.dirname(__file__), plugin_dir))
-    root, dirs, files = next(os.walk(full_plugin_dir_path))
-
-    relevant_classes = []
-    for filename in files:
-        if not filename.endswith('.py') or '__' in filename:
-            continue
-        module_name = filename.rpartition('.')[0]
-        import_path = "%s.%s.%s" % ("enso", plugin_dir, module_name)
-        mod = import_module(import_path)
-        for name, obj in inspect.getmembers(mod):
-            if inspect.isclass(obj) and obj.__name__ in match_names:
-                relevant_classes.append(obj)
-
-    names = set(item.__name__ for item in relevant_classes)
-    if names != match_names:
-        raise ValueError("""
-            Config doesn't match classes present.\n%s: %s\nConfig: %s
-        """ % (plugin_dir, names, match_names))
-
-    if return_class:
-        return relevant_classes
-    else:
-        return [relevant_class() for relevant_class in relevant_classes]
 
 
 def get_all_experiment_runs():

@@ -8,24 +8,26 @@ from matplotlib import pyplot as plt
 
 from enso.visualize import ClassificationVisualizer
 from enso.config import RESULTS_DIRECTORY
+from enso.registry import Registry
 
 
+@Registry.register_visualizer()
 class FacetGridVisualizer(ClassificationVisualizer):
     """
     Create a grid of line graphs based on the value of `config.VISUALIZATION_OPTIONS`
     """
 
     def visualize(
-        self,
-        results,
-        x_tile,
-        y_tile,
-        x_axis,
-        y_axis,
-        lines,
-        results_id=None,
-        filename='FacetGridVisualizer',
-        **kwargs
+            self,
+            results,
+            x_tile,
+            y_tile,
+            x_axis,
+            y_axis,
+            lines,
+            results_id=None,
+            filename='FacetGridVisualizer',
+            **kwargs
     ):
         """
         Create a tiled visualization of experiment results.

@@ -1,17 +1,14 @@
 """
 Main method for running experiments according to the specifications of `config.py`.
 """
+
 import os
 import logging
 import time
 from shutil import copyfile
 from time import gmtime, strftime
-from ast import literal_eval
 import abc
 from functools import wraps
-import multiprocessing
-import itertools
-import json
 
 import concurrent.futures
 from concurrent.futures import ProcessPoolExecutor
@@ -19,12 +16,13 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit
 from sklearn.externals import joblib
-from tqdm import tqdm
 
-from enso.resample import resample
 from enso.sample import sample
-from enso.utils import feature_set_location, get_plugins, BaseObject
-from enso.config import FEATURIZERS, DATA, EXPERIMENTS, METRICS, TEST_SETUP, RESULTS_DIRECTORY, N_GPUS, N_CORES, MODE
+from enso.utils import feature_set_location, BaseObject
+from enso.mode import ModeKeys
+from enso.config import FEATURIZERS, DATA, EXPERIMENTS, METRICS, TEST_SETUP, RESULTS_DIRECTORY, N_GPUS, N_CORES, MODE, \
+    FIX_REQUIREMENTS
+from enso.registry import Registry
 from multiprocessing import Process
 
 POOL = ProcessPoolExecutor(N_CORES)
@@ -36,10 +34,11 @@ class Experimentation(object):
     def __init__(self, name=None):
         """Responsible for gathering and instantiating experiments, featurizers, and metrics."""
         self.name = name
-        self.experiments = get_plugins("experiment", EXPERIMENTS, return_class=True)
-        self.featurizers = get_plugins("featurize", FEATURIZERS)
-        self.metrics = get_plugins("metrics", METRICS)
-        self.columns = ['Dataset', 'Featurizer', 'Experiment', 'Metric', 'TrainSize', 'Sampler', 'Resampler', 'Result', 'TrainResult']
+        self.experiments = [Registry.get_experiment(e) for e in EXPERIMENTS]
+        self.featurizers = [Registry.get_featurizer(f)() for f in FEATURIZERS]
+        self.metrics = [Registry.get_metric(m)() for m in METRICS]
+        self.columns = ['Dataset', 'Featurizer', 'Experiment', 'Metric', 'TrainSize', 'Sampler', 'Resampler', 'Result',
+                        'TrainResult']
         self.results = pd.DataFrame(columns=self.columns)
 
     def run_experiments(self):
@@ -59,13 +58,17 @@ class Experimentation(object):
                                 'Sampler': sampler,
                                 'Resampler': resampler
                             }
-                            future = POOL.submit(self._run_experiment, dataset_name, current_setting)
-                            futures[future] = current_setting
+                            fixed_setups = Registry.fix_requirements(current_setting, self.experiments,
+                                                                     FIX_REQUIREMENTS)
+
+                            for current_setting, experiments in fixed_setups:
+                                future = POOL.submit(self._run_experiment, dataset_name, current_setting, experiments)
+                                futures[future] = current_setting
 
         for future in concurrent.futures.as_completed(futures):
             current_setting = futures[future]
             try:
-                results = future.result()
+                future.result()
                 logging.info("Finished training for {}".format(current_setting))
             except Exception:
                 logging.exception("Exception occurred for {}".format(current_setting))
@@ -86,7 +89,8 @@ class Experimentation(object):
             train_labels = list(dataset[target].iloc[train])
             test_set = list(dataset['Features'].iloc[test])
             test_labels = list(dataset[target].iloc[test])
-            experiment.fit(*resample(current_setting['Resampler'], train_set, train_labels))
+            resampler = Registry.get_resampler(current_setting["Resampler"])
+            experiment.fit(*resampler.resample(train_set, train_labels))
 
             test_pred = experiment.predict(test_set, subset='TEST')
             train_pred = experiment.predict(train_set, subset='TRAIN')
@@ -100,8 +104,8 @@ class Experimentation(object):
             self._dump_results(result, experiment_name=self.name)
         except Exception:
             logging.exception("Failed to run experiment: {}".format(internal_setting))
-        
-    def _run_experiment(self, dataset_name, current_setting):
+
+    def _run_experiment(self, dataset_name, current_setting, experiments):
         """Responsible for running all experiments specified in config."""
         results = pd.DataFrame(columns=self.columns)
         dataset = self._load_dataset(dataset_name, current_setting.get("Featurizer"))
@@ -114,9 +118,9 @@ class Experimentation(object):
                     train_indices,
                     current_setting['TrainSize']
                 )
-                for experiment_cls in self.experiments:
+                for experiment_cls in experiments:
                     try:
-                        # Ideally we wouldn't have to do this in a process, but at the moment 
+                        # Ideally we wouldn't have to do this in a process, but at the moment
                         # creating a process and killing the process after execution is the
                         # only way to force TF to free it's GPU memory.
                         p = Process(target=self._run_sub_experiment, kwargs={
@@ -138,7 +142,8 @@ class Experimentation(object):
 
         return results
 
-    def _measure_experiment(self, target, result, train_target=None, train_result=None, internal_setting=None, test_key='Result', train_key='TrainResult'):
+    def _measure_experiment(self, target, result, train_target=None, train_result=None, internal_setting=None,
+                            test_key='Result', train_key='TrainResult'):
         """Responsible for recording all metrics specified in config for a given experiment."""
         results = pd.DataFrame(columns=self.columns)
         for metric in self.metrics:
@@ -190,14 +195,16 @@ class Experimentation(object):
         # Unfortunately it doesn't work as expected and locks test size to train size
         test_size = int(len(dataset) * TEST_SETUP["sampling_size"])
         if test_size + training_size > len(dataset):
-            raise ValueError("Invalid training size provided.  Training size must be less than {} of dataset size.".format(TEST_SETUP["sampling_size"]))
+            raise ValueError(
+                "Invalid training size provided.  Training size must be less than {} of dataset size.".format(
+                    TEST_SETUP["sampling_size"]))
 
-        if MODE == "Classification":
+        if MODE == ModeKeys.CLASSIFY:
             splitter = StratifiedShuffleSplit(TEST_SETUP["n_splits"], test_size=test_size)
-        elif MODE == "SequenceLabeling":
+        elif MODE == ModeKeys.SEQUENCE:
             splitter = ShuffleSplit(TEST_SETUP["n_splits"], test_size=test_size)
         else:
-            raise ValueError("config.MODE needs to be either Classification or SequenceLabeling")
+            raise ValueError("config.MODE needs to be either ModeKeys.CLASSIFY or ModeKeys.SEQUENCE")
 
         for target in target_list:
             # We can use np.zeros because it's stratifying the split
@@ -286,6 +293,7 @@ class ClassificationExperiment(Experiment):
     @classmethod
     def _verify_output(cls, func):
         """Verify the output of classification tasks."""
+
         @wraps(func)
         def wrapped_predict(self, dataset):
             response = func(dataset)
@@ -294,6 +302,7 @@ class ClassificationExperiment(Experiment):
             # All probabilities should sum to approx. 1
             assert np.all(np.isclose(response.sum(axis=1), np.ones(len(response))))
             return response
+
         return func
 
 
@@ -309,3 +318,12 @@ class MatchingExperiment(Experiment):
 
     def __init__(self, *args, **kwargs):
         raise NotImplementedError
+
+
+from enso.experiment import finetuning
+from enso.experiment import grid_search
+from enso.experiment import logistic_regression
+from enso.experiment import naive_bayes
+from enso.experiment import NB
+from enso.experiment import random_forest
+from enso.experiment import svm
