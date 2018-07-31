@@ -46,7 +46,7 @@ class RandomOverSampler(Resampler):
 
 
 @Registry.register_resampler(ModeKeys.ANY)
-class NoneOverSampler(Resampler):
+class NoResampler(Resampler):
 
     @staticmethod
     def resample(X, y, max_ratio=50):

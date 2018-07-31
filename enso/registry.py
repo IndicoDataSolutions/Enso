@@ -1,5 +1,5 @@
 from copy import deepcopy
-from enso.config import MODE
+from enso.config import MODE, FIX_REQUIREMENTS
 from enso.mode import ModeKeys
 import logging
 
@@ -22,77 +22,54 @@ class WarnOnce:
 logger.addFilter(WarnOnce())
 
 
-class Registry:
-    _experiment = {}
-    _featurizer = {}
-    _sampler = {}
-    _resampler = {}
-    _requirements = {}
-    _metrics = {}
-    _visualizer = {}
-    _modes = {}
-    _cached_setups = []
+class ValidateExperiments:
+    """
+    Validates and optionally repairs experiment configurations with respect to a mode and a set of requirements.
+    """
 
-    @classmethod
-    def fix_requirements(cls, setup_dict, experiments, fix=True):
-        setup_dicts = [deepcopy(setup_dict) for _ in range(len(experiments))]
-        skips = []
-        for exp_idx, experiment in enumerate(experiments):
-            setup_dict = setup_dicts[exp_idx]
-            setup_dict["Experiment"] = experiment.__name__
+    def __init__(self, fix=True):
+        self.fix = fix
+        self._cache = set()
 
-            for key, value in setup_dict.items():
+    @property
+    def reg(self):
+        return Registry
 
-                if value in cls._requirements:
-                    for field, requirement in cls._requirements[value]:
-                        field_val = setup_dict.get(field)
-                        if field_val is None:
-                            raise Exception("Requirements for {} contains invalid field {}".format(value, field))
+    def is_repeated(self, setup_dict):
+        cache_key = hash(tuple(sorted(str(a) for a in setup_dict.values())))
+        if cache_key in self._cache:
+            logger.warning("Repairing created duplicate experiments, skipping...")
+            return True
+        else:
+            self._cache.add(cache_key)
+            return False
 
-                        if requirement.startswith("not"):
-                            requires_not = requirement.split(" ")[1]
-                            if field_val == requires_not:
-                                if fix:
-                                    logger.warning("Unsatisfied requirements of the form not <Class> cannot be "
-                                                   " repaired skipping instead")
-                                    skips.append(exp_idx)
+    @staticmethod
+    def valid_dataset(dataset_str):
+        mode = dataset_str.split("/")[0]
+        if MODE.value != mode:
+            logger.warning("Dataset {} is not compatible with mode {}. Skipping.".format(value, MODE.value))
+            return False
+        return True
 
-                                else:
-                                    raise ValueError(
-                                        "Config items set to use {} when requirements enforces {}".format(
-                                            setup_dict[field],
-                                            requirement))
+    @staticmethod
+    def skip_from_negative_requirement(requirement, field_val, fix):
+        requires_not = requirement.split(" ")[1]
+        if field_val == requires_not:
+            if fix:
+                logger.warning("Unsatisfied requirements of the form not <Class> cannot be "
+                               " repaired skipping instead")
+                return True
 
-                        else:
-                            if field_val != requirement:
-                                if fix:
-                                    logger.warning(
-                                        "Requirements being fixed, replacing {} with {}".format(setup_dict[field],
-                                                                                                requirement))
-                                    setup_dict[field] = requirement
-                                else:
-                                    raise ValueError(
-                                        "Config items set to use {} when requirements enforces {}".format(
-                                            setup_dict[field],
-                                            requirement))
-                elif key == "Dataset":
-                    mode = value.split("/")[0]
-                    if MODE.value != mode:
-                        logger.warning("Dataset {} is not compatible with mode {}. Skipping.".format(value, MODE.value))
-                        skips.append(exp_idx)
-
-            cache_key = hash(tuple(sorted(str(a) for a in setup_dict.values())))
-            if cache_key in cls._cached_setups:
-                logger.warning("Repairing created duplicate experiments, skipping...")
-                skips.append(exp_idx)
             else:
-                cls._cached_setups.append(cache_key)
+                raise ValueError(
+                    "Config items set to use {} when requirements enforces {}".format(
+                        field_val,
+                        requirement))
+        return False
 
-            del setup_dict["Experiment"]
-
-        if not fix:
-            return [[setup_dicts, experiments]]
-
+    @staticmethod
+    def enforce_uniqueness(setup_dicts, experiments, skips):
         # group by similar hparams. Effectively putting experiment into the innermost loop.
         setups = []
         for setup_idx, (setup, experiment) in enumerate(zip(setup_dicts, experiments)):
@@ -107,8 +84,59 @@ class Registry:
                     break
             if not set:
                 setups.append([setup, [experiment]])
-
         return setups
+
+    def validate(self, setup_dict, experiments):
+        setup_dicts = [deepcopy(setup_dict) for _ in range(len(experiments))]
+        skips = []
+        for exp_idx, experiment in enumerate(experiments):
+            setup_dict = setup_dicts[exp_idx]
+            setup_dict["Experiment"] = experiment.__name__
+
+            for key, value in setup_dict.items():
+                if key == "Dataset":
+                    if not self.valid_dataset(value):
+                        skips.append(exp_idx)
+
+                for field, requirement in self.reg._requirements.get(value, []):
+                    field_val = setup_dict.get(field)
+                    if field_val is None:
+                        raise Exception("Requirements for {} contains invalid field {}".format(value, field))
+
+                    if requirement.startswith("not"):
+                        if self.skip_from_negative_requirement(requirement, field_val, self.fix):
+                            skips.append(exp_idx)
+
+                    else:
+                        if field_val != requirement:
+                            if self.fix:
+                                logger.warning(
+                                    "Requirements being fixed, replacing {} with {}".format(setup_dict[field],
+                                                                                            requirement))
+                                setup_dict[field] = requirement
+                            else:
+                                raise ValueError(
+                                    "Config items set to use {} when requirements enforces {}".format(
+                                        setup_dict[field],
+                                        requirement))
+
+            if self.is_repeated(setup_dict):
+                skips.append(setup_dict)
+
+            del setup_dict["Experiment"]
+
+        return self.enforce_uniqueness(setup_dicts, experiments, skips)
+
+
+class Registry:
+    _experiment = {}
+    _featurizer = {}
+    _sampler = {}
+    _resampler = {}
+    _requirements = {}
+    _metrics = {}
+    _visualizer = {}
+    _modes = {}
 
     @classmethod
     def _decorator(cls, p_cls, layer, mode=None, requirements=None, registration_name=None):

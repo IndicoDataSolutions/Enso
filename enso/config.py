@@ -23,30 +23,29 @@ DATA = {
     'Classify/MovieReviews',
     'Classify/MPQA',
     'Classify/PoliticalTweetSubjectivity',
-    
+
     # Seqence
 
-    #'SequenceLabeling/Reuters-128',
-    #'SequenceLabeling/brown_all',
-    #'SequenceLabeling/brown_nouns',
-    #'SequenceLabeling/brown_verbs',
-    #'SequenceLabeling/brown_pronouns',
-    #'SequenceLabeling/brown_adverbs',
+    # 'SequenceLabeling/Reuters-128',
+    # 'SequenceLabeling/brown_all',
+    # 'SequenceLabeling/brown_nouns',
+    # 'SequenceLabeling/brown_verbs',
+    # 'SequenceLabeling/brown_pronouns',
+    # 'SequenceLabeling/brown_adverbs',
 }
-
 
 # Featurizers to activate
 FEATURIZERS = {
     "PlainTextFeaturizer",
-    #"IndicoStandard",
+    # "IndicoStandard",
     "SpacyGloveFeaturizer",
-    #"SpacyCNNFeaturizer",
+    # "SpacyCNNFeaturizer",
 }
 
 # Experiments to run
 EXPERIMENTS = {
-    #"FinetuneSequenceLabel",
-    #"IndicoSequenceLabel"
+    # "FinetuneSequenceLabel",
+    # "IndicoSequenceLabel"
     # "Finetune",
     # "SpacyGlove"
     "LogisticRegressionCV"
@@ -54,9 +53,9 @@ EXPERIMENTS = {
 
 # Metrics to compute
 METRICS = {
-    #"OverlapAccuracy",
-    #"OverlapPrecision",
-    #"OverlapRecall",
+    # "OverlapAccuracy",
+    # "OverlapPrecision",
+    # "OverlapRecall",
     "Accuracy",
     "MacroRocAuc",
 }
@@ -65,11 +64,11 @@ METRICS = {
 TEST_SETUP = {
     "train_sizes": range(50, 500, 50),
     "n_splits": 2,
-    #"samplers": ['RandomSequence', 'NoSampler'],
+    # "samplers": ['RandomSequence', 'NoSampler'],
     "samplers": ['Random'],
     "sampling_size": .3,
-    #"resamplers": ["SequenceOverSampler", 'NoneOverSampler']
-    "resamplers": ["NoneOverSampler"]
+    # "resamplers": ["SequenceOverSampler", 'NoResampler']
+    "resamplers": ["NoResampler", "RandomOverSampler"]
 }
 
 # Visualizations to display
@@ -96,7 +95,7 @@ VISUALIZATION_OPTIONS = {
 MODE = ModeKeys.CLASSIFY
 
 N_GPUS = 1
-N_CORES = 1 # multiprocessing.cpu_count()
+N_CORES = 1  # multiprocessing.cpu_count()
 
 FIX_REQUIREMENTS = True
 

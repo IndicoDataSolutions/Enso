@@ -20,9 +20,8 @@ from sklearn.externals import joblib
 from enso.sample import sample
 from enso.utils import feature_set_location, BaseObject
 from enso.mode import ModeKeys
-from enso.config import FEATURIZERS, DATA, EXPERIMENTS, METRICS, TEST_SETUP, RESULTS_DIRECTORY, N_GPUS, N_CORES, MODE, \
-    FIX_REQUIREMENTS
-from enso.registry import Registry
+from enso.config import FEATURIZERS, DATA, EXPERIMENTS, METRICS, TEST_SETUP, RESULTS_DIRECTORY, N_GPUS, N_CORES, MODE
+from enso.registry import Registry, ValidateExperiments
 from multiprocessing import Process
 
 POOL = ProcessPoolExecutor(N_CORES)
@@ -44,6 +43,7 @@ class Experimentation(object):
     def run_experiments(self):
         """Responsible for actually running experiments."""
         futures = {}
+        experiment_validator = ValidateExperiments()
         for dataset_name in DATA:
             logging.info("Experimenting on %s dataset" % dataset_name)
             for featurizer in self.featurizers:
@@ -58,8 +58,7 @@ class Experimentation(object):
                                 'Sampler': sampler,
                                 'Resampler': resampler
                             }
-                            fixed_setups = Registry.fix_requirements(current_setting, self.experiments,
-                                                                     FIX_REQUIREMENTS)
+                            fixed_setups = experiment_validator.validate(current_setting, self.experiments)
 
                             for current_setting, experiments in fixed_setups:
                                 future = POOL.submit(self._run_experiment, dataset_name, current_setting, experiments)

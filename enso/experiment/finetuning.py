@@ -48,7 +48,7 @@ class FinetuneSequenceLabel(ClassificationExperiment):
 
     def predict(self, X, **kwargs):
         return self.model.predict(X)
-    
+
 
 @Registry.register_experiment(ModeKeys.SEQUENCE, requirements=[("Featurizer", "PlainTextFeaturizer")])
 class IndicoSequenceLabel(ClassificationExperiment):
@@ -85,3 +85,4 @@ class IndicoSequenceLabel(ClassificationExperiment):
 
     def __del__(self):
         self.model.clear()
+1
