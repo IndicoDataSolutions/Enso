@@ -2,7 +2,7 @@ from collections import Counter, defaultdict
 import random
 from abc import ABCMeta, abstractmethod
 import itertools
-from enso.config import MODE
+from enso.config import CORRUPTION_FRAC, GOLD_FRAC
 
 import numpy as np
 
@@ -43,6 +43,32 @@ class RandomOverSampler(Resampler):
         random.shuffle(idx_sample)
 
         return X[idx_sample].tolist(), y[idx_sample].tolist()
+
+
+@Registry.register_resampler(ModeKeys.CLASSIFY)
+class CorruptiveResampler(Resampler):
+
+    @staticmethod
+    def scramble(y, prob):
+        classes = list(set(y))
+        y_ = []
+        baseline_probas = np.ones(len(classes)) * prob / (len(classes) - 1)
+        true_proba = 1 - sum(baseline_probas)
+        for sample in y:
+            bl = np.copy(baseline_probas)
+            bl[classes.index(sample)] += true_proba
+            y_.append(np.random.choice(classes, p=bl))
+        return y_
+
+    @staticmethod
+    def resample(X, y, max_ratio=50):
+        num_samples = len(y)
+        num_gold = int(num_samples * GOLD_FRAC)
+
+        y_gold = y[:num_gold]
+        y_train = np.asarray(list(y_gold) + CorruptiveResampler.scramble(y[num_gold:], CORRUPTION_FRAC))
+        return X, y_train
+
 
 
 @Registry.register_resampler(ModeKeys.ANY)

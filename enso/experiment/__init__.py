@@ -326,3 +326,5 @@ from enso.experiment import naive_bayes
 from enso.experiment import NB
 from enso.experiment import random_forest
 from enso.experiment import svm
+from enso.experiment import reweighting
+from enso.experiment import tfidf
