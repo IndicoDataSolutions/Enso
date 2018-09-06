@@ -26,8 +26,7 @@ class RandomOverSampler(Resampler):
         class_counts = Counter(y)
         max_count = max(class_counts.values())
         desired_counts = {
-            class_name: min(
-                max_count, max_ratio * class_count)
+            class_name: min(max_count, max_ratio * class_count) - class_count
             for class_name, class_count in class_counts.items()
         }
 
@@ -42,7 +41,7 @@ class RandomOverSampler(Resampler):
 
         random.shuffle(idx_sample)
 
-        return X[idx_sample].tolist(), y[idx_sample].tolist()
+        return X.tolist() + X[idx_sample].tolist(), y.tolist() + y[idx_sample].tolist()
 
 
 @Registry.register_resampler(ModeKeys.CLASSIFY)
@@ -69,6 +68,31 @@ class CorruptiveResampler(Resampler):
         y_train = np.asarray(list(y_gold) + CorruptiveResampler.scramble(y[num_gold:], CORRUPTION_FRAC))
         return X, y_train
 
+
+@Registry.register_resampler(ModeKeys.CLASSIFY)
+class CorruptiveOversampler(Resampler):
+
+    @staticmethod
+    def resample(X, y, max_ratio=50):
+        X, y = CorruptiveResampler.resample(X, y)
+        return RandomOverSampler.resample(X, y)
+
+@Registry.register_resampler(ModeKeys.CLASSIFY)
+class CorruptiveOversamplerWithOriginalTargs(Resampler):
+
+    @staticmethod
+    def resample(X, y, max_ratio=50):
+        X = [{"X":x, "y":y_} for x, y_ in zip(X,y)]
+        X, y = CorruptiveResampler.resample(X, y)
+        return RandomOverSampler.resample(X, y)
+
+@Registry.register_resampler(ModeKeys.CLASSIFY)
+class CorruptiveResamplerWithOriginalTargs(Resampler):
+
+    @staticmethod
+    def resample(X, y, max_ratio=50):
+        X = [{"X":x, "y":y_} for x, y_ in zip(X,y)]
+        return CorruptiveResampler.resample(X, y)
 
 
 @Registry.register_resampler(ModeKeys.ANY)

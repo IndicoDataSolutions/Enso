@@ -3,6 +3,8 @@ import os
 import os.path
 from time import strptime
 import pandas as pd
+import numpy as np
+from sklearn.model_selection import StratifiedKFold
 
 from enso.config import RESULTS_DIRECTORY, FEATURES_DIRECTORY
 
@@ -51,3 +53,14 @@ class BaseObject(object):
         Prints the name of the current class to aid logging and result formatting.
         """
         return self.__class__.__name__
+
+
+class OversampledKFold(StratifiedKFold):
+    def __init__(self, resampler, n_splits=3, shuffle=False, random_state=None):
+        super().__init__(n_splits, shuffle, random_state)
+        self.resampler = resampler
+
+    def split(self, X, y, groups=None):
+        y_ = np.asarray(y)
+        for tr, te in super().split(X, y, groups):
+            yield self.resampler.resample(tr, y_[tr])[0], te

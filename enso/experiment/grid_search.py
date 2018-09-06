@@ -1,10 +1,8 @@
-from abc import abstractmethod
-
 import pandas as pd
 from sklearn.model_selection import GridSearchCV
 
 from enso.experiment import ClassificationExperiment
-
+from enso.utils import OversampledKFold
 
 class GridSearch(ClassificationExperiment):
     """
@@ -21,7 +19,7 @@ class GridSearch(ClassificationExperiment):
 
     def __init__(self, *args, **kwargs):
         """Initialize internal classifier."""
-        super().__init__(*args, **kwargs)
+        super().__init__(auto_resample=False, *args, **kwargs)
         self.best_model = None
 
     def fit(self, X, y):
@@ -34,12 +32,14 @@ class GridSearch(ClassificationExperiment):
         """
         classifier = GridSearchCV(
             self.base_model(),
-            param_grid=self.param_grid
+            param_grid=self.param_grid,
+            cv=OversampledKFold(self.resampler_),
+            refit=False
         )
         classifier.fit(X, y)
 
         self.best_model = self.base_model(**classifier.best_params_)
-        self.best_model.fit(X, y)
+        self.best_model.fit(*self.resample(X, y))
 
     def predict(self, X, **kwargs):
         """Predict results on test set based on current internal model."""

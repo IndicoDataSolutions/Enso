@@ -20,7 +20,7 @@ from sklearn.externals import joblib
 from enso.sample import sample
 from enso.utils import feature_set_location, BaseObject
 from enso.mode import ModeKeys
-from enso.config import FEATURIZERS, DATA, EXPERIMENTS, METRICS, TEST_SETUP, RESULTS_DIRECTORY, N_GPUS, N_CORES, MODE
+from enso.config import FEATURIZERS, DATA, EXPERIMENTS, METRICS, TEST_SETUP, RESULTS_DIRECTORY, N_GPUS, N_CORES, MODE, EXPERIMENT_NAME
 from enso.registry import Registry, ValidateExperiments
 from multiprocessing import Process
 
@@ -72,14 +72,30 @@ class Experimentation(object):
             except Exception:
                 logging.exception("Exception occurred for {}".format(current_setting))
 
+    def experiment_has_been_run(self, current_settings):
+        result_path = os.path.join(RESULTS_DIRECTORY, EXPERIMENT_NAME, "Results.csv")
+        if not os.path.exists(result_path):
+            return False
+        results = pd.read_csv(result_path)
+        indexes = results["Experiment"] == current_settings["Experiment"]
+        for col, val in current_settings.items():
+            indexes = indexes & (results[col] == val)
+        experiments = results.loc[indexes]
+        if len(experiments) < len(METRICS) * TEST_SETUP["n_splits"]:
+            return False
+        return True
+
     def _run_sub_experiment(self, experiment_cls, dataset, train, test, target, current_setting):
-        experiment = experiment_cls()
+        experiment = experiment_cls(Registry.get_resampler(current_setting["Resampler"]))
 
         name = experiment.name()
         internal_setting = {
             'Experiment': name
         }
         internal_setting.update(current_setting)
+        if self.experiment_has_been_run(internal_setting):
+            logging.info("Experiment has been run, skipping...")
+            return
         logging.info("Training with settings {}".format(internal_setting))
         try:
             # You might find yourself wondering why we're using lists here instead of np arrays
@@ -88,9 +104,7 @@ class Experimentation(object):
             train_labels = list(dataset[target].iloc[train])
             test_set = list(dataset['Features'].iloc[test])
             test_labels = list(dataset[target].iloc[test])
-            resampler = Registry.get_resampler(current_setting["Resampler"])
-            experiment.fit(*resampler.resample(train_set, train_labels))
-
+            experiment.fit(train_set, train_labels)
             test_pred = experiment.predict(test_set, subset='TEST')
             train_pred = experiment.predict(train_set, subset='TRAIN')
             result = self._measure_experiment(
@@ -239,11 +253,25 @@ class Experiment(BaseObject):
 
     __metaclass__ = VerifyOutput
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, resampler, auto_resample=True, *args, **kwargs):
         """
         Instantiate a new experiment
         """
         super().__init__(*args, **kwargs)
+        self.resampler_ = resampler
+        self.auto_resample_ = auto_resample
+
+    def resample(self, X, y):
+        return self.resampler_.resample(X, y)
+
+    def __getattr__(self, item):
+        if item == "fit" and self.auto_resample_:
+            def fit(X, y):
+                X_, y_ = self.resample(X, y)
+                return fit(X_, y_)
+            return fit
+        else:
+            return super().__getattr__(item)
 
     @abc.abstractmethod
     def fit(self, X, y):

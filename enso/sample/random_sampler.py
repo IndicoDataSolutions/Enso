@@ -23,8 +23,9 @@ class Random(Sampler):
 
         :returns: np.array of example indices selected by random sampling
         """
-        points = self._choose_starting_points()
-        return points + list(np.random.choice(self.train_indices, self.train_size - len(points), replace=False))
+        points = self._choose_starting_points(n_points=3)
+        points += list(np.random.choice(self.train_indices, self.train_size - len(points), replace=False))
+        return points
 
 
 @Registry.register_sampler(ModeKeys.SEQUENCE)
