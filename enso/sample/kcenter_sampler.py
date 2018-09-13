@@ -1,7 +1,10 @@
 from . import Sampler
 import numpy as np
 
+from enso.registry import Registry, ModeKeys
 
+
+@Registry.register_sampler(ModeKeys.CLASSIFY)
 class KCenter(Sampler):
     """
     Randomly selects an example from each class to use as "centers",

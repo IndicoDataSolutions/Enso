@@ -3,7 +3,10 @@ import pandas as pd
 
 from enso.experiment import Experiment
 
+from enso.registry import Registry, ModeKeys
 
+
+@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "not PlainTextFeaturizer")])
 class NaiveBayes(Experiment):
     """Gaussian naive bayes model."""
 

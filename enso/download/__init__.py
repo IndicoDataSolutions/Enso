@@ -5,11 +5,12 @@ from pandas.compat import StringIO
 from bs4 import BeautifulSoup
 
 from enso import config
+from enso.mode import ModeKeys
 
 
-def generic_download(url, text_column, target_column, filename, save=True, task_type='Classify', text_transformation=None, target_transformation=None):
+def generic_download(url, text_column, target_column, filename, save=True, task_type=ModeKeys.CLASSIFY, text_transformation=None, target_transformation=None):
 
-    save_path = os.path.join(config.DATA_DIRECTORY, task_type, filename)
+    save_path = os.path.join(config.DATA_DIRECTORY, task_type.value, filename)
     if os.path.exists(save_path):
         print("{} already downloaded, skipping...".format(filename))
         return
@@ -31,7 +32,6 @@ def generic_download(url, text_column, target_column, filename, save=True, task_
         new_df.to_csv(save_path, index=False)
 
     return new_df
-
 
 def html_to_text(text):
     return BeautifulSoup(text, "html5lib").get_text()

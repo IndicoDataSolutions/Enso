@@ -7,16 +7,15 @@ labeled examples that are more informative than a simple random sample of traini
 import numpy as np
 import random
 from sklearn.metrics.pairwise import pairwise_distances
-from enso.config import TEST_SETUP
-from enso.utils import get_plugins
+from enso.registry import Registry
 
 
 def sample(sampler, data, train_labels, train_indices, train_size):
-    sampler = Sampler._class_for(sampler)(data, train_labels, train_indices, train_size)
+    sampler = Registry.get_sampler(sampler)(data, train_labels, train_indices, train_size)
     return sampler.sample()
 
 
-class Sampler(object):
+class Sampler:
     """
     Base class for all `Sampler`'s
 
@@ -77,6 +76,8 @@ class Sampler(object):
         """
         raise NotImplementedError
 
-    @classmethod
-    def _class_for(cls, sampler_string):
-        return get_plugins("sample", set([sampler_string]), return_class=True)[0]
+
+from enso.sample import kcenter_sampler
+from enso.sample import no_sampler
+from enso.sample import orthogonal_sampler
+from enso.sample import random_sampler

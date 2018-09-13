@@ -3,9 +3,11 @@ from indicoio.custom import vectorize
 import indicoio.config
 from tqdm import tqdm
 
+from enso.registry import Registry, ModeKeys
 from enso.featurize import Featurizer
 
 
+@Registry.register_featurizer(ModeKeys.ANY)
 class BaseIndicoFeaturizer(Featurizer):
     """
     Base model from which all indico `Featurizer`'s inherit.
@@ -28,59 +30,68 @@ class BaseIndicoFeaturizer(Featurizer):
         return all_features
 
 
+@Registry.register_featurizer(ModeKeys.ANY)
 class IndicoStandard(BaseIndicoFeaturizer):
     """Featurizer that uses indico's standard features."""
     domain = 'standard'
 
 
+@Registry.register_featurizer(ModeKeys.ANY)
 class IndicoSentiment(BaseIndicoFeaturizer):
     """Featurizer that uses indico's sentiment features."""
     domain = 'sentiment'
 
 
+@Registry.register_featurizer(ModeKeys.ANY)
 class IndicoTopics(BaseIndicoFeaturizer):
     """Featurizer that uses indico's topics features."""
     domain = 'topics'
 
 
+@Registry.register_featurizer(ModeKeys.ANY)
 class IndicoFinance(BaseIndicoFeaturizer):
     """Featurizer that uses indico's finance features."""
     domain = 'finance'
 
 
+@Registry.register_featurizer(ModeKeys.ANY)
 class IndicoTransformer(BaseIndicoFeaturizer):
     """Featurizer that uses indico's transformer features."""
     domain = 'transformer'
 
 
+@Registry.register_featurizer(ModeKeys.ANY)
 class IndicoEmotion(BaseIndicoFeaturizer):
     """Featurizer that uses indico's emotion features."""
     domain = 'emotion'
 
 
+@Registry.register_featurizer(ModeKeys.ANY)
 class IndicoFastText(BaseIndicoFeaturizer):
     """Featurizer that uses indico's fasttext features."""
     domain = 'fasttext'
 
 
+@Registry.register_featurizer(ModeKeys.ANY)
 class IndicoElmo(BaseIndicoFeaturizer):
     """Featurizer that uses indico's finance features."""
     domain = 'elmo'
 
 
 # NOTE: To remain undocumented for now until further API design decisions are made
+@Registry.register_featurizer(ModeKeys.ANY)
 class IndicoElmoSequence(BaseIndicoFeaturizer):
     """Featurizer that uses indico's finance features."""
     domain = 'elmo'
     sequence = True
 
-
+@Registry.register_featurizer(ModeKeys.ANY)
 class IndicoTransformerSequence(BaseIndicoFeaturizer):
     """Featurizer that uses indico's transformer sequence features."""
     domain = 'transformer'
     sequence = True
 
-
+@Registry.register_featurizer(ModeKeys.ANY)
 class IndicoStandardSequence(BaseIndicoFeaturizer):
     """Featurizer that uses indico's standard sequence features"""
     domain = 'standard'

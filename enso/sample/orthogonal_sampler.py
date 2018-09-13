@@ -1,7 +1,10 @@
 from . import Sampler
 import numpy as np
 
+from enso.registry import Registry, ModeKeys
 
+
+@Registry.register_sampler(ModeKeys.CLASSIFY)
 class Orthogonal(Sampler):
     """
     Randomly selects starting points, then selects additional points for which

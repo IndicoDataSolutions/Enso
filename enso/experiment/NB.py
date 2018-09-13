@@ -5,7 +5,10 @@ from sklearn.naive_bayes import GaussianNB, MultinomialNB, BernoulliNB
 
 from enso.experiment import Experiment
 
+from enso.registry import Registry, ModeKeys
 
+
+@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "not PlainTextFeaturizer")])
 class NaiveGaussianBayes(Experiment):
     """Basic implementation of a grid-search optimized Logistic Regression."""
 
@@ -25,6 +28,8 @@ class NaiveGaussianBayes(Experiment):
         probabilities = self.active_model.predict_proba(dataset)
         return pd.DataFrame({label: probabilities[:, i] for i, label in enumerate(labels)})
 
+
+@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "not PlainTextFeaturizer")])
 class NaiveMultinomialBayes(Experiment):
     """Basic implementation of a grid-search optimized Logistic Regression."""
 
@@ -48,6 +53,8 @@ class NaiveMultinomialBayes(Experiment):
         probabilities = self.active_model.predict_proba(dataset)
         return pd.DataFrame({label: probabilities[:, i] for i, label in enumerate(labels)})
 
+
+@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "not PlainTextFeaturizer")])
 class NativeBernoulliBayes(Experiment):
     """Basic implementation of a grid-search optimized Logistic Regression."""
 

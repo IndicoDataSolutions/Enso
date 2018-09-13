@@ -1,15 +1,17 @@
 """
 Entrypoint for featurizing datasets according to the specifications of `config.py`.
 """
-
+import os
 import logging
+import json
 
 import pandas as pd
 
 import concurrent.futures
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from enso.config import FEATURIZERS, DATA, N_CORES
-from enso.utils import get_plugins, feature_set_location, BaseObject
+from enso.utils import feature_set_location, BaseObject
+from enso.registry import Registry
 from sklearn.externals import joblib
 
 
@@ -23,7 +25,7 @@ class Featurization(object):
         """
         Responsible for searching featurizer module and importing those specified in config.
         """
-        self.featurizers = get_plugins('featurize', FEATURIZERS)
+        self.featurizers = [Registry.get_featurizer(f)() for f in FEATURIZERS]
 
     def _run(self, POOL):
         futures = {}
@@ -39,15 +41,17 @@ class Featurization(object):
             featurizer, dataset_name = futures[future]
             try:
                 future.result()
-                logging.info("Completed featurization of dataset `{dataset_name}` with featurizer `{featurizer}`.".format(
-                    dataset_name=dataset_name,
-                    featurizer=featurizer.__class__.__name__
-                ))
+                logging.info(
+                    "Completed featurization of dataset `{dataset_name}` with featurizer `{featurizer}`.".format(
+                        dataset_name=dataset_name,
+                        featurizer=featurizer.__class__.__name__
+                    ))
             except Exception as e:
-                logging.exception("Failed featurization of dataset `{dataset_name}` with featurizer `{featurizer}`.".format(
-                    dataset_name=dataset_name,
-                    featurizer=featurizer.__class__.__name__
-                ))
+                logging.exception(
+                    "Failed featurization of dataset `{dataset_name}` with featurizer `{featurizer}`.".format(
+                        dataset_name=dataset_name,
+                        featurizer=featurizer.__class__.__name__
+                    ))
 
     def run(self, n_jobs=N_CORES):
         """
@@ -64,12 +68,19 @@ class Featurization(object):
     @staticmethod
     def _load_dataset(dataset_name):
         """Responsible for finding datasets and reading them into dataframes."""
-        df = pd.read_csv("Data/%s.csv" % dataset_name)
-        if 'Text' not in df:
-            raise ValueError("File: %s has no column 'Text'" % dataset_name)
-        if 'Target' not in df:
-            raise ValueError("File %s has no column 'Target'" % dataset_name)
-        return df
+        dataset = "Data/%s" % dataset_name  # TODO Data is hard coded although seems configurable from config.
+        if "Classify" in dataset:
+            df = pd.read_csv("%s.csv" % dataset)
+            if 'Text' not in df:
+                raise ValueError("File: %s has no column 'Text'" % dataset_name)
+            if 'Target' not in df:
+                raise ValueError("File %s has no column 'Target'" % dataset_name)
+            return df
+        elif "SequenceLabeling" in dataset:
+            with open("%s.json" % dataset, "rt") as fp:
+                return json.load(fp)
+        else:
+            raise FileNotFoundError("Dataset type : %s not understood" % dataset_name)
 
 
 class Featurizer(BaseObject):
@@ -103,19 +114,47 @@ class Featurizer(BaseObject):
         :param dataset: `pd.DataFrame` object that must contain a `Text` column.
         :param dataset_name: `str` name to use as a save location in the `config.FEATURES_DIRECTORY`.
         """
-        features = []
+        if type(dataset) == list:
+            text = [d[0] for d in dataset]
+            features = self._features_from_text(text)
+            new_dataset = pd.DataFrame(data={
+                "Text": text,
+                "Targets": [d[1] for d in dataset],
+                "Features": features
+            })
+
+        elif type(dataset) == pd.DataFrame:
+            features = self._features_from_text(dataset["Text"])
+            new_dataset = dataset.copy()  # Don't want to modify the underlying dataframe
+            new_dataset['Features'] = features
+        else:
+            raise ValueError("Unrecognised data format!!")
+
+        self._write(new_dataset, dataset_name)
+
+    def _features_from_text(self, text_batches):
+        """
+        Given a `dataset` pandas DataFrame and string `dataset_name`,
+        add column `"Features"` to the provided `pd.DataFrame` and serialize the result
+        to the results folder listed in `config.py`.
+
+        If a given featurizer exposes a :func:`featurize_batch` method, that method will be
+        called to perform featurization.  Otherwise, :class:`Featurizer`'s will fall
+        back to calling :func:`featurize` on each individual example.
+
+        :param dataset: `pd.DataFrame` object that must contain a `Text` column.
+        :param dataset_name: `str` name to use as a save location in the `config.FEATURES_DIRECTORY`.
+        """
         try:
-            features = self.featurize_batch(dataset['Text'])
+            features = self.featurize_batch(text_batches)
         except (NotImplementedError, AttributeError):
             try:
-                features = [self.featurize(entry) for entry in dataset['Text']]
+                features = [self.featurize(entry) for entry in text_batches]
             except (NotImplementedError, AttributeError):
                 raise NotImplementedError("""
                     Featurizers must implement the featurize_list, or the featurize method
                 """)
-        new_dataset = dataset.copy()  # Don't want to modify the underlying dataframe
-        new_dataset['Features'] = features
-        self._write(new_dataset, dataset_name)
+        return features
 
     def _write(self, featurized_dataset, dataset_name):
         """Responsible for taking a featurized dataset and writing it out to the filesystem."""
@@ -136,3 +175,8 @@ class Featurizer(BaseObject):
         :returns: `np.ndarray` representation of text
         """
         raise NotImplementedError
+
+
+from enso.featurize import indico_features
+from enso.featurize import plain_text
+from enso.featurize import spacy_features

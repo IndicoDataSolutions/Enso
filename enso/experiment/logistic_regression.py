@@ -5,7 +5,10 @@ from sklearn.linear_model import LogisticRegression
 
 from enso.experiment.grid_search import GridSearch
 
+from enso.registry import Registry, ModeKeys
 
+
+@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "not PlainTextFeaturizer")])
 class LogisticRegressionCV(GridSearch):
     """Implementation of a grid-search optimized Logistic Regression model."""
 
