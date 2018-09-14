@@ -1,6 +1,5 @@
 from . import Sampler
 from enso.config import MODE
-import random
 import numpy as np
 from enso.registry import ModeKeys, Registry
 import itertools
@@ -60,15 +59,15 @@ class RandomSequence(Random):
             self._classes = set(itertools.chain.from_iterable(self.train_labels))
         return self._classes
 
-    def _choose_starting_points(self):
+    def _choose_starting_points(self, n_points=1):
         """
         Ensures a minimum of one label per class is chosen
         """
         points = []
         for cls in self.classes:
             indices = [i for i, val in enumerate(self.train_labels) if cls in val]
-            index = random.choice(indices)
-            points.append(self.train_indices[index])
+            indexes = np.random.choice(indices, size=n_points)
+            points.extend(self.train_indices[indexes])
         return points
 
     @property

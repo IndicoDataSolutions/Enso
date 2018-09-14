@@ -3,7 +3,7 @@ import json
 
 import pandas as pd
 import numpy as np
-
+import spacy
 from indicoio.custom import Collection
 from finetune import Classifier, SequenceLabeler
 #from finetune.config import get_default_config, Ranged
@@ -16,6 +16,8 @@ from sklearn.metrics import roc_auc_score, accuracy_score, log_loss
 import numpy as np
 
 from enso.utils import labels_to_binary
+
+NLP = spacy.load('en', disable=['parser', 'tagger', 'ner', 'textcat'])
 
 
 def rocauc(result, ground_truth):
@@ -178,13 +180,141 @@ class Finetune10(Finetune):
 class FinetuneSequenceLabel(ClassificationExperiment):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.model = SequenceLabeler(autosave_path=os.path.join(RESULTS_DIRECTORY, '.autosave'), val_size=0)
+        self.model = SequenceLabeler(autosave_path=os.path.join(RESULTS_DIRECTORY, '.autosave'), val_size=0, class_weight='linear')
 
     def fit(self, X, y):
-        self.model.fit(X, y)
+        for doc, seq in zip(X, y):
+            for token in seq:
+                token['text'] = doc[token['start']:token['end']]
+        corruptX, corruptY = super().resample(X, y)
+        self.model.fit(corruptX, corruptY)
 
     def predict(self, X, **kwargs):
         return self.model.predict(X)
+
+
+def _convert_to_token_list(annotations, doc_idx=None):
+    tokens = []
+
+    for annotation in annotations:
+        start_idx = annotation.get('start')
+        tokens.extend([
+            {
+                'start': start_idx + token.idx,
+                'end': start_idx + token.idx + len(token.text),
+                'text': token.text,
+                'label': annotation.get('label'),
+                'doc_idx': doc_idx,
+                'confidence': annotation.get('confidence')
+            }
+            for token in NLP(annotation.get('text'))
+        ])
+
+    return tokens
+
+def likely_errors(true, predicted, n_corrections=10):
+    """
+    Return FP, FN, and TP counts
+    """
+
+    unique_classes = set([seq['label'] for seqs in true for seq in seqs])
+
+    d = {
+        cls_: {
+            'false_positives': [],
+            'false_negatives': [],
+            'correct': []
+        }
+        for cls_ in unique_classes
+    }
+    
+    labeling_errors = []
+    for i, (true_list, pred_list) in enumerate(zip(true, predicted)):
+        true_tokens = _convert_to_token_list(true_list, doc_idx=i)
+        pred_tokens = _convert_to_token_list(pred_list, doc_idx=i)
+
+        # correct + false negatives
+        for true_token in true_tokens:
+            for pred_token in pred_tokens:
+                if (pred_token['start'] == true_token['start'] and 
+                    pred_token['end'] == true_token['end']):
+
+                    if pred_token['label'] == true_token['label']:
+                        d[true_token['label']]['correct'].append(true_token)
+                    else:
+                        d[true_token['label']]['false_negatives'].append(true_token)
+                        d[pred_token['label']]['false_positives'].append(pred_token)
+                        labeling_errors.append(pred_token)
+                    
+                    break
+            else:
+                d[true_token['label']]['false_negatives'].append(true_token)
+
+        # false positives
+        for pred_token in pred_tokens:
+            for true_token in true_tokens:
+                if (pred_token['start'] == true_token['start'] and 
+                    pred_token['end'] == true_token['end']):
+                    break
+            else:
+                d[pred_token['label']]['false_positives'].append(pred_token)
+                labeling_errors.append(pred_token)
+    max_response = lambda token: max(token.get('confidence').values())
+    return list(sorted(labeling_errors, key=max_response, reverse=True)[:n_corrections])
+
+    
+@Registry.register_experiment(ModeKeys.SEQUENCE, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class FinetuneSequenceRelabeled(ClassificationExperiment):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model = SequenceLabeler(autosave_path=os.path.join(RESULTS_DIRECTORY, '.autosave'), val_size=0, class_weight='linear')
+
+    def fit(self, X, y):
+        # corrupt labels
+        for doc, seq in zip(X, y):
+            for token in seq:
+                token['text'] = doc[token['start']:token['end']]
+        corruptX, corruptY = super().resample(X, y)
+        self.model.fit(corruptX, corruptY)
+        n_labels = sum([len(seq) for seq in corruptY])
+        predictions = self.model.predict_proba(corruptX)
+        corrections = likely_errors(corruptY, predictions, n_corrections=n_labels // 10)
+        for correction in corrections:
+            for label in y[correction.get('doc_idx')]:
+                if label['start'] <= correction['start'] and label['end'] <= correction['end']:
+                    corruptY[correction.get('doc_idx')].append(label)
+        self.model.fit(corruptX, corruptY)
+
+    def predict(self, X, **kwargs):
+        return self.model.predict(X)
+
+
+@Registry.register_experiment(ModeKeys.SEQUENCE, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class FinetuneSequenceCompleteRefit(ClassificationExperiment):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model = SequenceLabeler(autosave_path=os.path.join(RESULTS_DIRECTORY, '.autosave'), val_size=0, class_weight='linear')
+
+    def fit(self, X, y):
+        # corrupt labels
+        for doc, seq in zip(X, y):
+            for token in seq:
+                token['text'] = doc[token['start']:token['end']]
+        corruptX, corruptY = super().resample(X, y)
+        self.model.fit(corruptX, corruptY)
+        n_labels = sum([len(seq) for seq in corruptY])
+        predictions = self.model.predict_proba(corruptX)
+        corrections = likely_errors(corruptY, predictions, n_corrections=n_labels // 10)
+        for correction in corrections:
+            for label in y[correction.get('doc_idx')]:
+                if label['start'] <= correction['start'] and label['end'] <= correction['end']:
+                    corruptY[correction.get('doc_idx')].append(label)
+        self.model = SequenceLabeler(autosave_path=os.path.join(RESULTS_DIRECTORY, '.autosave'), val_size=0)
+        self.model.fit(corruptX, corruptY)
+
+    def predict(self, X, **kwargs):
+        return self.model.predict(X)
+
 
 
 @Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])

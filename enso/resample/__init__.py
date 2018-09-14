@@ -2,10 +2,11 @@ from collections import Counter, defaultdict
 import random
 from abc import ABCMeta, abstractmethod
 import itertools
-from enso.config import CORRUPTION_FRAC, GOLD_FRAC
+import logging
 
 import numpy as np
 
+from enso.config import CORRUPTION_FRAC
 from enso.registry import Registry, ModeKeys
 
 
@@ -16,10 +17,9 @@ class Resampler(metaclass=ABCMeta):
     def resample(X, y, max_ratio=50):
         """ """
 
-
 @Registry.register_resampler(ModeKeys.CLASSIFY)
 class RandomOverSampler(Resampler):
-
+    
     @staticmethod
     def resample(X, y, max_ratio=50):
         X, y = np.asarray(X), np.asarray(y)
@@ -102,6 +102,17 @@ class NoResampler(Resampler):
     def resample(X, y, max_ratio=50):
         return X, y
 
+
+@Registry.register_resampler(ModeKeys.SEQUENCE)
+class SequenceCorruptiveResampler(Resampler):
+
+    @staticmethod
+    def resample(X, y, max_ratio=None):
+        y = [
+            [target for target in seq if np.random.uniform() < CORRUPTION_FRAC]
+            for seq in y
+        ]
+        return X, y
 
 @Registry.register_resampler(ModeKeys.SEQUENCE)
 class SequenceOverSampler(Resampler):

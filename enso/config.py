@@ -14,61 +14,60 @@ RESULTS_DIRECTORY = "Results"
 FEATURES_DIRECTORY = "Features"
 
 # Directory for storing experiment results
-EXPERIMENT_NAME = "TestSamplersSequence"
+EXPERIMENT_NAME = "CorruptedSequence"
 
 # Datasets to featurize or run experiments on
 DATA = {
     # Classification
-    'Classify/AirlineSentiment',
-    'Classify/MovieReviews',
-    'Classify/MPQA',
-    'Classify/PoliticalTweetSubjectivity',
+    # 'Classify/AirlineSentiment',
+    # 'Classify/MovieReviews',
+    # 'Classify/MPQA',
+    # 'Classify/PoliticalTweetSubjectivity',
 
     # Seqence
 
     # 'SequenceLabeling/Reuters-128',
     # 'SequenceLabeling/brown_all',
-    # 'SequenceLabeling/brown_nouns',
-    # 'SequenceLabeling/brown_verbs',
-    # 'SequenceLabeling/brown_pronouns',
-    # 'SequenceLabeling/brown_adverbs',
+    'SequenceLabeling/brown_nouns.small',
+    'SequenceLabeling/brown_verbs.small',
+    'SequenceLabeling/brown_pronouns.small',
+    'SequenceLabeling/brown_adverbs.small',
 }
 
 # Featurizers to activate
 FEATURIZERS = {
     "PlainTextFeaturizer",
     # "IndicoStandard",
-    "SpacyGloveFeaturizer",
+    # "SpacyGloveFeaturizer",
     # "SpacyCNNFeaturizer",
 }
 
 # Experiments to run
 EXPERIMENTS = {
-    # "FinetuneSequenceLabel",
+    "FinetuneSequenceRelabeled",
+    # "FinetuneSequenceLabel"
     # "IndicoSequenceLabel"
     # "Finetune",
     # "SpacyGlove"
-    "LogisticRegressionCV"
+    # "LogisticRegressionCV"
 }
 
 # Metrics to compute
 METRICS = {
-    # "OverlapAccuracy",
-    # "OverlapPrecision",
-    # "OverlapRecall",
-    "Accuracy",
-    "MacroRocAuc",
+    "OverlapAccuracy",
+    "OverlapPrecision",
+    "OverlapRecall",
+    # "Accuracy",
+    # "MacroRocAuc",
 }
 
 # Test setup metadata
 TEST_SETUP = {
     "train_sizes": range(50, 500, 50),
     "n_splits": 2,
-    # "samplers": ['RandomSequence', 'NoSampler'],
-    "samplers": ['Random'],
+    "samplers": ['RandomSequence'],
     "sampling_size": .3,
-    # "resamplers": ["SequenceOverSampler", 'NoResampler']
-    "resamplers": ["NoResampler", "RandomOverSampler"]
+    "resamplers": ["SequenceCorruptiveResampler"]
 }
 
 # Visualizations to display
@@ -92,7 +91,10 @@ VISUALIZATION_OPTIONS = {
     }
 }
 
-MODE = ModeKeys.CLASSIFY
+CORRUPTION_FRAC = 0.3
+GOLD_FRAC = 0.1
+
+MODE = ModeKeys.SEQUENCE
 
 N_GPUS = 1
 N_CORES = 1  # multiprocessing.cpu_count()
