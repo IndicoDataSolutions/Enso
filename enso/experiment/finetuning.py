@@ -6,7 +6,7 @@ import numpy as np
 
 from indicoio.custom import Collection
 from finetune import Classifier, SequenceLabeler
-#from finetune.config import get_default_config, Ranged
+# from finetune.config import get_default_config, Ranged
 
 from enso.experiment import ClassificationExperiment
 from enso.config import RESULTS_DIRECTORY
@@ -26,6 +26,7 @@ def rocauc(result, ground_truth):
     predicted_labels = np.hstack([result[column].values.reshape(-1, 1) for column in result.columns])
     return roc_auc_score(binary_labels, predicted_labels, average='macro')
 
+
 @Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
 class Finetune(ClassificationExperiment):
     """
@@ -37,8 +38,7 @@ class Finetune(ClassificationExperiment):
     def __init__(self, *args, **kwargs):
         """Initialize internal classifier."""
         super().__init__(*args, **kwargs)
-        self.model = Classifier(autosave_path=os.path.join(RESULTS_DIRECTORY, '.autosave'),
-                                val_size=0)
+        self.model = Classifier(val_size=0)
 
     def fit(self, X, y):
         """
@@ -52,9 +52,14 @@ class Finetune(ClassificationExperiment):
         preds = self.model.predict_proba(X)
         return pd.DataFrame.from_records(preds)
 
+    def cleanup(self):
+        del self.model
+
+
 @Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
 class FinetuneEstimator2(Finetune):
     pass
+
 
 @Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
 class Finetune2Layers(Finetune):
@@ -64,6 +69,8 @@ class Finetune2Layers(Finetune):
         self.model.config.num_layers_trained = 2
         self.model.config.train_embeddings = False
 
+        self.model = SequenceLabeler(val_size=0)
+
 
 @Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
 class Finetune2LayersReClf(Finetune):
@@ -72,6 +79,9 @@ class Finetune2LayersReClf(Finetune):
         self.model.config.reapply_clf = True
         self.model.config.num_layers_trained = 2
         self.model.config.train_embeddings = False
+
+    def cleanup(self):
+        del self.model
 
 
 @Registry.register_experiment(ModeKeys.SEQUENCE, requirements=[("Featurizer", "PlainTextFeaturizer")])
@@ -107,6 +117,5 @@ class IndicoSequenceLabel(ClassificationExperiment):
             predictions.extend(self.model.predict(data))
         return predictions
 
-    def __del__(self):
+    def cleanup(self):
         self.model.clear()
-1

@@ -1,4 +1,7 @@
-# ENSO #
+![enso](https://i.imgur.com/4Zrj23O.png)
+
+Enso
+----
 Enso is tool intended to provide a standard interface for the benchmarking of embedding and transfer learning methods for natural language processing tasks.
 
 Installation
@@ -17,6 +20,16 @@ or directly via `setup.py`:
 git clone git@github.com:IndicoDataSolutions/Enso.git
 python setup.py install
 ```
+
+Download the included datasets by running:
+
+```
+python -m enso.download
+```
+
+Documentation
+-------------
+Complete API documentation is available at [enso.readthedocs.io](http://enso.readthedocs.io/en/latest/).
 
 Usage and Workflow
 ------------------
