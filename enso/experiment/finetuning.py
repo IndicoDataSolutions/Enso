@@ -22,7 +22,7 @@ class Finetune(ClassificationExperiment):
     def __init__(self, *args, **kwargs):
         """Initialize internal classifier."""
         super().__init__(*args, **kwargs)
-        self.model = Classifier(autosave_path=os.path.join(RESULTS_DIRECTORY, '.autosave'))
+        self.model = Classifier()
 
     def fit(self, X, y):
         """
@@ -36,18 +36,25 @@ class Finetune(ClassificationExperiment):
         preds = self.model.predict_proba(X)
         return pd.DataFrame.from_records(preds)
 
+    def cleanup(self):
+        del self.model
+
 
 @Registry.register_experiment(ModeKeys.SEQUENCE, requirements=[("Featurizer", "PlainTextFeaturizer")])
 class FinetuneSequenceLabel(ClassificationExperiment):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.model = SequenceLabeler(autosave_path=os.path.join(RESULTS_DIRECTORY, '.autosave'), val_size=0)
+        self.model = SequenceLabeler(val_size=0)
 
     def fit(self, X, y):
         self.model.fit(X, y)
 
     def predict(self, X, **kwargs):
         return self.model.predict(X)
+
+    def cleanup(self):
+        del self.model
+
 
 
 @Registry.register_experiment(ModeKeys.SEQUENCE, requirements=[("Featurizer", "PlainTextFeaturizer")])
@@ -83,6 +90,5 @@ class IndicoSequenceLabel(ClassificationExperiment):
             predictions.extend(self.model.predict(data))
         return predictions
 
-    def __del__(self):
+    def cleanup(self):
         self.model.clear()
-1

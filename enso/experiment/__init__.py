@@ -93,6 +93,7 @@ class Experimentation(object):
 
             test_pred = experiment.predict(test_set, subset='TEST')
             train_pred = experiment.predict(train_set, subset='TRAIN')
+            experiment.cleanup()
             result = self._measure_experiment(
                 target=test_labels,
                 result=test_pred,
@@ -274,6 +275,9 @@ class Experiment(BaseObject):
         Check predict output to ensure it complies with the experiment type.
         """
         return function
+
+    def cleanup(self):
+        pass
 
 
 class ClassificationExperiment(Experiment):
