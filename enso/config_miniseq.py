@@ -14,7 +14,7 @@ RESULTS_DIRECTORY = "Results"
 FEATURES_DIRECTORY = "Features"
 
 # Directory for storing experiment results
-EXPERIMENT_NAME = "FinetuneEstimator"
+EXPERIMENT_NAME = "FinetuneMini2"
 
 # Datasets to featurize or run experiments on
 DATA = {
@@ -25,7 +25,7 @@ DATA = {
     # "Classify/BrandEmotionCause",
     # "Classify/ChemicalDiseaseCauses",
     # "Classify/CorporateMessaging",
-    "Classify/CustomerReviews",
+    #"Classify/CustomerReviews",
     # "Classify/DetailedEmotion",
     # "Classify/Disaster",
     # "Classify/DrugReviewIntent",
@@ -69,16 +69,14 @@ DATA = {
 # Featurizers to activate
 FEATURIZERS = {
     "PlainTextFeaturizer",
-#     "IndicoStandard",
+    # "IndicoStandard",
 #    "SpacyGloveFeaturizer",
 #    "IndicoStandard",
 #    "IndicoFastText",
 #    "IndicoSentiment",
    # "IndicoElmo",
 #    "Word2Vec",
-#    "UniversalEncoder",
-#    "UniversalEncoderLg"
-   # "BayesianesqueFeaturizer"
+#    "BayesianesqueFeaturizer"
     #"IndicoTopics",
 #    "IndicoFinance",
    # "IndicoTransformer",
@@ -93,13 +91,15 @@ FEATURIZERS = {
 EXPERIMENTS = {
     # "FinetuneSequenceLabel",
     # "IndicoSequenceLabel"
-    "FinetuneEstimator2",
+    #"Finetune",
     # "SpacyGlove"
-    #"LogisticRegressionCV",
+#    "LogisticRegressionCV",
 #    "SupportVectorMachineCV",
     #"ReweightingLR",
 #    "TfidfLogisticRegression"
-    # "Finetune2Layers",
+     "Finetune2Layers",
+    "Finetune2LayersReClf",
+    "Finetune"
     # "Finetune4Layers",
     # "Finetune4LayersCV",
     # "Finetune6Layers",
@@ -133,7 +133,7 @@ METRICS = {
 # Test setup metadata
 TEST_SETUP = {
     "train_sizes": range(50, 550, 25),
-    "n_splits": 5,
+    "n_splits": 3,
     # "samplers": ['RandomSequence', 'NoSampler'],
     "samplers": ['Random'],
     "sampling_size": .3,
@@ -172,4 +172,4 @@ FIX_REQUIREMENTS = True
 GOLD_FRAC = 0.05
 CORRUPTION_FRAC = 0.4
 
-indicoio.config.api_key = ""
+indicoio.config.api_key = "6ce18bc8af2ad17432b913b05d14bfbd"

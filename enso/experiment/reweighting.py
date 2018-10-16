@@ -4,41 +4,45 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 
 from enso.experiment import ClassificationExperiment
-from finetune import ReweightingClassifier
+
 from enso.config import RESULTS_DIRECTORY, GOLD_FRAC
 from enso.registry import Registry, ModeKeys
 from enso.utils import OversampledKFold
 import numpy as np
 from sklearn.model_selection import GridSearchCV
 
+try:
+    from finetune import ReweightingClassifier
 
-@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
-class FinetuneReweighting(ClassificationExperiment):
-    """
-    LanguageModel finetuning as an alternative to simple models trained on top of pretrained features.
-    """
-
-    param_grid = {}
-
-    def __init__(self, *args, **kwargs):
-        """Initialize internal classifier."""
-        super().__init__(*args, **kwargs)
-        self.model = ReweightingClassifier(val_size=0.0, batch_size=15, max_length=128, low_memory_mode=True)
-
-    def fit(self, X, y):
+    @Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
+    class FinetuneReweighting(ClassificationExperiment):
         """
-        :param X: `np.ndarray` of raw text sampled from training data.
-        :param y: `np.ndarray` of corresponding targets sampled from training data.
+        LanguageModel finetuning as an alternative to simple models trained on top of pretrained features.
         """
-        num_gold = int(GOLD_FRAC * len(y))
-        x_train_gold = X[:num_gold]
-        y_train_gold = y[:num_gold]
-        self.model.fit(x_train_gold, y_train_gold, X, y)
 
-    def predict(self, X, **kwargs):
-        """Predict results on test set based on current internal model."""
-        preds = self.model.predict_proba(X)
-        return pd.DataFrame.from_records(preds)
+        param_grid = {}
+
+        def __init__(self, *args, **kwargs):
+            """Initialize internal classifier."""
+            super().__init__(*args, **kwargs)
+            self.model = ReweightingClassifier(val_size=0.0, batch_size=15, max_length=128, low_memory_mode=True)
+
+        def fit(self, X, y):
+            """
+            :param X: `np.ndarray` of raw text sampled from training data.
+            :param y: `np.ndarray` of corresponding targets sampled from training data.
+            """
+            num_gold = int(GOLD_FRAC * len(y))
+            x_train_gold = X[:num_gold]
+            y_train_gold = y[:num_gold]
+            self.model.fit(x_train_gold, y_train_gold, X, y)
+
+        def predict(self, X, **kwargs):
+            """Predict results on test set based on current internal model."""
+            preds = self.model.predict_proba(X)
+            return pd.DataFrame.from_records(preds)
+except:
+    pass
 
 
 class TFEstimatorExperiment(ClassificationExperiment):

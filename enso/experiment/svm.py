@@ -5,7 +5,7 @@ from enso.experiment.grid_search import GridSearch
 from enso.registry import Registry, ModeKeys
 
 
-@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "not PlainTextFeaturizer"), ("Resampler", "not RandomOverSampler")])
+@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "not PlainTextFeaturizer"), ("Resampler", "NoResampler")])
 class SupportVectorMachineCV(GridSearch):
     """Implementation of a grid-search optimized RBF-SVM."""
 
@@ -14,8 +14,8 @@ class SupportVectorMachineCV(GridSearch):
         super().__init__(*args, **kwargs)
         self.base_model = SVC
         self.param_grid = {
-            'C': [0.01, 0.1, 1.0, 10., 100.],
-            'gamma': [0.1, 1.0, 10.],
+            'kernel': ["linear", "rbf"],
+            'C': [0.001, 0.01, 0.1, 1.0, 10., 100., 1000.],
             'probability': [True],
             'class_weight': ["balanced", None]
         }
