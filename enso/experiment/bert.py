@@ -162,7 +162,6 @@ class BERT(ClassificationExperiment):
                 optimizer.step()
                 self.model.zero_grad()
 
-
     def predict(self, X, **kwargs):
         """Predict results on test set based on current internal model."""
         self.model.eval()
@@ -175,8 +174,7 @@ class BERT(ClassificationExperiment):
             input_ids, seq_ids, input_mask, _ = batch
             with torch.no_grad():
                 logits = self.model(input_ids, seq_ids, input_mask)
-                probs = torch.nn.LogSoftmax(dim=-1)(logits)
-
+                probs = torch.nn.Softmax(dim=-1)(logits)
             probs = probs.detach().cpu().numpy()
             batch_preds = [dict(zip(self.labels, prob_arr)) for prob_arr in probs]
             preds.extend(batch_preds)
