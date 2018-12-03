@@ -26,6 +26,8 @@ from multiprocessing import Process
 
 POOL = ProcessPoolExecutor(N_CORES)
 
+# NOTE: all of the important imports of Experiment classes live at the bottom of this file.
+# TODO: factor out these base classes to a base.py file or similar  
 
 class Experimentation(object):
     """Responsible for running experiments configured in config."""
@@ -330,3 +332,4 @@ from enso.experiment import naive_bayes
 from enso.experiment import NB
 from enso.experiment import random_forest
 from enso.experiment import svm
+from enso.experiment import bert

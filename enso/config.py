@@ -14,7 +14,7 @@ RESULTS_DIRECTORY = "Results"
 FEATURES_DIRECTORY = "Features"
 
 # Directory for storing experiment results
-EXPERIMENT_NAME = "TestSamplersSequence"
+EXPERIMENT_NAME = "BERT"
 
 # Datasets to featurize or run experiments on
 DATA = {
@@ -38,7 +38,7 @@ DATA = {
 FEATURIZERS = {
     "PlainTextFeaturizer",
     # "IndicoStandard",
-    "SpacyGloveFeaturizer",
+    # "SpacyGloveFeaturizer",
     # "SpacyCNNFeaturizer",
 }
 
@@ -47,8 +47,9 @@ EXPERIMENTS = {
     # "FinetuneSequenceLabel",
     # "IndicoSequenceLabel"
     # "Finetune",
+    "BERT"
     # "SpacyGlove"
-    "LogisticRegressionCV"
+    # "LogisticRegressionCV"
 }
 
 # Metrics to compute
@@ -68,7 +69,7 @@ TEST_SETUP = {
     "samplers": ['Random'],
     "sampling_size": .3,
     # "resamplers": ["SequenceOverSampler", 'NoResampler']
-    "resamplers": ["NoResampler", "RandomOverSampler"]
+    "resamplers": ["RandomOverSampler"]
 }
 
 # Visualizations to display
