@@ -6,25 +6,14 @@ import numpy as np
 
 from indicoio.custom import Collection
 from finetune import Classifier, SequenceLabeler
-# from finetune.config import get_default_config, Ranged
 
 from enso.experiment import ClassificationExperiment
 from enso.config import RESULTS_DIRECTORY
 from enso.registry import Registry, ModeKeys
 
-from sklearn.metrics import roc_auc_score, accuracy_score, log_loss
 import numpy as np
 
 from enso.utils import labels_to_binary
-
-
-def rocauc(result, ground_truth):
-    result = pd.DataFrame(result)
-    ground_truth = list(ground_truth)
-    binary_labels = labels_to_binary(ground_truth)
-    binary_labels = np.hstack([binary_labels[column].values.reshape(-1, 1) for column in result.columns])
-    predicted_labels = np.hstack([result[column].values.reshape(-1, 1) for column in result.columns])
-    return roc_auc_score(binary_labels, predicted_labels, average='macro')
 
 
 @Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
@@ -51,34 +40,6 @@ class Finetune(ClassificationExperiment):
         """Predict results on test set based on current internal model."""
         preds = self.model.predict_proba(X)
         return pd.DataFrame.from_records(preds)
-
-    def cleanup(self):
-        del self.model
-
-
-@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
-class FinetuneEstimator2(Finetune):
-    pass
-
-
-@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
-class Finetune2Layers(Finetune):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.model.config.reapply_clf = False
-        self.model.config.num_layers_trained = 2
-        self.model.config.train_embeddings = False
-
-        self.model = SequenceLabeler(val_size=0)
-
-
-@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
-class Finetune2LayersReClf(Finetune):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.model.config.reapply_clf = True
-        self.model.config.num_layers_trained = 2
-        self.model.config.train_embeddings = False
 
     def cleanup(self):
         del self.model
@@ -119,3 +80,15 @@ class IndicoSequenceLabel(ClassificationExperiment):
 
     def cleanup(self):
         self.model.clear()
+
+@Registry.register_experiment(ModeKeys.SEQUENCE, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class FinetuneSequenceLabel(ClassificationExperiment):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model = SequenceLabeler(autosave_path=os.path.join(RESULTS_DIRECTORY, '.autosave'), val_size=0)
+
+    def fit(self, X, y):
+        self.model.fit(X, y)
+
+    def predict(self, X, **kwargs):
+        return self.model.predict(X)
