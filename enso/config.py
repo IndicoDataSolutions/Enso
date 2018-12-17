@@ -14,7 +14,7 @@ RESULTS_DIRECTORY = "Results"
 FEATURES_DIRECTORY = "Features"
 
 # Directory for storing experiment results
-EXPERIMENT_NAME = "FinetuneEstimator"
+EXPERIMENT_NAME = "EnsoExperiment"
 
 # Datasets to featurize or run experiments on
 DATA = {
@@ -45,10 +45,6 @@ DATA = {
     # "Classify/PoliticalTweetClassification",
     # "Classify/PoliticalTweetSubjectivity",
     # "Classify/PoliticalTweetTarget",
-    # "Classify/Reddit.10cls.1000",
-    # "Classify/Reddit.20cls.500",
-    # "Classify/Reddit.50cls.200",
-    # "Classify/Reddit.5cls.1000",
     # "Classify/ReligiousTexts",
     # "Classify/ShortAnswer",
      "Classify/SocialMediaDisasters",
@@ -69,63 +65,29 @@ DATA = {
 # Featurizers to activate
 FEATURIZERS = {
     "PlainTextFeaturizer",
-#     "IndicoStandard",
-#    "SpacyGloveFeaturizer",
-#    "IndicoStandard",
-#    "IndicoFastText",
-#    "IndicoSentiment",
-   # "IndicoElmo",
-#    "Word2Vec",
-#    "UniversalEncoder",
-#    "UniversalEncoderLg"
-   # "BayesianesqueFeaturizer"
-    #"IndicoTopics",
-#    "IndicoFinance",
-   # "IndicoTransformer",
-#    "IndicoEmotion",
-#    "IndicoFastText",
-    #"IndicoElmo",
-#    "SpacyCNNFeaturizer",
-
+     "IndicoStandard",
+    "SpacyGloveFeaturizer",
+    "IndicoFastText",
+    "IndicoSentiment",
+    "IndicoElmo",
+    "IndicoTopics",
+    "IndicoFinance",
+    "IndicoTransformer",
+    "IndicoEmotion",
+    "IndicoFastText",
+    "SpacyCNNFeaturizer",
 }
 
 # Experiments to run
 EXPERIMENTS = {
     # "FinetuneSequenceLabel",
     # "IndicoSequenceLabel"
-    "FinetuneEstimator2",
-    # "SpacyGlove"
     #"LogisticRegressionCV",
-#    "SupportVectorMachineCV",
-    #"ReweightingLR",
-#    "TfidfLogisticRegression"
-    # "Finetune2Layers",
-    # "Finetune4Layers",
-    # "Finetune4LayersCV",
-    # "Finetune6Layers",
-    # "Finetune8Layers",
-    # "Finetune10Layers",
-    # "Finetune2",
-    # "Finetune2Summative",
-    # "Finetune2Mean",
-    # "Finetune4",
-    # "Finetune6",
-    # "Finetune8",
-    # "Finetune10"
-    # "Finetune2CV"
-    # "FinetuneLast2CV",
-    # "Finetune2CVRoc"
-    # "Finetune8CV",
-    # "FinetuneLast8CV",
-    #"FinetuneCVNumLayers"
-
+    #"SupportVectorMachineCV",
 }
 
 # Metrics to compute
 METRICS = {
-    # "OverlapAccuracy",
-    # "OverlapPrecision",
-    # "OverlapRecall",
     "Accuracy",
     "MacroRocAuc",
 }
