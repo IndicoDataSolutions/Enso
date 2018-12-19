@@ -116,7 +116,7 @@ class Featurizer(BaseObject):
         """
 
         if os.path.exists(feature_set_location(dataset_name, self.__class__.__name__)):
-            print("Skipping, allready have this feature combination.")
+            print("Skipping, already have this feature combination.")
             return
 
         if type(dataset) == list:

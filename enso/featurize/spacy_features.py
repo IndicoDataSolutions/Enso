@@ -1,17 +1,11 @@
-import numpy as np
+import tensorflow as tf
+import tensorflow_hub as hub
 
 import spacy
-
-from bayesianesque import EmbedModel
-#from gensim.models import KeyedVectors
-
 from spacy.cli.download import download
 
 from enso.featurize import Featurizer
 from enso.registry import Registry, ModeKeys
-
-#import tensorflow_hub as hub
-import tensorflow as tf
 
 
 @Registry.register_featurizer(ModeKeys.ANY)
@@ -62,42 +56,6 @@ class SpacyGloveFeaturizer(Featurizer):
     def featurize_batch(self, X, **kwargs):
         return [self.nlp(x).vector for x in X]
 
-@Registry.register_featurizer(ModeKeys.ANY)
-class BayesianesqueFeaturizer(Featurizer):
-    def load(self):
-        """
-        If the pre-trained `en_vectors_web_lg` model is not already stored on disk, it will be automatically downloaded
-        as part of :func:`load()`. Note that the download process may require sudo permissions depending on your python package settings.
-        """
-        self.nlp = EmbedModel()
-
-    def featurize(self, x):
-        return self.nlp.predict([x])[0]
-
-    def featurize_batch(self, X, **kwargs):
-        return self.nlp.predict(X)
-
-@Registry.register_featurizer(ModeKeys.ANY)
-class Word2Vec(Featurizer):
-    def load(self):
-        self.model = KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
-
-    def featurize(self, text):
-        tokens = text.split(" ")
-        i = 0
-        vecs = [np.zeros(300)]
-        while i < len(tokens):
-            for j in range(len(tokens), i, -1):
-                n_gram = "_".join(tokens[i:j])
-                if n_gram in self.model:
-                    vecs.append(self.model[n_gram])
-                    i = j
-                    break
-            i += 1
-        return np.mean(vecs, axis=0)
-
-    def featurize_batch(self, X, **kwargs):
-        return [self.featurize(x) for x in X]
 
 @Registry.register_featurizer(ModeKeys.ANY)
 class UniversalEncoder(Featurizer):

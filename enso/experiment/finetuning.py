@@ -85,7 +85,7 @@ class IndicoSequenceLabel(ClassificationExperiment):
 class FinetuneSequenceLabel(ClassificationExperiment):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.model = SequenceLabeler(autosave_path=os.path.join(RESULTS_DIRECTORY, '.autosave'), val_size=0)
+        self.model = SequenceLabeler(val_size=0)
 
     def fit(self, X, y):
         self.model.fit(X, y)

@@ -75,24 +75,7 @@ class CorruptiveOversampler(Resampler):
     @staticmethod
     def resample(X, y, max_ratio=50):
         X, y = CorruptiveResampler.resample(X, y)
-        return RandomOverSampler.resample(X, y)
-
-@Registry.register_resampler(ModeKeys.CLASSIFY)
-class CorruptiveOversamplerWithOriginalTargs(Resampler):
-
-    @staticmethod
-    def resample(X, y, max_ratio=50):
-        X = [{"X":x, "y":y_} for x, y_ in zip(X,y)]
-        X, y = CorruptiveResampler.resample(X, y)
-        return RandomOverSampler.resample(X, y)
-
-@Registry.register_resampler(ModeKeys.CLASSIFY)
-class CorruptiveResamplerWithOriginalTargs(Resampler):
-
-    @staticmethod
-    def resample(X, y, max_ratio=50):
-        X = [{"X":x, "y":y_} for x, y_ in zip(X,y)]
-        return CorruptiveResampler.resample(X, y)
+        return RandomOverSampler.resample(X, y, max_ratio=max_ratio)
 
 
 @Registry.register_resampler(ModeKeys.ANY)

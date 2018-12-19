@@ -16,6 +16,9 @@ FEATURES_DIRECTORY = "Features"
 # Directory for storing experiment results
 EXPERIMENT_NAME = "EnsoExperiment"
 
+# Name of the csv used to store results
+RESULTS_CSV_NAME = "Results.csv"
+
 # Datasets to featurize or run experiments on
 DATA = {
     #"Classify/AirlineComplaints",

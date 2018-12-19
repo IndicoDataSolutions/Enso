@@ -19,12 +19,11 @@ from sklearn.externals import joblib
 from enso.sample import sample
 from enso.utils import feature_set_location, BaseObject
 from enso.mode import ModeKeys
-from enso.config import FEATURIZERS, DATA, EXPERIMENTS, METRICS, TEST_SETUP, RESULTS_DIRECTORY, N_GPUS, N_CORES, MODE, EXPERIMENT_NAME
+from enso.config import FEATURIZERS, DATA, EXPERIMENTS, METRICS, TEST_SETUP, RESULTS_DIRECTORY, N_CORES, MODE, EXPERIMENT_NAME, RESULTS_CSV_NAME
 from enso.registry import Registry, ValidateExperiments
 from multiprocessing import Process
 
 POOL = ProcessPoolExecutor(N_CORES)
-
 
 class Experimentation(object):
     """Responsible for running experiments configured in config."""
@@ -72,7 +71,7 @@ class Experimentation(object):
                 logging.exception("Exception occurred for {}".format(current_setting))
 
     def experiment_has_been_run(self, current_settings):
-        result_path = os.path.join(RESULTS_DIRECTORY, EXPERIMENT_NAME, "Results.csv")
+        result_path = os.path.join(RESULTS_DIRECTORY, EXPERIMENT_NAME, RESULTS_CSV_NAME)
         if not os.path.exists(result_path):
             return False
         results = pd.read_csv(result_path)
@@ -177,13 +176,13 @@ class Experimentation(object):
         """Responsible for recording config and dumping experiment results in result directory."""
         if not experiment_name:
             experiment_name = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
-        result_path = "%s/%s" % (RESULTS_DIRECTORY, experiment_name)
+        result_path = os.path.join(RESULTS_DIRECTORY, experiment_name)
         results = results.dropna()
 
         if not os.path.exists(result_path):
             os.makedirs(result_path)
 
-        result_file = "%s/Results.csv" % result_path
+        result_file = os.path.join(result_path, RESULTS_CSV_NAME)
         header = False if os.path.exists(result_file) else True
         result_fd = open(result_file, 'a')
         results.to_csv(result_fd, header=header, columns=self.columns)
@@ -357,5 +356,4 @@ from enso.experiment import naive_bayes
 from enso.experiment import NB
 from enso.experiment import random_forest
 from enso.experiment import svm
-from enso.experiment import reweighting
 from enso.experiment import tfidf

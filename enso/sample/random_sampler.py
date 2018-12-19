@@ -1,5 +1,4 @@
 from . import Sampler
-from enso.config import MODE
 import random
 import numpy as np
 from enso.registry import ModeKeys, Registry
@@ -24,7 +23,10 @@ class Random(Sampler):
         :returns: np.array of example indices selected by random sampling
         """
         points = self._choose_starting_points(n_points=3)
-        points += list(np.random.choice(self.train_indices, self.train_size - len(points), replace=False))
+        train_indices = self.train_indices[:]
+        for p in points:
+            train_indices.pop(p)
+        points += list(np.random.choice(train_indices, self.train_size - len(points), replace=False))
         return points
 
 
