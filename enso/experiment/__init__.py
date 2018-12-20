@@ -102,7 +102,8 @@ class Experimentation(object):
             train_labels = list(dataset[target].iloc[train])
             test_set = list(dataset['Features'].iloc[test])
             test_labels = list(dataset[target].iloc[test])
-            experiment.fit(train_set, train_labels)
+            x, y = experiment.resample(train_set, train_labels) if not experiment.auto_resample_ else train_set, train_labels
+            experiment.fit(x, y)
             test_pred = experiment.predict(test_set, subset='TEST')
             train_pred = experiment.predict(train_set, subset='TRAIN')
             experiment.cleanup()
@@ -249,7 +250,6 @@ class Experiment(BaseObject):
     is responsible for performing hyperparameter selection withing the context of :func:`fit`.
 
     """
-
     __metaclass__ = VerifyOutput
 
     def __init__(self, resampler, auto_resample=True, *args, **kwargs):
@@ -262,15 +262,6 @@ class Experiment(BaseObject):
 
     def resample(self, X, y):
         return self.resampler_.resample(X, y)
-
-    def __getattr__(self, item):
-        if item == "fit" and self.auto_resample_:
-            def fit(X, y):
-                X_, y_ = self.resample(X, y)
-                return fit(X_, y_)
-            return fit
-        else:
-            return super().__getattr__(item)
 
     @abc.abstractmethod
     def fit(self, X, y):
