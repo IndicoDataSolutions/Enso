@@ -114,6 +114,11 @@ class Featurizer(BaseObject):
         :param dataset: `pd.DataFrame` object that must contain a `Text` column.
         :param dataset_name: `str` name to use as a save location in the `config.FEATURES_DIRECTORY`.
         """
+
+        if os.path.exists(feature_set_location(dataset_name, self.__class__.__name__)):
+            print("Skipping, already have this feature combination.")
+            return
+
         if type(dataset) == list:
             text = [d[0] for d in dataset]
             features = self._features_from_text(text)
@@ -180,3 +185,9 @@ class Featurizer(BaseObject):
 from enso.featurize import indico_features
 from enso.featurize import plain_text
 from enso.featurize import spacy_features
+
+try:
+    # These require tensorflow which is not strictly a requirement of enso.
+    from enso.featurize import universal_encoder_features
+except ImportError:
+    pass

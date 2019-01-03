@@ -47,15 +47,16 @@ class Sampler:
             self._classes = set(self.train_labels)
         return self._classes
 
-    def _choose_starting_points(self):
+    def _choose_starting_points(self, n_points=1):
         """
         Ensures a minimum of one label per class is chosen
         """
         points = []
-        for cls in self.classes:
-            indices = [i for i, val in enumerate(self.train_labels) if val == cls]
-            index = random.choice(indices)
-            points.append(self.train_indices[index])
+        for _ in range(n_points):
+            for cls in self.classes:
+                indices = [i for i, val in enumerate(self.train_labels) if val == cls]
+                index = random.choice(indices)
+                points.append(self.train_indices[index])
         return points
 
     @property

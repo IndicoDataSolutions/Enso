@@ -1,8 +1,7 @@
 import spacy
-
 from spacy.cli.download import download
-from enso.featurize import Featurizer
 
+from enso.featurize import Featurizer
 from enso.registry import Registry, ModeKeys
 
 
@@ -53,3 +52,5 @@ class SpacyGloveFeaturizer(Featurizer):
 
     def featurize_batch(self, X, **kwargs):
         return [self.nlp(x).vector for x in X]
+
+

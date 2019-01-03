@@ -1,5 +1,4 @@
 from . import Sampler
-from enso.config import MODE
 import random
 import numpy as np
 from enso.registry import ModeKeys, Registry
@@ -23,8 +22,12 @@ class Random(Sampler):
 
         :returns: np.array of example indices selected by random sampling
         """
-        points = self._choose_starting_points()
-        return points + list(np.random.choice(self.train_indices, self.train_size - len(points), replace=False))
+        points = self._choose_starting_points(n_points=3)
+        train_indices = self.train_indices[:]
+        for p in points:
+            train_indices.pop(p)
+        points += list(np.random.choice(train_indices, self.train_size - len(points), replace=False))
+        return points
 
 
 @Registry.register_sampler(ModeKeys.SEQUENCE)
@@ -59,15 +62,16 @@ class RandomSequence(Random):
             self._classes = set(itertools.chain.from_iterable(self.train_labels))
         return self._classes
 
-    def _choose_starting_points(self):
+    def _choose_starting_points(self, n_points=3):
         """
         Ensures a minimum of one label per class is chosen
         """
         points = []
-        for cls in self.classes:
-            indices = [i for i, val in enumerate(self.train_labels) if cls in val]
-            index = random.choice(indices)
-            points.append(self.train_indices[index])
+        for _ in range(n_points):
+            for cls in self.classes:
+                indices = [i for i, val in enumerate(self.train_labels) if cls in val]
+                index = random.choice(indices)
+                points.append(self.train_indices[index])
         return points
 
     @property

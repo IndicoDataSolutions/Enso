@@ -15,7 +15,7 @@ class BaseIndicoFeaturizer(Featurizer):
     domain = None
     sequence = False
 
-    def featurize_batch(self, X, batch_size=32, **kwargs):
+    def featurize_batch(self, X, batch_size=8, **kwargs):
         """
         :param X: `pd.Series` that contains raw text to featurize
         :param batch_size: int number of examples to process per batch

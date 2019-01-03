@@ -12,7 +12,7 @@ import pandas as pd
 import numpy as np
 import matplotlib
 
-from enso.config import VISUALIZATIONS, VISUALIZATION_OPTIONS, RESULTS_DIRECTORY
+from enso.config import VISUALIZATIONS, VISUALIZATION_OPTIONS, RESULTS_DIRECTORY, RESULTS_CSV_NAME
 from enso.utils import get_all_experiment_runs
 from enso.utils import BaseObject
 from enso.registry import Registry, ModeKeys
@@ -61,7 +61,7 @@ class Visualization(object):
         Read data file that corresponds with the provided results id and return
         resulting pd.DataFrame() instance.
         """
-        df = pd.read_csv('{}/{}/Results.csv'.format(RESULTS_DIRECTORY, results_id))
+        df = pd.read_csv('{}/{}/{}'.format(RESULTS_DIRECTORY, results_id, RESULTS_CSV_NAME))
         try:
             df.drop(columns=["Unnamed: 0"], axis=1, inplace=True)
         except ValueError:

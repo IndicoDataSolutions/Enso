@@ -1,7 +1,6 @@
 """
 Main method for running experiments according to the specifications of `config.py`.
 """
-
 import os
 import logging
 import time
@@ -20,12 +19,11 @@ from sklearn.externals import joblib
 from enso.sample import sample
 from enso.utils import feature_set_location, BaseObject
 from enso.mode import ModeKeys
-from enso.config import FEATURIZERS, DATA, EXPERIMENTS, METRICS, TEST_SETUP, RESULTS_DIRECTORY, N_GPUS, N_CORES, MODE
+from enso.config import FEATURIZERS, DATA, EXPERIMENTS, METRICS, TEST_SETUP, RESULTS_DIRECTORY, N_CORES, MODE, EXPERIMENT_NAME, RESULTS_CSV_NAME
 from enso.registry import Registry, ValidateExperiments
 from multiprocessing import Process
 
 POOL = ProcessPoolExecutor(N_CORES)
-
 
 class Experimentation(object):
     """Responsible for running experiments configured in config."""
@@ -72,14 +70,30 @@ class Experimentation(object):
             except Exception:
                 logging.exception("Exception occurred for {}".format(current_setting))
 
+    def experiment_has_been_run(self, current_settings):
+        result_path = os.path.join(RESULTS_DIRECTORY, EXPERIMENT_NAME, RESULTS_CSV_NAME)
+        if not os.path.exists(result_path):
+            return False
+        results = pd.read_csv(result_path)
+        indexes = results["Experiment"] == current_settings["Experiment"]
+        for col, val in current_settings.items():
+            indexes = indexes & (results[col] == val)
+        experiments = results.loc[indexes]
+        if len(experiments) < len(METRICS) * TEST_SETUP["n_splits"]:
+            return False
+        return True
+
     def _run_sub_experiment(self, experiment_cls, dataset, train, test, target, current_setting):
-        experiment = experiment_cls()
+        experiment = experiment_cls(Registry.get_resampler(current_setting["Resampler"]))
 
         name = experiment.name()
         internal_setting = {
             'Experiment': name
         }
         internal_setting.update(current_setting)
+        if self.experiment_has_been_run(internal_setting):
+            logging.info("Experiment has been run, skipping...")
+            return
         logging.info("Training with settings {}".format(internal_setting))
         try:
             # You might find yourself wondering why we're using lists here instead of np arrays
@@ -88,9 +102,8 @@ class Experimentation(object):
             train_labels = list(dataset[target].iloc[train])
             test_set = list(dataset['Features'].iloc[test])
             test_labels = list(dataset[target].iloc[test])
-            resampler = Registry.get_resampler(current_setting["Resampler"])
-            experiment.fit(*resampler.resample(train_set, train_labels))
-
+            x, y = experiment.resample(train_set, train_labels) if not experiment.auto_resample_ else train_set, train_labels
+            experiment.fit(x, y)
             test_pred = experiment.predict(test_set, subset='TEST')
             train_pred = experiment.predict(train_set, subset='TRAIN')
             experiment.cleanup()
@@ -164,13 +177,13 @@ class Experimentation(object):
         """Responsible for recording config and dumping experiment results in result directory."""
         if not experiment_name:
             experiment_name = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
-        result_path = "%s/%s" % (RESULTS_DIRECTORY, experiment_name)
+        result_path = os.path.join(RESULTS_DIRECTORY, experiment_name)
         results = results.dropna()
 
         if not os.path.exists(result_path):
             os.makedirs(result_path)
 
-        result_file = "%s/Results.csv" % result_path
+        result_file = os.path.join(result_path, RESULTS_CSV_NAME)
         header = False if os.path.exists(result_file) else True
         result_fd = open(result_file, 'a')
         results.to_csv(result_fd, header=header, columns=self.columns)
@@ -237,14 +250,18 @@ class Experiment(BaseObject):
     is responsible for performing hyperparameter selection withing the context of :func:`fit`.
 
     """
-
     __metaclass__ = VerifyOutput
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, resampler, auto_resample=True, *args, **kwargs):
         """
         Instantiate a new experiment
         """
         super().__init__(*args, **kwargs)
+        self.resampler_ = resampler
+        self.auto_resample_ = auto_resample
+
+    def resample(self, X, y):
+        return self.resampler_.resample(X, y)
 
     @abc.abstractmethod
     def fit(self, X, y):
@@ -330,3 +347,4 @@ from enso.experiment import naive_bayes
 from enso.experiment import NB
 from enso.experiment import random_forest
 from enso.experiment import svm
+from enso.experiment import tfidf

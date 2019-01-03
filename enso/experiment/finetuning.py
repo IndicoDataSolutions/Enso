@@ -2,6 +2,7 @@ import os
 import json
 
 import pandas as pd
+import numpy as np
 
 from indicoio.custom import Collection
 from finetune import Classifier, SequenceLabeler
@@ -9,6 +10,10 @@ from finetune import Classifier, SequenceLabeler
 from enso.experiment import ClassificationExperiment
 from enso.config import RESULTS_DIRECTORY
 from enso.registry import Registry, ModeKeys
+
+import numpy as np
+
+from enso.utils import labels_to_binary
 
 
 @Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
@@ -22,7 +27,7 @@ class Finetune(ClassificationExperiment):
     def __init__(self, *args, **kwargs):
         """Initialize internal classifier."""
         super().__init__(*args, **kwargs)
-        self.model = Classifier()
+        self.model = Classifier(val_size=0)
 
     def fit(self, X, y):
         """
@@ -38,23 +43,6 @@ class Finetune(ClassificationExperiment):
 
     def cleanup(self):
         del self.model
-
-
-@Registry.register_experiment(ModeKeys.SEQUENCE, requirements=[("Featurizer", "PlainTextFeaturizer")])
-class FinetuneSequenceLabel(ClassificationExperiment):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.model = SequenceLabeler(val_size=0)
-
-    def fit(self, X, y):
-        self.model.fit(X, y)
-
-    def predict(self, X, **kwargs):
-        return self.model.predict(X)
-
-    def cleanup(self):
-        del self.model
-
 
 
 @Registry.register_experiment(ModeKeys.SEQUENCE, requirements=[("Featurizer", "PlainTextFeaturizer")])
@@ -92,3 +80,15 @@ class IndicoSequenceLabel(ClassificationExperiment):
 
     def cleanup(self):
         self.model.clear()
+
+@Registry.register_experiment(ModeKeys.SEQUENCE, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class FinetuneSequenceLabel(ClassificationExperiment):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model = SequenceLabeler(val_size=0)
+
+    def fit(self, X, y):
+        self.model.fit(X, y)
+
+    def predict(self, X, **kwargs):
+        return self.model.predict(X)

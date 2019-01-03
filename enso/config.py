@@ -14,15 +14,46 @@ RESULTS_DIRECTORY = "Results"
 FEATURES_DIRECTORY = "Features"
 
 # Directory for storing experiment results
-EXPERIMENT_NAME = "TestSamplersSequence"
+EXPERIMENT_NAME = "EnsoExperiment"
+
+# Name of the csv used to store results
+RESULTS_CSV_NAME = "Results.csv"
 
 # Datasets to featurize or run experiments on
 DATA = {
-    # Classification
-    'Classify/AirlineSentiment',
-    'Classify/MovieReviews',
-    'Classify/MPQA',
-    'Classify/PoliticalTweetSubjectivity',
+    #"Classify/AirlineComplaints",
+    "Classify/AirlineNegativity",
+    # "Classify/AirlineSentiment",
+    "Classify/BrandEmotion",
+    # "Classify/BrandEmotionCause",
+    # "Classify/ChemicalDiseaseCauses",
+    # "Classify/CorporateMessaging",
+    "Classify/CustomerReviews",
+    # "Classify/DetailedEmotion",
+    # "Classify/Disaster",
+    # "Classify/DrugReviewIntent",
+    # "Classify/DrugReviewType",
+    # "Classify/Economy",
+    # "Classify/Emotion",
+    # "Classify/GlobalWarming",
+    # "Classify/Horror",
+    # "Classify/HotelReviews",
+     "Classify/IMDB",
+     "Classify/Irony",
+     "Classify/MPQA",
+     "Classify/MovieReviews",
+    # "Classify/NewYearsResolutions",
+    # "Classify/PoliticalTweetAlignment",
+    # "Classify/PoliticalTweetBias",
+    # "Classify/PoliticalTweetClassification",
+    # "Classify/PoliticalTweetSubjectivity",
+    # "Classify/PoliticalTweetTarget",
+    # "Classify/ReligiousTexts",
+    # "Classify/ShortAnswer",
+     "Classify/SocialMediaDisasters",
+     #"Classify/Subjectivity",
+      "Classify/TextSpam",
+    "Classify/SST-binary"
 
     # Seqence
 
@@ -37,38 +68,42 @@ DATA = {
 # Featurizers to activate
 FEATURIZERS = {
     "PlainTextFeaturizer",
-    # "IndicoStandard",
+     "IndicoStandard",
     "SpacyGloveFeaturizer",
-    # "SpacyCNNFeaturizer",
+    "IndicoFastText",
+    "IndicoSentiment",
+    "IndicoElmo",
+    "IndicoTopics",
+    "IndicoFinance",
+    "IndicoTransformer",
+    "IndicoEmotion",
+    "IndicoFastText",
+    "SpacyCNNFeaturizer",
 }
 
 # Experiments to run
 EXPERIMENTS = {
     # "FinetuneSequenceLabel",
     # "IndicoSequenceLabel"
-    # "Finetune",
-    # "SpacyGlove"
-    "LogisticRegressionCV"
+    #"LogisticRegressionCV",
+    #"SupportVectorMachineCV",
 }
 
 # Metrics to compute
 METRICS = {
-    # "OverlapAccuracy",
-    # "OverlapPrecision",
-    # "OverlapRecall",
     "Accuracy",
     "MacroRocAuc",
 }
 
 # Test setup metadata
 TEST_SETUP = {
-    "train_sizes": range(50, 500, 50),
-    "n_splits": 2,
+    "train_sizes": range(50, 550, 25),
+    "n_splits": 5,
     # "samplers": ['RandomSequence', 'NoSampler'],
     "samplers": ['Random'],
     "sampling_size": .3,
     # "resamplers": ["SequenceOverSampler", 'NoResampler']
-    "resamplers": ["NoResampler", "RandomOverSampler"]
+    "resamplers": ["RandomOverSampler"]
 }
 
 # Visualizations to display
@@ -98,5 +133,8 @@ N_GPUS = 1
 N_CORES = 1  # multiprocessing.cpu_count()
 
 FIX_REQUIREMENTS = True
+
+GOLD_FRAC = 0.05
+CORRUPTION_FRAC = 0.4
 
 indicoio.config.api_key = ""

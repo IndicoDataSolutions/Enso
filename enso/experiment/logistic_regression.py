@@ -1,10 +1,7 @@
 """Module for any LR-style experiment."""
-import pandas as pd
-from sklearn.model_selection import GridSearchCV
 from sklearn.linear_model import LogisticRegression
 
 from enso.experiment.grid_search import GridSearch
-
 from enso.registry import Registry, ModeKeys
 
 
