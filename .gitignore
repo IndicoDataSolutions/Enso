@@ -91,7 +91,10 @@ ENV/
 # Data
 Data/Raw/*
 Data/Classify/*.csv
+Data/SequenceLabeling/*.csv
+Data/SequenceLabeling/*.json
 Features/Classify/*.csv
+Features/SequenceLabeling/*.csv
 Results/*
 
 # Docs
