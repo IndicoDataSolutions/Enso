@@ -23,9 +23,7 @@ class Random(Sampler):
         :returns: np.array of example indices selected by random sampling
         """
         points = self._choose_starting_points(n_points=3)
-        train_indices = self.train_indices[:]
-        for p in points:
-            train_indices.pop(p)
+        train_indices = [idx for idx in self.train_indices if idx not in points]
         points += list(np.random.choice(train_indices, self.train_size - len(points), replace=False))
         return points
 
