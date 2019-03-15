@@ -102,7 +102,8 @@ class Experimentation(object):
             train_labels = list(dataset[target].iloc[train])
             test_set = list(dataset['Features'].iloc[test])
             test_labels = list(dataset[target].iloc[test])
-            x, y = experiment.resample(train_set, train_labels) if not experiment.auto_resample_ else train_set, train_labels
+            data = experiment.resample(train_set, train_labels) if not experiment.auto_resample_ else (train_set, train_labels)
+            x, y = data
             experiment.fit(x, y)
             test_pred = experiment.predict(test_set, subset='TEST')
             train_pred = experiment.predict(train_set, subset='TRAIN')
