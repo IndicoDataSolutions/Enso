@@ -13,7 +13,7 @@ RESULTS_DIRECTORY = "Results"
 FEATURES_DIRECTORY = "Features"
 
 # Directory for storing experiment results
-EXPERIMENT_NAME = "Benchmark"
+EXPERIMENT_NAME = "Demo"
 
 # Datasets to featurize or run experiments on
 DATA = {
@@ -66,7 +66,7 @@ METRICS = {
 
 # Test setup metadata
 TEST_SETUP = {
-    "train_sizes": list(range(500, 550, 50)),
+    "train_sizes": [30, 50, 100, 200, 500],
     "n_splits": 10,
     "samplers": ['Random'],
     "sampling_size": .3,
