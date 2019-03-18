@@ -16,4 +16,5 @@ class LogisticRegressionCV(GridSearch):
         self.param_grid = {
             'penalty': ['l2'],
             'C': [0.1, 1.0, 10., 100., 1000.],
+            'solver': ['lbfgs']
         }
