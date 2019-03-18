@@ -2,6 +2,7 @@
 import os.path
 import json
 
+import numpy as np
 import seaborn as sns
 import matplotlib.patches as patches
 from matplotlib import pyplot as plt
@@ -47,26 +48,31 @@ class FacetGridVisualizer(ClassificationVisualizer):
         if isinstance(lines, (tuple, list)):
             results['key'] = results[lines].apply(lambda x: ','.join(x), axis=1)
             lines = 'key'
-
-        n_lines = len(results[lines].unique())
-        rc = {'lines.linewidth': 1, 'lines.markersize': 1}
-        sns.set_context("paper", rc=rc)
-        grid = sns.FacetGrid(
-            results,
-            col=x_tile,
-            row=y_tile,
-            hue=lines,
-            size=5,
-            legend_out=False,
-            margin_titles=True,
-            sharey=False,
-            sharex=False,
-            palette=sns.color_palette("hls", n_lines)
-        )
-        grid = grid.map(sns.pointplot, x_axis, y_axis)
-        colors = sns.color_palette("hls", n_lines).as_hex()[:len(grid.hue_names)]
-        handles = [patches.Patch(color=col, label=label) for col, label in zip(colors, grid.hue_names)]
-        plt.legend(handles=handles)
-        plt.tight_layout()
+        y_tiles = np.unique(results[y_tile])
+        x_tiles = np.unique(results[x_tile])
+        keys = np.unique(results.key)
+        colors_dict = {key: color for key, color in zip(keys, sns.color_palette("hls", len(keys)))}
+        n_y_tiles = len(y_tiles)
+        n_x_tiles = len(x_tiles)
+        # we adjust the figsize based on how many plots will be plotted
+        # we maintain a 6:8 ratio of height to width for uniformity
+        fig, axes = plt.subplots(n_y_tiles, n_x_tiles, figsize=(n_x_tiles * 8, n_y_tiles * 6))
+        for i, row in enumerate(y_tiles):
+            for j, col in enumerate(x_tiles):
+                ax = axes[i][j]
+                results_subset = results[(results[y_tile] == y_tiles[i]) & (results[x_tile] == x_tiles[j])]
+                ax.set_xlabel(y_tiles[i])
+                ax.set_ylabel(x_tiles[j])
+                for key in keys:
+                    line = results_subset[results_subset.key == key]
+                    mean_results = line.groupby(x_axis)[y_axis].apply(np.mean)
+                    sd_results = line.groupby(x_axis)[y_axis].apply(np.std)
+                    ax.errorbar(mean_results.index, mean_results.values, yerr=sd_results, color=colors_dict[key],
+                                label=key)
+        # each Axes object will have the same handles and labels
+        handles, labels = axes[0][0].get_legend_handles_labels()
+        # the hard-coded numbers scale with the size of the plot
+        legend = axes[-1][-1].legend(handles, labels, loc = 'best', bbox_transform=fig.transFigure)
+        fig.tight_layout()
         filename = os.path.join(RESULTS_DIRECTORY, results_id, "{}.png".format(filename))
-        plt.savefig(filename)
+        plt.savefig(filename, bbox_extra_artists=(legend,), bbox_inches='tight')
