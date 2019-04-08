@@ -56,7 +56,7 @@ class FacetGridVisualizer(ClassificationVisualizer):
         n_x_tiles = len(x_tiles)
         # we adjust the figsize based on how many plots will be plotted
         # we maintain a 6:8 ratio of height to width for uniformity
-        fig, axes = plt.subplots(n_y_tiles, n_x_tiles, figsize=(n_x_tiles * 8, n_y_tiles * 6))
+        fig, axes = plt.subplots(n_y_tiles, n_x_tiles, figsize=(n_x_tiles * 8, n_y_tiles * 6), squeeze=False)
         for i, row in enumerate(y_tiles):
             for j, col in enumerate(x_tiles):
                 ax = axes[i][j]
