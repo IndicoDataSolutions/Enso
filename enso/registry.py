@@ -48,7 +48,11 @@ class ValidateExperiments:
     def valid_dataset(dataset_str):
         mode = dataset_str.split("/")[0]
         if MODE.value != mode:
-            logger.warning("Dataset {} is not compatible with mode {}. Skipping.".format(value, MODE.value))
+            logger.warning(
+                "Dataset {} is not compatible with mode {}. Skipping.".format(
+                    value, MODE.value
+                )
+            )
             return False
         return True
 
@@ -57,15 +61,18 @@ class ValidateExperiments:
         requires_not = requirement.split(" ")[1]
         if field_val == requires_not:
             if fix:
-                logger.warning("Unsatisfied requirements of the form not <Class> cannot be "
-                               " repaired skipping instead")
+                logger.warning(
+                    "Unsatisfied requirements of the form not <Class> cannot be "
+                    " repaired skipping instead"
+                )
                 return True
 
             else:
                 raise ValueError(
                     "Config items set to use {} when requirements enforces {}".format(
-                        field_val,
-                        requirement))
+                        field_val, requirement
+                    )
+                )
         return False
 
     @staticmethod
@@ -101,24 +108,33 @@ class ValidateExperiments:
                 for field, requirement in self.reg._requirements.get(value, []):
                     field_val = setup_dict.get(field)
                     if field_val is None:
-                        raise Exception("Requirements for {} contains invalid field {}".format(value, field))
+                        raise Exception(
+                            "Requirements for {} contains invalid field {}".format(
+                                value, field
+                            )
+                        )
 
                     if requirement.startswith("not"):
-                        if self.skip_from_negative_requirement(requirement, field_val, self.fix):
+                        if self.skip_from_negative_requirement(
+                            requirement, field_val, self.fix
+                        ):
                             skips.append(exp_idx)
 
                     else:
                         if field_val != requirement:
                             if self.fix:
                                 logger.warning(
-                                    "Requirements being fixed, replacing {} with {}".format(setup_dict[field],
-                                                                                            requirement))
+                                    "Requirements being fixed, replacing {} with {}".format(
+                                        setup_dict[field], requirement
+                                    )
+                                )
                                 setup_dict[field] = requirement
                             else:
                                 raise ValueError(
                                     "Config items set to use {} when requirements enforces {}".format(
-                                        setup_dict[field],
-                                        requirement))
+                                        setup_dict[field], requirement
+                                    )
+                                )
 
             if self.is_repeated(setup_dict):
                 skips.append(setup_dict)
@@ -139,7 +155,9 @@ class Registry:
     _modes = {}
 
     @classmethod
-    def _decorator(cls, p_cls, layer, mode=None, requirements=None, registration_name=None):
+    def _decorator(
+        cls, p_cls, layer, mode=None, requirements=None, registration_name=None
+    ):
         """Registers & returns p_cls with registration_name or default name."""
         p_name = registration_name or p_cls.__name__
         requirements = requirements or []
@@ -158,23 +176,33 @@ class Registry:
 
     @classmethod
     def register_experiment(cls, mode, requirements=None):
-        return lambda p_cls: cls._decorator(p_cls, cls._experiment, mode=mode, requirements=requirements)
+        return lambda p_cls: cls._decorator(
+            p_cls, cls._experiment, mode=mode, requirements=requirements
+        )
 
     @classmethod
     def register_featurizer(cls, mode, requirements=None):
-        return lambda p_cls: cls._decorator(p_cls, cls._featurizer, mode, requirements=requirements)
+        return lambda p_cls: cls._decorator(
+            p_cls, cls._featurizer, mode, requirements=requirements
+        )
 
     @classmethod
     def register_sampler(cls, mode, requirements=None):
-        return lambda p_cls: cls._decorator(p_cls, cls._sampler, mode, requirements=requirements)
+        return lambda p_cls: cls._decorator(
+            p_cls, cls._sampler, mode, requirements=requirements
+        )
 
     @classmethod
     def register_resampler(cls, mode, requirements=None):
-        return lambda p_cls: cls._decorator(p_cls, cls._resampler, mode, requirements=requirements)
+        return lambda p_cls: cls._decorator(
+            p_cls, cls._resampler, mode, requirements=requirements
+        )
 
     @classmethod
     def register_metric(cls, mode, requirements=None):
-        return lambda p_cls: cls._decorator(p_cls, cls._metrics, mode, requirements=requirements)
+        return lambda p_cls: cls._decorator(
+            p_cls, cls._metrics, mode, requirements=requirements
+        )
 
     @classmethod
     def register_visualizer(cls):
@@ -188,7 +216,11 @@ class Registry:
             raise LookupError("{} is not in the registry".format(name))
         required_mode = cls._modes.get(return_val.__name__, ModeKeys.ANY)
         if required_mode != MODE and required_mode != ModeKeys.ANY:
-            raise ValueError("{} requires mode: {} current mode is: {}".format(name, required_mode, MODE))
+            raise ValueError(
+                "{} requires mode: {} current mode is: {}".format(
+                    name, required_mode, MODE
+                )
+            )
         return return_val
 
     @classmethod

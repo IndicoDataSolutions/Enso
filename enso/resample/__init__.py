@@ -10,7 +10,6 @@ from enso.registry import Registry, ModeKeys
 
 
 class Resampler(metaclass=ABCMeta):
-
     @staticmethod
     @abstractmethod
     def resample(X, y, max_ratio=50):
@@ -19,7 +18,6 @@ class Resampler(metaclass=ABCMeta):
 
 @Registry.register_resampler(ModeKeys.CLASSIFY)
 class RandomOverSampler(Resampler):
-
     @staticmethod
     def resample(X, y, max_ratio=50):
         X, y = np.asarray(X), np.asarray(y)
@@ -36,7 +34,9 @@ class RandomOverSampler(Resampler):
 
         idx_sample = []
         for class_name in class_counts:
-            sample_idxs = np.random.choice(idxs_by_y[class_name], desired_counts[class_name], replace=True).tolist()
+            sample_idxs = np.random.choice(
+                idxs_by_y[class_name], desired_counts[class_name], replace=True
+            ).tolist()
             idx_sample.extend(sample_idxs)
 
         random.shuffle(idx_sample)
@@ -45,8 +45,38 @@ class RandomOverSampler(Resampler):
 
 
 @Registry.register_resampler(ModeKeys.CLASSIFY)
-class CorruptiveResampler(Resampler):
+class ImbalanceSampler(Resampler):
+    @staticmethod
+    def resample(X, y):
+        X, y = np.asarray(X), np.asarray(y)
+        class_counts = Counter(y)
+        num_classes = len(class_counts.keys())
+        desired_counts = {}
+        max_count = max(class_counts.values())
+        for i, (label, count) in enumerate(reversed(class_counts.most_common())):
+            imbalance_fraction = (i + 1) / num_classes
+            desired_counts[label] = max(
+                min(count, int(imbalance_fraction * max_count)), 1
+            )
 
+        idxs_by_y = defaultdict(list)
+        for i, element in enumerate(y):
+            idxs_by_y[element].append(i)
+
+        idx_sample = []
+        for class_name in class_counts:
+            sample_idxs = np.random.choice(
+                idxs_by_y[class_name], desired_counts[class_name], replace=False
+            ).tolist()
+            idx_sample.extend(sample_idxs)
+
+        random.shuffle(idx_sample)
+
+        return X[idx_sample].tolist(), y[idx_sample].tolist()
+
+
+@Registry.register_resampler(ModeKeys.CLASSIFY)
+class CorruptiveResampler(Resampler):
     @staticmethod
     def scramble(y, prob):
         classes = list(set(y))
@@ -65,13 +95,14 @@ class CorruptiveResampler(Resampler):
         num_gold = int(num_samples * GOLD_FRAC)
 
         y_gold = y[:num_gold]
-        y_train = np.asarray(list(y_gold) + CorruptiveResampler.scramble(y[num_gold:], CORRUPTION_FRAC))
+        y_train = np.asarray(
+            list(y_gold) + CorruptiveResampler.scramble(y[num_gold:], CORRUPTION_FRAC)
+        )
         return X, y_train
 
 
 @Registry.register_resampler(ModeKeys.CLASSIFY)
 class CorruptiveOversampler(Resampler):
-
     @staticmethod
     def resample(X, y, max_ratio=50):
         X, y = CorruptiveResampler.resample(X, y)
@@ -80,7 +111,6 @@ class CorruptiveOversampler(Resampler):
 
 @Registry.register_resampler(ModeKeys.ANY)
 class NoResampler(Resampler):
-
     @staticmethod
     def resample(X, y, max_ratio=50):
         return X, y
@@ -88,7 +118,6 @@ class NoResampler(Resampler):
 
 @Registry.register_resampler(ModeKeys.SEQUENCE)
 class SequenceOverSampler(Resampler):
-
     @staticmethod
     def resample(X, y, max_ratio=50):
 
@@ -137,10 +166,16 @@ class SequenceOverSampler(Resampler):
                     num_to_decrememt_for_sample.append(cls_count)
 
                     # Check that the number of instances of each class in this sample do not overflow the requirements
-                    acceptable.append(cls_count <= (need_to_add[cls_idx] - num_to_decrement[cls_idx]))
+                    acceptable.append(
+                        cls_count <= (need_to_add[cls_idx] - num_to_decrement[cls_idx])
+                    )
                 if all(acceptable):
-                    num_to_decrement = [n + n_local for n, n_local in
-                                        zip(num_to_decrement, num_to_decrememt_for_sample)]
+                    num_to_decrement = [
+                        n + n_local
+                        for n, n_local in zip(
+                            num_to_decrement, num_to_decrememt_for_sample
+                        )
+                    ]
                     args_to_add.append(arg)
 
             # If the randomly selected indexes are the same as last time

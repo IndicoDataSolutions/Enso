@@ -11,11 +11,11 @@ if __name__ == "__main__":
         url="https://www.figure-eight.com/wp-content/uploads/2016/03/Airline-Sentiment-2-w-AA.csv",
         text_column="text",
         target_column="negativereason",
-        filename="AirlineNegativity.csv"
+        filename="AirlineNegativity.csv",
     )
     generic_download(
         url="https://www.figure-eight.com/wp-content/uploads/2016/03/Airline-Sentiment-2-w-AA.csv",
         text_column="text",
         target_column="airline_sentiment",
-        filename="AirlineSentiment.csv"
+        filename="AirlineSentiment.csv",
     )
