@@ -34,6 +34,13 @@ class ImbalanceSampler(Sampler):
                 min(count, int(imbalance_fraction * max_count)), 1
             )
 
+        total_requested = sum(desired_counts.values())
+        factor_too_many = total_requested / self.train_size
+
+        if factor_too_many > 1:
+            for label, desired in desired_counts.items():
+                desired_counts[label] = max(round(desired / factor_too_many), 1)
+
         idxs_by_y = defaultdict(list)
         for i, element in enumerate(y):
             idxs_by_y[element].append(i)

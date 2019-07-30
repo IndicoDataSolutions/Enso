@@ -232,7 +232,6 @@ class Experimentation(object):
 
         if not os.path.exists(result_path):
             os.makedirs(result_path)
-
         result_file = os.path.join(result_path, RESULTS_CSV_NAME)
         header = False if os.path.exists(result_file) else True
         result_fd = open(result_file, "a")

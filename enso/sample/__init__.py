@@ -42,7 +42,9 @@ class Sampler:
         self.train_size = train_size
         if len(self.classes) > train_size:
             raise ValueError(
-                "The train size can not be smaller than the number of classes."
+                "The train size {} cannot be smaller than the number of classes: {}.".format(
+                    self.train_size, len(self.classes)
+                )
             )
 
     @property

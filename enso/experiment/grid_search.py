@@ -4,6 +4,7 @@ from sklearn.model_selection import GridSearchCV
 from enso.experiment import ClassificationExperiment
 from enso.utils import OversampledKFold
 
+
 class GridSearch(ClassificationExperiment):
     """
     Base class for classification models that select hyperparameters via cross validation.
@@ -34,7 +35,7 @@ class GridSearch(ClassificationExperiment):
             self.base_model(),
             param_grid=self.param_grid,
             cv=OversampledKFold(self.resampler_),
-            refit=False
+            refit=False,
         )
         classifier.fit(X, y)
 
@@ -45,4 +46,6 @@ class GridSearch(ClassificationExperiment):
         """Predict results on test set based on current internal model."""
         labels = self.best_model.classes_
         probabilities = self.best_model.predict_proba(X)
-        return pd.DataFrame({label: probabilities[:, i] for i, label in enumerate(labels)})
+        return pd.DataFrame(
+            {label: probabilities[:, i] for i, label in enumerate(labels)}
+        )
