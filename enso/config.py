@@ -21,7 +21,7 @@ RESULTS_CSV_NAME = "Results.csv"
 
 # Datasets to featurize or run experiments on
 DATA = {
-    #"Classify/AirlineComplaints",
+    # "Classify/AirlineComplaints",
     "Classify/AirlineNegativity",
     # "Classify/AirlineSentiment",
     "Classify/BrandEmotion",
@@ -97,7 +97,7 @@ METRICS = {"Accuracy", "MacroRocAuc"}
 
 # Test setup metadata
 TEST_SETUP = {
-    "train_sizes": iter([50, 100, 150, 250, 350 450]),
+    "train_sizes": iter([50, 100, 150, 250, 350, 450]),
     "n_splits": 5,
     # "samplers": ['RandomSequence', 'NoSampler'],
     "samplers": ["Random"],
