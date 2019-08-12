@@ -21,10 +21,10 @@ RESULTS_CSV_NAME = "Results.csv"
 
 # Datasets to featurize or run experiments on
 DATA = {
-    "Classify/AirlineComplaints",
-    # "Classify/AirlineNegativity",
+    #"Classify/AirlineComplaints",
+    "Classify/AirlineNegativity",
     # "Classify/AirlineSentiment",
-    # "Classify/BrandEmotion",
+    "Classify/BrandEmotion",
     # "Classify/BrandEmotionCause",
     # "Classify/ChemicalDiseaseCauses",
     # "Classify/CorporateMessaging",
@@ -38,10 +38,10 @@ DATA = {
     # "Classify/GlobalWarming",
     # "Classify/Horror",
     # "Classify/HotelReviews",
-    # "Classify/IMDB",
-    # "Classify/Irony",
-    # "Classify/MPQA",
-    # "Classify/MovieReviews",
+    "Classify/IMDB",
+    "Classify/Irony",
+    "Classify/MPQA",
+    "Classify/MovieReviews",
     # "Classify/NewYearsResolutions",
     # "Classify/PoliticalTweetAlignment",
     # "Classify/PoliticalTweetBias",
@@ -52,8 +52,8 @@ DATA = {
     # "Classify/ShortAnswer",
     # "Classify/SocialMediaDisasters",
     # "Classify/Subjectivity",
-    # "Classify/TextSpam",
-    # "Classify/SST-binary"
+    "Classify/TextSpam",
+    "Classify/SST-binary"
     # Seqence
     # 'SequenceLabeling/Reuters-128',
     # 'SequenceLabeling/brown_all',
@@ -66,29 +66,29 @@ DATA = {
 # Featurizers to activate
 FEATURIZERS = {
     "PlainTextFeaturizer",
-    # "IndicoStandard",
+    "IndicoStandard",
     "SpacyGloveFeaturizer",
-    # "IndicoFastText",
-    # "IndicoSentiment",
-    # "IndicoElmo",
-    # "IndicoTopics",
-    # "IndicoFinance",
-    # "IndicoTransformer",
-    # "IndicoEmotion",
-    # "IndicoFastText",
-    # "SpacyCNNFeaturizer",
+    "IndicoFastText",
+    "IndicoSentiment",
+    "IndicoElmo",
+    "IndicoTopics",
+    "IndicoFinance",
+    "IndicoTransformer",
+    "IndicoEmotion",
+    "IndicoFastText",
+    "SpacyCNNFeaturizer",
 }
 
 # Experiments to run
 EXPERIMENTS = {
     # "FinetuneSequenceLabel",
     # "IndicoSequenceLabel"
-    "LogisticRegressionCV",
-    "KNNCV",
-    "TfidfKNN",
-    "TfidfLogisticRegression",
-    "KCenters",
-    "TfidfKCenters"
+    # "LogisticRegressionCV",
+    # "KNNCV",
+    # "TfidfKNN",
+    # "TfidfLogisticRegression",
+    # "KCenters",
+    # "TfidfKCenters"
     # "SupportVectorMachineCV",
 }
 
@@ -97,10 +97,10 @@ METRICS = {"Accuracy", "MacroRocAuc"}
 
 # Test setup metadata
 TEST_SETUP = {
-    "train_sizes": iter([50, 60, 75, 100, 125, 150, 175, 200]),
+    "train_sizes": iter([50, 100, 150, 250, 350 450]),
     "n_splits": 5,
     # "samplers": ['RandomSequence', 'NoSampler'],
-    "samplers": ["ImbalanceSampler"],
+    "samplers": ["Random"],
     "sampling_size": 0.3,
     # "resamplers": ["SequenceOverSampler", 'NoResampler']
     "resamplers": ["RandomOverSampler"],
