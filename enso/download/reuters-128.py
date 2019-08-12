@@ -4,12 +4,14 @@ import requests
 from bs4 import BeautifulSoup as bs
 from bs4.element import Tag
 import json
+import nltk
 from nltk.tokenize import sent_tokenize
 
 from enso import config
 from enso.mode import ModeKeys
 
 if __name__ == "__main__":
+    nltk.download("punkt")
     task_type = ModeKeys.SEQUENCE
     filename = "Reuters-128.json"
     save_path = os.path.join(config.DATA_DIRECTORY, task_type.value, filename)
@@ -18,7 +20,7 @@ if __name__ == "__main__":
     else:
         url = "https://raw.githubusercontent.com/dice-group/n3-collection/master/reuters.xml"
         r = requests.get(url)
-        soup = bs(r.content.decode("utf-8"), "html5lib")
+        soup = bs(r.content.decode("utf-8"), "html.parser")
         docs = []
         for elem in soup.find_all("document"):
             single_entry = ["", []]
@@ -38,7 +40,7 @@ if __name__ == "__main__":
                                 {
                                     "start": len(single_entry[0]),
                                     "end": len(single_entry[0]) + len(c.text),
-                                    "label": "NAME"
+                                    "label": "NAME",
                                 }
                             )
                         single_entry[0] += text

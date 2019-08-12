@@ -19,11 +19,23 @@ from sklearn.externals import joblib
 from enso.sample import sample
 from enso.utils import feature_set_location, BaseObject
 from enso.mode import ModeKeys
-from enso.config import FEATURIZERS, DATA, EXPERIMENTS, METRICS, TEST_SETUP, RESULTS_DIRECTORY, N_CORES, MODE, EXPERIMENT_NAME, RESULTS_CSV_NAME
+from enso.config import (
+    FEATURIZERS,
+    DATA,
+    EXPERIMENTS,
+    METRICS,
+    TEST_SETUP,
+    RESULTS_DIRECTORY,
+    N_CORES,
+    MODE,
+    EXPERIMENT_NAME,
+    RESULTS_CSV_NAME,
+)
 from enso.registry import Registry, ValidateExperiments
 from multiprocessing import Process
 
 POOL = ProcessPoolExecutor(N_CORES)
+
 
 class Experimentation(object):
     """Responsible for running experiments configured in config."""
@@ -34,8 +46,17 @@ class Experimentation(object):
         self.experiments = [Registry.get_experiment(e) for e in EXPERIMENTS]
         self.featurizers = [Registry.get_featurizer(f)() for f in FEATURIZERS]
         self.metrics = [Registry.get_metric(m)() for m in METRICS]
-        self.columns = ['Dataset', 'Featurizer', 'Experiment', 'Metric', 'TrainSize', 'Sampler', 'Resampler', 'Result',
-                        'TrainResult']
+        self.columns = [
+            "Dataset",
+            "Featurizer",
+            "Experiment",
+            "Metric",
+            "TrainSize",
+            "Sampler",
+            "Resampler",
+            "Result",
+            "TrainResult",
+        ]
         self.results = pd.DataFrame(columns=self.columns)
 
     def run_experiments(self):
@@ -50,16 +71,23 @@ class Experimentation(object):
                     for sampler in TEST_SETUP["samplers"]:
                         for resampler in TEST_SETUP["resamplers"]:
                             current_setting = {
-                                'Dataset': dataset_name,
-                                'Featurizer': featurizer.name(),
-                                'TrainSize': training_size,
-                                'Sampler': sampler,
-                                'Resampler': resampler
+                                "Dataset": dataset_name,
+                                "Featurizer": featurizer.name(),
+                                "TrainSize": training_size,
+                                "Sampler": sampler,
+                                "Resampler": resampler,
                             }
-                            fixed_setups = experiment_validator.validate(current_setting, self.experiments)
+                            fixed_setups = experiment_validator.validate(
+                                current_setting, self.experiments
+                            )
 
                             for current_setting, experiments in fixed_setups:
-                                future = POOL.submit(self._run_experiment, dataset_name, current_setting, experiments)
+                                future = POOL.submit(
+                                    self._run_experiment,
+                                    dataset_name,
+                                    current_setting,
+                                    experiments,
+                                )
                                 futures[future] = current_setting
 
         for future in concurrent.futures.as_completed(futures):
@@ -83,13 +111,15 @@ class Experimentation(object):
             return False
         return True
 
-    def _run_sub_experiment(self, experiment_cls, dataset, train, test, target, current_setting):
-        experiment = experiment_cls(Registry.get_resampler(current_setting["Resampler"]))
+    def _run_sub_experiment(
+        self, experiment_cls, dataset, train, test, target, current_setting
+    ):
+        experiment = experiment_cls(
+            Registry.get_resampler(current_setting["Resampler"])
+        )
 
         name = experiment.name()
-        internal_setting = {
-            'Experiment': name
-        }
+        internal_setting = {"Experiment": name}
         internal_setting.update(current_setting)
         if self.experiment_has_been_run(internal_setting):
             logging.info("Experiment has been run, skipping...")
@@ -98,22 +128,26 @@ class Experimentation(object):
         try:
             # You might find yourself wondering why we're using lists here instead of np arrays
             # The answer is that pandas sucks.
-            train_set = list(dataset['Features'].iloc[train])
+            train_set = list(dataset["Features"].iloc[train])
             train_labels = list(dataset[target].iloc[train])
-            test_set = list(dataset['Features'].iloc[test])
+            test_set = list(dataset["Features"].iloc[test])
             test_labels = list(dataset[target].iloc[test])
-            data = experiment.resample(train_set, train_labels) if not experiment.auto_resample_ else (train_set, train_labels)
+            data = (
+                experiment.resample(train_set, train_labels)
+                if not experiment.auto_resample_
+                else (train_set, train_labels)
+            )
             x, y = data
             experiment.fit(x, y)
-            test_pred = experiment.predict(test_set, subset='TEST')
-            train_pred = experiment.predict(train_set, subset='TRAIN')
+            test_pred = experiment.predict(test_set, subset="TEST")
+            train_pred = experiment.predict(train_set, subset="TRAIN")
             experiment.cleanup()
             result = self._measure_experiment(
                 target=test_labels,
                 result=test_pred,
                 train_target=train_labels,
                 train_result=train_pred,
-                internal_setting=internal_setting
+                internal_setting=internal_setting,
             )
             self._dump_results(result, experiment_name=self.name)
         except Exception:
@@ -123,32 +157,39 @@ class Experimentation(object):
         """Responsible for running all experiments specified in config."""
         results = pd.DataFrame(columns=self.columns)
         dataset = self._load_dataset(dataset_name, current_setting.get("Featurizer"))
-        for splitter, target in self._split_dataset(dataset, current_setting['TrainSize']):
+        for splitter, target in self._split_dataset(
+            dataset, current_setting["TrainSize"]
+        ):
             for train_indices, test in splitter:
                 train = sample(
-                    current_setting['Sampler'],
-                    dataset['Features'],
+                    current_setting["Sampler"],
+                    dataset["Features"],
                     list(dataset[target].iloc[train_indices]),
                     train_indices,
-                    current_setting['TrainSize']
+                    current_setting["TrainSize"],
                 )
                 for experiment_cls in experiments:
                     try:
                         # Ideally we wouldn't have to do this in a process, but at the moment
                         # creating a process and killing the process after execution is the
                         # only way to force TF to free it's GPU memory.
-                        p = Process(target=self._run_sub_experiment, kwargs={
-                            'experiment_cls': experiment_cls,
-                            'dataset': dataset,
-                            'train': train,
-                            'test': test,
-                            'target': target,
-                            'current_setting': current_setting
-                        })
+                        p = Process(
+                            target=self._run_sub_experiment,
+                            kwargs={
+                                "experiment_cls": experiment_cls,
+                                "dataset": dataset,
+                                "train": train,
+                                "test": test,
+                                "target": target,
+                                "current_setting": current_setting,
+                            },
+                        )
                         p.start()
                         p.join()
                     except Exception:
-                        logging.exception("Exception occurred for {}".format(current_setting))
+                        logging.exception(
+                            "Exception occurred for {}".format(current_setting)
+                        )
                     finally:
                         p.terminate()
                         while p.is_alive():
@@ -156,8 +197,16 @@ class Experimentation(object):
 
         return results
 
-    def _measure_experiment(self, target, result, train_target=None, train_result=None, internal_setting=None,
-                            test_key='Result', train_key='TrainResult'):
+    def _measure_experiment(
+        self,
+        target,
+        result,
+        train_target=None,
+        train_result=None,
+        internal_setting=None,
+        test_key="Result",
+        train_key="TrainResult",
+    ):
         """Responsible for recording all metrics specified in config for a given experiment."""
         results = pd.DataFrame(columns=self.columns)
         for metric in self.metrics:
@@ -183,17 +232,16 @@ class Experimentation(object):
 
         if not os.path.exists(result_path):
             os.makedirs(result_path)
-
         result_file = os.path.join(result_path, RESULTS_CSV_NAME)
         header = False if os.path.exists(result_file) else True
-        result_fd = open(result_file, 'a')
+        result_fd = open(result_file, "a")
         results.to_csv(result_fd, header=header, columns=self.columns)
 
         # The a is for archival, not just a typo
         config_record = "%s/Config.pya" % result_path
-        config_path = os.path.abspath(os.path.join(
-            os.path.dirname(os.path.dirname(__file__)), 'config.py'
-        ))
+        config_path = os.path.abspath(
+            os.path.join(os.path.dirname(os.path.dirname(__file__)), "config.py")
+        )
         copyfile(config_path, config_record)
 
     @staticmethod
@@ -201,7 +249,11 @@ class Experimentation(object):
         if type(dataset) == list:
             target_list = [0]
         else:
-            target_list = [column for column in dataset.columns.values if column.startswith("Target")]
+            target_list = [
+                column
+                for column in dataset.columns.values
+                if column.startswith("Target")
+            ]
 
         logging.info("Training with train set of size: %s" % training_size)
 
@@ -211,14 +263,20 @@ class Experimentation(object):
         if test_size + training_size > len(dataset):
             raise ValueError(
                 "Invalid training size provided.  Training size must be less than {} of dataset size.".format(
-                    TEST_SETUP["sampling_size"]))
+                    TEST_SETUP["sampling_size"]
+                )
+            )
 
         if MODE == ModeKeys.CLASSIFY:
-            splitter = StratifiedShuffleSplit(TEST_SETUP["n_splits"], test_size=test_size)
+            splitter = StratifiedShuffleSplit(
+                TEST_SETUP["n_splits"], test_size=test_size
+            )
         elif MODE == ModeKeys.SEQUENCE:
             splitter = ShuffleSplit(TEST_SETUP["n_splits"], test_size=test_size)
         else:
-            raise ValueError("config.MODE needs to be either ModeKeys.CLASSIFY or ModeKeys.SEQUENCE")
+            raise ValueError(
+                "config.MODE needs to be either ModeKeys.CLASSIFY or ModeKeys.SEQUENCE"
+            )
 
         for target in target_list:
             # We can use np.zeros because it's stratifying the split
@@ -239,7 +297,9 @@ class VerifyOutput(BaseObject):
     def __new__(cls, *args):
         """Wrap predict method with appropriate decorator check."""
         experiment_class = super(VerifyOutput, cls).__new__(cls, *args)
-        experiment_class.predict = experiment_class._verify_output(experiment_class.predict)
+        experiment_class.predict = experiment_class._verify_output(
+            experiment_class.predict
+        )
         return experiment_class
 
 
@@ -251,6 +311,7 @@ class Experiment(BaseObject):
     is responsible for performing hyperparameter selection withing the context of :func:`fit`.
 
     """
+
     __metaclass__ = VerifyOutput
 
     def __init__(self, resampler, auto_resample=True, *args, **kwargs):
@@ -349,3 +410,4 @@ from enso.experiment import NB
 from enso.experiment import random_forest
 from enso.experiment import svm
 from enso.experiment import tfidf
+from enso.experiment import knn

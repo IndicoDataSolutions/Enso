@@ -11,7 +11,9 @@ from enso.registry import Registry
 
 
 def sample(sampler, data, train_labels, train_indices, train_size):
-    sampler = Registry.get_sampler(sampler)(data, train_labels, train_indices, train_size)
+    sampler = Registry.get_sampler(sampler)(
+        data, train_labels, train_indices, train_size
+    )
     return sampler.sample()
 
 
@@ -39,11 +41,15 @@ class Sampler:
         self.train_indices = train_indices
         self.train_size = train_size
         if len(self.classes) > train_size:
-            raise ValueError("The train size can not be smaller than the number of classes.")
+            raise ValueError(
+                "The train size {} cannot be smaller than the number of classes: {}.".format(
+                    self.train_size, len(self.classes)
+                )
+            )
 
     @property
     def classes(self):
-        if not hasattr(self, '_classes'):
+        if not hasattr(self, "_classes"):
             self._classes = set(self.train_labels)
         return self._classes
 
@@ -61,8 +67,10 @@ class Sampler:
 
     @property
     def distances(self):
-        if not hasattr(self, '_distances'):
-            self._distances = pairwise_distances(self.points, metric=self.DISTANCE_FUNCTION)
+        if not hasattr(self, "_distances"):
+            self._distances = pairwise_distances(
+                self.points, metric=self.DISTANCE_FUNCTION
+            )
         return self._distances
 
     @property
@@ -82,3 +90,4 @@ from enso.sample import kcenter_sampler
 from enso.sample import no_sampler
 from enso.sample import orthogonal_sampler
 from enso.sample import random_sampler
+from enso.sample import imbalance_sampler

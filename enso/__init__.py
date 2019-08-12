@@ -6,4 +6,4 @@ from enso.resample import Resampler
 from enso.metrics import Metric
 
 
-__version__, version, VERSION = ('0.1.6',) * 3
+__version__, version, VERSION = ("0.1.7",) * 3

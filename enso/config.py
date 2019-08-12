@@ -21,14 +21,14 @@ RESULTS_CSV_NAME = "Results.csv"
 
 # Datasets to featurize or run experiments on
 DATA = {
-    #"Classify/AirlineComplaints",
-    "Classify/AirlineNegativity",
+    "Classify/AirlineComplaints",
+    # "Classify/AirlineNegativity",
     # "Classify/AirlineSentiment",
-    "Classify/BrandEmotion",
+    # "Classify/BrandEmotion",
     # "Classify/BrandEmotionCause",
     # "Classify/ChemicalDiseaseCauses",
     # "Classify/CorporateMessaging",
-    "Classify/CustomerReviews",
+    # "Classify/CustomerReviews",
     # "Classify/DetailedEmotion",
     # "Classify/Disaster",
     # "Classify/DrugReviewIntent",
@@ -38,10 +38,10 @@ DATA = {
     # "Classify/GlobalWarming",
     # "Classify/Horror",
     # "Classify/HotelReviews",
-     "Classify/IMDB",
-     "Classify/Irony",
-     "Classify/MPQA",
-     "Classify/MovieReviews",
+    # "Classify/IMDB",
+    # "Classify/Irony",
+    # "Classify/MPQA",
+    # "Classify/MovieReviews",
     # "Classify/NewYearsResolutions",
     # "Classify/PoliticalTweetAlignment",
     # "Classify/PoliticalTweetBias",
@@ -50,13 +50,11 @@ DATA = {
     # "Classify/PoliticalTweetTarget",
     # "Classify/ReligiousTexts",
     # "Classify/ShortAnswer",
-     "Classify/SocialMediaDisasters",
-     #"Classify/Subjectivity",
-      "Classify/TextSpam",
-    "Classify/SST-binary"
-
+    # "Classify/SocialMediaDisasters",
+    # "Classify/Subjectivity",
+    # "Classify/TextSpam",
+    # "Classify/SST-binary"
     # Seqence
-
     # 'SequenceLabeling/Reuters-128',
     # 'SequenceLabeling/brown_all',
     # 'SequenceLabeling/brown_nouns',
@@ -68,63 +66,63 @@ DATA = {
 # Featurizers to activate
 FEATURIZERS = {
     "PlainTextFeaturizer",
-     "IndicoStandard",
+    # "IndicoStandard",
     "SpacyGloveFeaturizer",
-    "IndicoFastText",
-    "IndicoSentiment",
-    "IndicoElmo",
-    "IndicoTopics",
-    "IndicoFinance",
-    "IndicoTransformer",
-    "IndicoEmotion",
-    "IndicoFastText",
-    "SpacyCNNFeaturizer",
+    # "IndicoFastText",
+    # "IndicoSentiment",
+    # "IndicoElmo",
+    # "IndicoTopics",
+    # "IndicoFinance",
+    # "IndicoTransformer",
+    # "IndicoEmotion",
+    # "IndicoFastText",
+    # "SpacyCNNFeaturizer",
 }
 
 # Experiments to run
 EXPERIMENTS = {
     # "FinetuneSequenceLabel",
     # "IndicoSequenceLabel"
-    #"LogisticRegressionCV",
-    #"SupportVectorMachineCV",
+    "LogisticRegressionCV",
+    "KNNCV",
+    "TfidfKNN",
+    "TfidfLogisticRegression",
+    "KCenters",
+    "TfidfKCenters"
+    # "SupportVectorMachineCV",
 }
 
 # Metrics to compute
-METRICS = {
-    "Accuracy",
-    "MacroRocAuc",
-}
+METRICS = {"Accuracy", "MacroRocAuc"}
 
 # Test setup metadata
 TEST_SETUP = {
-    "train_sizes": range(50, 550, 25),
+    "train_sizes": iter([50, 60, 75, 100, 125, 150, 175, 200]),
     "n_splits": 5,
     # "samplers": ['RandomSequence', 'NoSampler'],
-    "samplers": ['Random'],
-    "sampling_size": .3,
+    "samplers": ["ImbalanceSampler"],
+    "sampling_size": 0.3,
     # "resamplers": ["SequenceOverSampler", 'NoResampler']
-    "resamplers": ["RandomOverSampler"]
+    "resamplers": ["RandomOverSampler"],
 }
 
 # Visualizations to display
-VISUALIZATIONS = {
-    'FacetGridVisualizer'
-}
+VISUALIZATIONS = {"FacetGridVisualizer"}
 
 # kwargs to pass directly into visualizations
 VISUALIZATION_OPTIONS = {
-    'display': True,
-    'save': True,
-    'FacetGridVisualizer': {
-        'x_tile': 'Metric',
-        'y_tile': 'Dataset',
-        'x_axis': 'TrainSize',
-        'y_axis': 'Result',
-        'lines': ['Experiment', 'Featurizer', "Sampler", "Resampler"],
-        'category': 'merge',
-        'cv': 'mean',
-        'filename': 'TestResult'
-    }
+    "display": True,
+    "save": True,
+    "FacetGridVisualizer": {
+        "x_tile": "Metric",
+        "y_tile": "Dataset",
+        "x_axis": "TrainSize",
+        "y_axis": "Result",
+        "lines": ["Experiment", "Featurizer", "Sampler", "Resampler"],
+        "category": "merge",
+        "cv": "mean",
+        "filename": "TestResult",
+    },
 }
 
 MODE = ModeKeys.CLASSIFY
