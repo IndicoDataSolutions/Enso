@@ -3,7 +3,7 @@ import os
 from setuptools import setup, find_packages
 
 REQUIREMENTS = [
-    'pandas>=0.20.3',
+    'pandas>=0.24.2',
     'seaborn>=0.8.1',
     'tqdm>=4.19.4',
     'IndicoIo>=1.1.5',
