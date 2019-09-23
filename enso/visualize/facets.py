@@ -1,10 +1,13 @@
 """Module for creating facet visualization."""
+
 import os.path
 import json
 
 import numpy as np
 import seaborn as sns
 import matplotlib.patches as patches
+import joblib as jl
+
 from matplotlib import pyplot as plt
 
 from enso.visualize import ClassificationVisualizer
@@ -57,6 +60,8 @@ class FacetGridVisualizer(ClassificationVisualizer):
         # we adjust the figsize based on how many plots will be plotted
         # we maintain a 6:8 ratio of height to width for uniformity
         fig, axes = plt.subplots(n_y_tiles, n_x_tiles, figsize=(n_x_tiles * 8, n_y_tiles * 6), squeeze=False)
+        tabular_results = dict()
+        
         for i, row in enumerate(y_tiles):
             for j, col in enumerate(x_tiles):
                 ax = axes[i][j]
@@ -67,8 +72,17 @@ class FacetGridVisualizer(ClassificationVisualizer):
                     line = results_subset[results_subset.key == key]
                     mean_results = line.groupby(x_axis)[y_axis].apply(np.mean)
                     sd_results = line.groupby(x_axis)[y_axis].apply(np.std)
+                    num_results = line.groupby(x_axis)[y_axis].apply(len)
+                    for size, v, s, leng in zip(mean_results.index, mean_results.values, sd_results, num_results):
+                        if col != "Accuracy" and size in {50, 500, 5000} and "Finetune" in key:
+                            tab_key = (row, col, key if "GPC" not in key or "Finetune" in key else "GPC", size)
+                            if key in tabular_results:
+                                tabular_results[tab_key] =  max(tabular_results[tab_key], (v, s, leng))
+                            else:
+                                tabular_results[tab_key] =  (v, s, leng)
                     ax.errorbar(mean_results.index, mean_results.values, yerr=sd_results, color=colors_dict[key],
                                 label=key)
+        jl.dump(tabular_results, "results_dict.jl")
         # each Axes object will have the same handles and labels
         handles, labels = axes[0][0].get_legend_handles_labels()
         # the hard-coded numbers scale with the size of the plot

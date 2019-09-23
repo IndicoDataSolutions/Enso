@@ -1,11 +1,17 @@
-"""File for storing the featurizers that indico offers via API."""
+#"""File for storing the featurizers that indico offers via API."""
 from indicoio.custom import vectorize
 import indicoio.config
 from tqdm import tqdm
 
 from enso.registry import Registry, ModeKeys
 from enso.featurize import Featurizer
+from finetune import Classifier
 
+try:
+    from finetune.base_models.gpc.model import GPCModel
+except:
+    pass
+feat_modes = ["final_state", "clf_tok", "mean_state", "mean_tok", "max_state", "max_tok"]
 
 @Registry.register_featurizer(ModeKeys.ANY)
 class BaseIndicoFeaturizer(Featurizer):
@@ -29,7 +35,46 @@ class BaseIndicoFeaturizer(Featurizer):
             ))
         return all_features
 
+@Registry.register_featurizer(ModeKeys.ANY)
+class GPCFinalStateFeaturizer(Featurizer):
+    sequence = False
+    feat_mode = "final_state"
 
+    def featurize_batch(self, X, batch_size=8, **kwargs):
+        model = Classifier(
+            batch_size=10,
+            base_model=GPCModel,
+            base_model_path="conv_base_30jun.jl",
+            xla=False,
+            feat_mode=self.feat_mode
+        )
+        
+        a = model.featurize(X)
+        return [x for x in a]
+
+@Registry.register_featurizer(ModeKeys.ANY)
+class GPCClfTokFeaturizer(GPCFinalStateFeaturizer):
+    feat_mode = "clf_tok"
+    
+@Registry.register_featurizer(ModeKeys.ANY)
+class GPCMeanStateFeaturizer(GPCFinalStateFeaturizer):
+    feat_mode = "mean_state"
+
+@Registry.register_featurizer(ModeKeys.ANY)
+class GPCMeanTokFeaturizer(GPCFinalStateFeaturizer):
+    feat_mode = "mean_tok"
+
+@Registry.register_featurizer(ModeKeys.ANY)
+class GPCMaxStateFeaturizer(GPCFinalStateFeaturizer):
+    feat_mode = "max_state"
+
+@Registry.register_featurizer(ModeKeys.ANY)
+class GPCMaxTokFeaturizer(GPCFinalStateFeaturizer):
+    feat_mode = "max_tok"
+                
+
+
+    
 @Registry.register_featurizer(ModeKeys.ANY)
 class IndicoStandard(BaseIndicoFeaturizer):
     """Featurizer that uses indico's standard features."""

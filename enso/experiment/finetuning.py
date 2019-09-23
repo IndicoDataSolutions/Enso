@@ -10,11 +10,205 @@ from finetune import Classifier, SequenceLabeler
 from enso.experiment import ClassificationExperiment
 from enso.config import RESULTS_DIRECTORY
 from enso.registry import Registry, ModeKeys
+try:
+    from finetune.base_models.bert.model import BERTModelCased, BERTModelLargeCased, RoBERTa, DistilBERT
+except:
+    pass
 
-import numpy as np
+try:
+    from finetune.base_models.oscar.model import GPCModel
+except:
+    pass
+try:
+    from finetune.base_models import GPT2ModelMedium, GPT2Model
+except:
+    pass
 
-from enso.utils import labels_to_binary
 
+@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class FinetuneDistilBERT(ClassificationExperiment):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model = Classifier(val_size=0, base_model=DistilBERT, max_length=512)
+
+    def fit(self, X, y):
+        self.model.fit(X, y)
+
+    def predict(self, X, **kwargs):
+        preds = self.model.predict_proba(X)
+        return pd.DataFrame.from_records(preds)
+
+    def cleanup(self):
+        del self.model
+
+
+@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class FinetuneRoBERTa(ClassificationExperiment):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model = Classifier(val_size=0, base_model=RoBERTa, max_length=512)
+        
+    def fit(self, X, y):
+        self.model.fit(X, y)
+        
+    def predict(self, X, **kwargs):
+        preds = self.model.predict_proba(X)
+        return pd.DataFrame.from_records(preds)
+
+    def cleanup(self):
+        del self.model
+                                                                                            
+
+@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class FinetuneGPC(ClassificationExperiment):
+    param_grid = {}
+
+    def __init__(self, *args, **kwargs):
+        """Initialize internal classifier."""
+        super().__init__(*args, **kwargs)
+        self.model = Classifier(val_size=0, base_model=GPCModel, max_length=512)
+
+    def fit(self, X, y):
+        self.model.fit(X, y)
+
+    def predict(self, X, **kwargs):
+        preds = self.model.predict_proba(X)
+        return pd.DataFrame.from_records(preds)
+
+    def cleanup(self):
+        del self.model
+
+
+@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class FinetuneGPCPrefit(ClassificationExperiment):
+    param_grid = {}
+
+    def __init__(self, *args, **kwargs):
+        """Initialize internal classifier."""
+        super().__init__(*args, **kwargs)
+        self.model = Classifier(val_size=0, base_model=GPCModel, max_length=256, prefit_init=True)
+
+    def fit(self, X, y):
+        self.model.fit(X, y)
+
+    def predict(self, X, **kwargs):
+        preds = self.model.predict_proba(X)
+        return pd.DataFrame.from_records(preds)
+
+    def cleanup(self):
+        del self.model
+
+@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class FinetuneBERT(ClassificationExperiment):
+    param_grid = {}
+
+    def __init__(self, *args, **kwargs):
+        """Initialize internal classifier."""
+        super().__init__(*args, **kwargs)
+        self.model = Classifier(val_size=0, base_model=BERTModelCased, max_length=256)
+
+    def fit(self, X, y):
+        self.model.fit(X, y)
+
+    def predict(self, X, **kwargs):
+        preds = self.model.predict_proba(X)
+        return pd.DataFrame.from_records(preds)
+
+    def cleanup(self):
+        del self.model
+
+@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class FinetunGPT2(ClassificationExperiment):
+    param_grid = {}
+
+    def __init__(self, *args, **kwargs):
+        """Initialize internal classifier."""
+        super().__init__(*args, **kwargs)
+        self.model = Classifier(val_size=0, base_model=GPT2Model, max_length=256)
+
+    def fit(self, X, y):
+        self.model.fit(X, y)
+
+    def predict(self, X, **kwargs):
+        preds = self.model.predict_proba(X)
+        return pd.DataFrame.from_records(preds)
+
+    def cleanup(self):
+        del self.model
+
+@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class FinetuneBERTLarge(ClassificationExperiment):
+    param_grid = {}
+
+    def __init__(self, *args, **kwargs):
+        """Initialize internal classifier."""
+        super().__init__(*args, **kwargs)
+        self.model = Classifier(val_size=0, base_model=BERTModelLargeCased, max_length=256)
+
+    def fit(self, X, y):
+        self.model.fit(X, y)
+
+    def predict(self, X, **kwargs):
+        preds = self.model.predict_proba(X)
+        return pd.DataFrame.from_records(preds)
+
+    def cleanup(self):
+        del self.model
+
+@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class FinetuneGPTSummaries(ClassificationExperiment):
+    param_grid = {}
+
+    def __init__(self, *args, **kwargs):
+        """Initialize internal classifier."""
+        super().__init__(*args, **kwargs)
+        self.model = Classifier(val_size=0, base_model_path="SummariesBase.jl")
+
+    def fit(self, X, y):
+        self.model.fit(X, y)
+
+    def predict(self, X, **kwargs):
+        preds = self.model.predict_proba(X)
+        return pd.DataFrame.from_records(preds)
+
+    def cleanup(self):
+        del self.model
+
+        
+
+@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class FinetuneGPT(ClassificationExperiment):
+    """                                                                                                                                                                              
+    LanguageModel finetuning as an alternative to simple models trained on top of pretrained features.                                                                               
+    """
+
+    param_grid = {}
+
+    def __init__(self, *args, **kwargs):
+        """Initialize internal classifier."""
+        super().__init__(*args, **kwargs)
+        self.model = Classifier(val_size=0)
+
+    def fit(self, X, y):
+        """                                                                                                                                                                          
+        :param X: `np.ndarray` of raw text sampled from training data.                                                                                                               
+        :param y: `np.ndarray` of corresponding targets sampled from training data.                                                                                                  
+        """
+        self.model.fit(X, y)
+
+    def predict(self, X, **kwargs):
+        """Predict results on test set based on current internal model."""
+        preds = self.model.predict_proba(X)
+        return pd.DataFrame.from_records(preds)
+
+    def cleanup(self):
+        del self.model
+
+@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class FinetuneGPTAdaptors(FinetuneGPT):
+    pass
 
 @Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
 class Finetune(ClassificationExperiment):

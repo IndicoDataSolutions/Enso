@@ -48,7 +48,7 @@ class ValidateExperiments:
     def valid_dataset(dataset_str):
         mode = dataset_str.split("/")[0]
         if MODE.value != mode:
-            logger.warning("Dataset {} is not compatible with mode {}. Skipping.".format(value, MODE.value))
+            logger.warning("Dataset {} is not compatible with mode {}. Skipping.".format(mode, MODE.value))
             return False
         return True
 

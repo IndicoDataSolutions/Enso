@@ -186,8 +186,8 @@ class Experimentation(object):
 
         result_file = os.path.join(result_path, RESULTS_CSV_NAME)
         header = False if os.path.exists(result_file) else True
-        result_fd = open(result_file, 'a')
-        results.to_csv(result_fd, header=header, columns=self.columns)
+        with open(result_file, 'a') as result_fd:
+            results.to_csv(result_fd, header=header, columns=self.columns)
 
         # The a is for archival, not just a typo
         config_record = "%s/Config.pya" % result_path

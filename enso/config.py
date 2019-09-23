@@ -14,71 +14,56 @@ RESULTS_DIRECTORY = "Results"
 FEATURES_DIRECTORY = "Features"
 
 # Directory for storing experiment results
-EXPERIMENT_NAME = "EnsoExperiment"
+EXPERIMENT_NAME = "roBERTa"
 
 # Name of the csv used to store results
 RESULTS_CSV_NAME = "Results.csv"
 
 # Datasets to featurize or run experiments on
 DATA = {
-    #"Classify/AirlineComplaints",
-    "Classify/AirlineNegativity",
-    # "Classify/AirlineSentiment",
-    "Classify/BrandEmotion",
-    # "Classify/BrandEmotionCause",
-    # "Classify/ChemicalDiseaseCauses",
-    # "Classify/CorporateMessaging",
-    "Classify/CustomerReviews",
-    # "Classify/DetailedEmotion",
-    # "Classify/Disaster",
-    # "Classify/DrugReviewIntent",
-    # "Classify/DrugReviewType",
-    # "Classify/Economy",
-    # "Classify/Emotion",
-    # "Classify/GlobalWarming",
-    # "Classify/Horror",
-    # "Classify/HotelReviews",
-     "Classify/IMDB",
-     "Classify/Irony",
-     "Classify/MPQA",
-     "Classify/MovieReviews",
-    # "Classify/NewYearsResolutions",
-    # "Classify/PoliticalTweetAlignment",
-    # "Classify/PoliticalTweetBias",
-    # "Classify/PoliticalTweetClassification",
-    # "Classify/PoliticalTweetSubjectivity",
-    # "Classify/PoliticalTweetTarget",
-    # "Classify/ReligiousTexts",
-    # "Classify/ShortAnswer",
-     "Classify/SocialMediaDisasters",
-     #"Classify/Subjectivity",
-      "Classify/TextSpam",
-    "Classify/SST-binary"
-
-    # Seqence
-
-    # 'SequenceLabeling/Reuters-128',
-    # 'SequenceLabeling/brown_all',
-    # 'SequenceLabeling/brown_nouns',
-    # 'SequenceLabeling/brown_verbs',
-    # 'SequenceLabeling/brown_pronouns',
-    # 'SequenceLabeling/brown_adverbs',
+    'Classify/AirlineSentiment',
+    'Classify/AirlineNegativity',
+    'Classify/BrandEmotion',
+    'Classify/BrandEmotionCause',
+    'Classify/ChemicalDiseaseCauses',
+    'Classify/CorporateMessaging',
+    'Classify/CustomerReviews',
+#    'Classify/DetailedEmotion',
+    'Classify/DrugReviewType',
+    'Classify/DrugReviewIntent',
+    'Classify/Economy',
+    'Classify/Emotion',
+    'Classify/GlobalWarming',
+    'Classify/MovieReviews',
+    'Classify/MPQA',
+    'Classify/NewYearsResolutions',
+    'Classify/PoliticalTweetBias',
+    'Classify/PoliticalTweetClassification',
+    'Classify/SocialMediaDisasters',
+    'Classify/SST-binary',
+    'Classify/Subjectivity'
 }
 
 # Featurizers to activate
 FEATURIZERS = {
     "PlainTextFeaturizer",
+#    "GPCClfTokFeaturizer",
+#    "GPCFinalStateFeaturizer",
+#    "GPCMeanStateFeaturizer",
+#    "GPCMaxStateFeaturizer",
+#    "GPCMeanTokFeaturizer",
+#    "GPCMaxTokFeaturizer",
      "IndicoStandard",
-    "SpacyGloveFeaturizer",
-    "IndicoFastText",
-    "IndicoSentiment",
+#    "SpacyGloveFeaturizer",
+#    "IndicoFastText",
+#    "IndicoSentiment",
     "IndicoElmo",
-    "IndicoTopics",
-    "IndicoFinance",
-    "IndicoTransformer",
-    "IndicoEmotion",
-    "IndicoFastText",
-    "SpacyCNNFeaturizer",
+#    "IndicoTopics",
+#    "IndicoFinance",
+#    "IndicoTransformer",
+#    "IndicoEmotion",
+#    "IndicoFastText",
+#    "SpacyCNNFeaturizer",
 }
 
 # Experiments to run
@@ -86,7 +71,18 @@ EXPERIMENTS = {
     # "FinetuneSequenceLabel",
     # "IndicoSequenceLabel"
     #"LogisticRegressionCV",
-    #"SupportVectorMachineCV",
+    "SupportVectorMachineCV",
+    "FinetuneGPT",
+    "FinetuneRoBERTa",
+    "FinetuneGPTSummaries",
+#    "FinetuneGPTAdaptors",
+    "FinetunGPT2",
+    "FinetuneBERT",
+    "FinetuneGPC",
+    "FinetuneDistilBERT"
+#    "FinetuneBERTLarge",
+#    "FinetuneGPC",
+#    "FinetuneGPCPrefit"
 }
 
 # Metrics to compute
@@ -97,8 +93,8 @@ METRICS = {
 
 # Test setup metadata
 TEST_SETUP = {
-    "train_sizes": range(50, 550, 25),
-    "n_splits": 5,
+    "train_sizes": list(range(50, 500, 50)),
+    "n_splits": 3,
     # "samplers": ['RandomSequence', 'NoSampler'],
     "samplers": ['Random'],
     "sampling_size": .3,
@@ -130,11 +126,11 @@ VISUALIZATION_OPTIONS = {
 MODE = ModeKeys.CLASSIFY
 
 N_GPUS = 1
-N_CORES = 1  # multiprocessing.cpu_count()
+N_CORES = 1 # multiprocessing.cpu_count()
 
 FIX_REQUIREMENTS = True
 
 GOLD_FRAC = 0.05
 CORRUPTION_FRAC = 0.4
 
-indicoio.config.api_key = ""
+indicoio.config.api_key = "6ce18bc8af2ad17432b913b05d14bfbd"
