@@ -27,6 +27,7 @@ class LRBaselineNonRationalized(RationalizedGridSearch):
             "solver": ["lbfgs"],
             "multi_class": ["multinomial"],
         }
+
         
 @Registry.register_experiment(ModeKeys.RATIONALIZED, requirements=[("Featurizer", "PlainTextFeaturizer")])
 class FinetuneClfBaselineNonRationalized(ClassificationExperiment):
