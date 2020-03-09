@@ -45,10 +45,11 @@ class FinetuneDistilBERT(ClassificationExperiment):
 
 @Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
 class FinetuneRoBERTa(ClassificationExperiment):
+    config = {}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.model = Classifier(val_size=0, base_model=RoBERTa, max_length=512)
+        self.model = Classifier(val_size=0, base_model=RoBERTa, max_length=512, **self.config)
         
     def fit(self, X, y):
         self.model.fit(X, y)
@@ -59,7 +60,30 @@ class FinetuneRoBERTa(ClassificationExperiment):
 
     def cleanup(self):
         del self.model
-                                                                                            
+
+@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class FinetuneRoBERTaFocalLoss(FinetuneRoBERTa):
+    config = {"focal_loss": True}
+
+@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class FinetuneRoBERTaOversampling(FinetuneRoBERTa):
+    config = {"oversample": True}
+
+@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class FinetuneRoBERTaLinearWeight(FinetuneRoBERTa):
+    config = {"class_weights": "linear"}
+
+@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class FinetuneRoBERTaSqrtWeight(FinetuneRoBERTa):
+    config = {"class_weights": "sqrt"}
+
+@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class FinetuneRoBERTaLogWeight(FinetuneRoBERTa):
+    config = {"class_weights": "log"}
+
+@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class FinetuneRoBERTaDanielLoss(FinetuneRoBERTa):
+    config = {"daniel_loss": True}
 
 @Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
 class FinetuneGPC(ClassificationExperiment):

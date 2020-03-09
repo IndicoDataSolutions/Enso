@@ -14,7 +14,7 @@ RESULTS_DIRECTORY = "Results"
 FEATURES_DIRECTORY = "Features"
 
 # Directory for storing experiment results
-EXPERIMENT_NAME = "roBERTa"
+EXPERIMENT_NAME = "focal_loss"
 
 # Name of the csv used to store results
 RESULTS_CSV_NAME = "Results.csv"
@@ -53,11 +53,11 @@ FEATURIZERS = {
 #    "GPCMaxStateFeaturizer",
 #    "GPCMeanTokFeaturizer",
 #    "GPCMaxTokFeaturizer",
-     "IndicoStandard",
+#     "IndicoStandard",
 #    "SpacyGloveFeaturizer",
 #    "IndicoFastText",
 #    "IndicoSentiment",
-    "IndicoElmo",
+#    "IndicoElmo",
 #    "IndicoTopics",
 #    "IndicoFinance",
 #    "IndicoTransformer",
@@ -71,16 +71,22 @@ EXPERIMENTS = {
     # "FinetuneSequenceLabel",
     # "IndicoSequenceLabel"
     #"LogisticRegressionCV",
-    "SupportVectorMachineCV",
+#    "SupportVectorMachineCV",
     "FinetuneGPT",
     "FinetuneRoBERTa",
-    "FinetuneGPTSummaries",
+    "FinetuneRoBERTaFocalLoss",
+    "FinetuneRoBERTaOversampling",
+    "FinetuneRoBERTaLinearWeight",
+    "FinetuneRoBERTaSqrtWeight",
+    "FinetuneRoBERTaLogWeight",
+    "FinetuneRoBERTaDanielLoss", 
+#    "FinetuneGPTSummaries",
 #    "FinetuneGPTAdaptors",
     "FinetunGPT2",
     "FinetuneBERT",
-    "FinetuneGPC",
-    "FinetuneDistilBERT"
-#    "FinetuneBERTLarge",
+#    "FinetuneGPC",
+    "FinetuneDistilBERT",
+    "FinetuneBERTLarge",
 #    "FinetuneGPC",
 #    "FinetuneGPCPrefit"
 }
@@ -99,7 +105,7 @@ TEST_SETUP = {
     "samplers": ['Random'],
     "sampling_size": .3,
     # "resamplers": ["SequenceOverSampler", 'NoResampler']
-    "resamplers": ["RandomOverSampler"]
+    "resamplers": ["NoResampler"]
 }
 
 # Visualizations to display
