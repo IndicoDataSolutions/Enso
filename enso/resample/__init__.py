@@ -16,7 +16,7 @@ class Resampler(metaclass=ABCMeta):
         """ """
 
 
-@Registry.register_resampler(ModeKeys.CLASSIFY)
+@Registry.register_resampler(ModeKeys.ANY)
 class RandomOverSampler(Resampler):
     @staticmethod
     def resample(X, y, max_ratio=50):
@@ -42,7 +42,6 @@ class RandomOverSampler(Resampler):
         random.shuffle(idx_sample)
 
         return X.tolist() + X[idx_sample].tolist(), y.tolist() + y[idx_sample].tolist()
-
 
 @Registry.register_resampler(ModeKeys.CLASSIFY)
 class ImbalanceSampler(Resampler):

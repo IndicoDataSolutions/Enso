@@ -69,16 +69,16 @@ class Featurization(object):
     def _load_dataset(dataset_name):
         """Responsible for finding datasets and reading them into dataframes."""
         dataset = "Data/%s" % dataset_name  # TODO Data is hard coded although seems configurable from config.
-        if "Classify" in dataset:
+        if "SequenceLabeling" in dataset or "RationalClassify":
+            with open("%s.json" % dataset, "rt") as fp:
+                return json.load(fp)
+        elif "Classify" in dataset:
             df = pd.read_csv("%s.csv" % dataset)
             if 'Text' not in df:
                 raise ValueError("File: %s has no column 'Text'" % dataset_name)
             if 'Target' not in df:
                 raise ValueError("File %s has no column 'Target'" % dataset_name)
             return df
-        elif "SequenceLabeling" in dataset:
-            with open("%s.json" % dataset, "rt") as fp:
-                return json.load(fp)
         else:
             raise FileNotFoundError("Dataset type : %s not understood" % dataset_name)
 

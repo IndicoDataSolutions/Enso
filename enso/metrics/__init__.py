@@ -35,3 +35,4 @@ class SequenceLabelingMetric(Metric):
 
 from enso.metrics import basic_classification
 from enso.metrics import basic_seq_labeling
+from enso.metrics import basic_rationalized

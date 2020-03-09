@@ -14,14 +14,14 @@ RESULTS_DIRECTORY = "Results"
 FEATURES_DIRECTORY = "Features"
 
 # Directory for storing experiment results
-EXPERIMENT_NAME = "EnsoExperiment"
+EXPERIMENT_NAME = "Rationalized"
 
 # Name of the csv used to store results
 RESULTS_CSV_NAME = "Results.csv"
 
 # Datasets to featurize or run experiments on
 DATA = {
-    "Classify/AirlineComplaints",
+#    "Classify/AirlineComplaints",
     # "Classify/AirlineNegativity",
     # "Classify/AirlineSentiment",
     # "Classify/BrandEmotion",
@@ -61,6 +61,12 @@ DATA = {
     # 'SequenceLabeling/brown_verbs',
     # 'SequenceLabeling/brown_pronouns',
     # 'SequenceLabeling/brown_adverbs',
+#    'RationalClassify/bank_qualified',
+#    'RationalClassify/evidence_inference',
+#    'RationalClassify/federal_tax',
+#    'RationalClassify/interest_frequency',
+#    'RationalClassify/aviation',
+    'RationalClassify/movie_reviews',
 }
 
 # Featurizers to activate
@@ -83,27 +89,36 @@ FEATURIZERS = {
 EXPERIMENTS = {
     # "FinetuneSequenceLabel",
     # "IndicoSequenceLabel"
-    "LogisticRegressionCV",
-    "KNNCV",
-    "TfidfKNN",
-    "TfidfLogisticRegression",
-    "KCenters",
-    "TfidfKCenters"
+##    "LogisticRegressionCVRationalized",
+    "FinetuneSeqBaselineRationalized",
+##    "FinetuneClfBaselineRationalized",
+#    "LogisticRegressionCVRationalized",
+#    "LogisticRegressionCV",
+#    "KNNCV",
+#    "TfidfKNN",
+#    "TfidfLogisticRegression",
+#    "KCenters",
+#    "TfidfKCenters"
     # "SupportVectorMachineCV",
 }
 
 # Metrics to compute
-METRICS = {"Accuracy", "MacroRocAuc"}
+METRICS = {
+#    "Accuracy",
+    "AccuracyRationalized",
+    "MacroRocAucRationalized",
+#    "MacroRocAuc"
+}
 
 # Test setup metadata
 TEST_SETUP = {
-    "train_sizes": iter([50, 60, 75, 100, 125, 150, 175, 200]),
+    "train_sizes": [20, 40, 60, 80, 100, 150],
     "n_splits": 5,
-    # "samplers": ['RandomSequence', 'NoSampler'],
-    "samplers": ["ImbalanceSampler"],
-    "sampling_size": 0.3,
-    # "resamplers": ["SequenceOverSampler", 'NoResampler']
-    "resamplers": ["RandomOverSampler"],
+    "samplers": ['NoSampler'],
+#    "samplers": ["ImbalanceSampler"],
+    "sampling_size": 0.2,
+    "resamplers": ['RandomOverSampler']
+#    "resamplers": ["RandomOverSampler"],
 }
 
 # Visualizations to display
@@ -125,7 +140,7 @@ VISUALIZATION_OPTIONS = {
     },
 }
 
-MODE = ModeKeys.CLASSIFY
+MODE = ModeKeys.RATIONALIZED
 
 N_GPUS = 1
 N_CORES = 1  # multiprocessing.cpu_count()

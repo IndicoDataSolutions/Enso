@@ -107,7 +107,7 @@ class Experimentation(object):
         for col, val in current_settings.items():
             indexes = indexes & (results[col] == val)
         experiments = results.loc[indexes]
-        if len(experiments) < len(METRICS) * TEST_SETUP["n_splits"]:
+        if len(experiments) < (len(METRICS) + 2) * TEST_SETUP["n_splits"]:
             return False
         return True
 
@@ -134,13 +134,18 @@ class Experimentation(object):
             test_labels = list(dataset[target].iloc[test])
             data = (
                 experiment.resample(train_set, train_labels)
-                if not experiment.auto_resample_
+                if experiment.auto_resample_
                 else (train_set, train_labels)
             )
             x, y = data
+            before_fit = time.time()
             experiment.fit(x, y)
+            train_time = time.time() - before_fit
             test_pred = experiment.predict(test_set, subset="TEST")
+
+            before_pred = time.time()
             train_pred = experiment.predict(train_set, subset="TRAIN")
+            pred_time = time.time() - before_pred
             experiment.cleanup()
             result = self._measure_experiment(
                 target=test_labels,
@@ -148,7 +153,10 @@ class Experimentation(object):
                 train_target=train_labels,
                 train_result=train_pred,
                 internal_setting=internal_setting,
+                train_time=train_time,
+                pred_time=pred_time,
             )
+            print(result)
             self._dump_results(result, experiment_name=self.name)
         except Exception:
             logging.exception("Failed to run experiment: {}".format(internal_setting))
@@ -196,7 +204,19 @@ class Experimentation(object):
                             time.sleep(0.1)
 
         return results
+    
+    @staticmethod
+    def _get_results_row(name, score, train_score, internal_setting, train_key, test_key):
+        full_setting = {"Metric": name, test_key: score}
 
+        # measure score on train set to help detect overfitting                                                                                    
+        if train_score is not None:
+            full_setting[train_key] = train_score
+            
+        full_setting.update(internal_setting)
+        full_setting_df = pd.DataFrame.from_records([full_setting])
+        return full_setting_df
+            
     def _measure_experiment(
         self,
         target,
@@ -206,20 +226,39 @@ class Experimentation(object):
         internal_setting=None,
         test_key="Result",
         train_key="TrainResult",
+        train_time=None,
+        pred_time=None, 
     ):
         """Responsible for recording all metrics specified in config for a given experiment."""
         results = pd.DataFrame(columns=self.columns)
         for metric in self.metrics:
             score = metric.evaluate(target, result)
-            full_setting = {"Metric": metric.name(), test_key: score}
-
-            # measure score on train set to help detect overfitting
             if train_target is not None and train_result is not None:
                 train_score = metric.evaluate(train_target, train_result)
-                full_setting[train_key] = train_score
-
-            full_setting.update(internal_setting)
-            full_setting_df = pd.DataFrame.from_records([full_setting])
+            else:
+                train_score = None
+            full_setting_df = self._get_results_row(metric.name(), score, train_score, internal_setting, train_key, test_key)
+            results = results.append(full_setting_df, ignore_index=True)
+        print("I AM HERE AND {} and {}".format(train_time, pred_time))
+        if train_time is not None:
+            full_setting_df = self._get_results_row(
+                name="train_time",
+                score=train_time,
+                train_score=None,
+                internal_setting=internal_setting,
+                train_key=None,
+                test_key=test_key
+            )
+            results = results.append(full_setting_df, ignore_index=True)
+        if pred_time is not None:
+            full_setting_df = self._get_results_row(
+                name="pred_time",
+                score=pred_time,
+                train_score=None,
+                internal_setting=internal_setting,
+                train_key=None,
+                test_key=test_key
+            )
             results = results.append(full_setting_df, ignore_index=True)
         return results
 
@@ -228,7 +267,7 @@ class Experimentation(object):
         if not experiment_name:
             experiment_name = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
         result_path = os.path.join(RESULTS_DIRECTORY, experiment_name)
-        results = results.dropna()
+#        results = results.dropna()
 
         if not os.path.exists(result_path):
             os.makedirs(result_path)
@@ -261,17 +300,19 @@ class Experimentation(object):
         # Unfortunately it doesn't work as expected and locks test size to train size
         test_size = int(len(dataset) * TEST_SETUP["sampling_size"])
         if test_size + training_size > len(dataset):
-            raise ValueError(
+            print(test_size, training_size, len(dataset))
+            print(
                 "Invalid training size provided.  Training size must be less than {} of dataset size.".format(
                     TEST_SETUP["sampling_size"]
                 )
             )
+            return
 
         if MODE == ModeKeys.CLASSIFY:
             splitter = StratifiedShuffleSplit(
                 TEST_SETUP["n_splits"], test_size=test_size
             )
-        elif MODE == ModeKeys.SEQUENCE:
+        elif MODE in [ModeKeys.SEQUENCE, ModeKeys.RATIONALIZED]:
             splitter = ShuffleSplit(TEST_SETUP["n_splits"], test_size=test_size)
         else:
             raise ValueError(
@@ -411,3 +452,4 @@ from enso.experiment import random_forest
 from enso.experiment import svm
 from enso.experiment import tfidf
 from enso.experiment import knn
+from enso.experiment import rationalized
