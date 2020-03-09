@@ -61,11 +61,11 @@ DATA = {
     # 'SequenceLabeling/brown_verbs',
     # 'SequenceLabeling/brown_pronouns',
     # 'SequenceLabeling/brown_adverbs',
-#    'RationalClassify/bank_qualified',
-#    'RationalClassify/evidence_inference',
-#    'RationalClassify/federal_tax',
-#    'RationalClassify/interest_frequency',
-#    'RationalClassify/aviation',
+    'RationalClassify/bank_qualified',
+    'RationalClassify/evidence_inference',
+    'RationalClassify/federal_tax',
+    'RationalClassify/interest_frequency',
+    'RationalClassify/aviation',
     'RationalClassify/movie_reviews',
 }
 
@@ -89,10 +89,9 @@ FEATURIZERS = {
 EXPERIMENTS = {
     # "FinetuneSequenceLabel",
     # "IndicoSequenceLabel"
-##    "LogisticRegressionCVRationalized",
+    "LogisticRegressionCVRationalized",
     "FinetuneSeqBaselineRationalized",
-##    "FinetuneClfBaselineRationalized",
-#    "LogisticRegressionCVRationalized",
+    "FinetuneClfBaselineRationalized",
 #    "LogisticRegressionCV",
 #    "KNNCV",
 #    "TfidfKNN",

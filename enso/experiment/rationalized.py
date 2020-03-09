@@ -101,7 +101,7 @@ class FinetuneSeqBaselineRationalized(ClassificationExperiment):
     def __init__(self, *args, **kwargs):
         """Initialize internal classifier."""
         super().__init__(auto_resample=False, *args, **kwargs)
-        self.model = SequenceLabeler(val_size=0, n_epochs=1)
+        self.model = SequenceLabeler(val_size=0)
 
     def fit(self, X, y):
         targets = []
