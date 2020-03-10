@@ -1,7 +1,7 @@
 import os.path
 import requests
 import pandas as pd
-from pandas.compat import StringIO
+from io import StringIO
 from bs4 import BeautifulSoup
 
 from enso import config
@@ -18,11 +18,14 @@ def generic_download(
     text_transformation=None,
     target_transformation=None,
 ):
-
-    save_path = os.path.join(config.DATA_DIRECTORY, task_type.value, filename)
+    task_dir = os.path.join(config.DATA_DIRECTORY, task_type.value)
+    save_path = os.path.join(task_dir, filename)
     if os.path.exists(save_path):
         print("{} already downloaded, skipping...".format(filename))
         return
+
+    if not os.path.exists(task_dir):
+        os.mkdir(task_dir)
 
     response = requests.get(url)
     _file = StringIO(response.text.replace("\r", "\n"))

@@ -10,7 +10,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from enso.experiment import ClassificationExperiment
 from enso.experiment.k_centers import KCentersAlgorithm
 from enso.experiment.grid_search import GridSearch
-from enso.experiment.gmean import GMeanAlgorithm
 from enso.registry import Registry, ModeKeys
 
 
