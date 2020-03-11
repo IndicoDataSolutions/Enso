@@ -156,7 +156,6 @@ class Experimentation(object):
                 train_time=train_time,
                 pred_time=pred_time,
             )
-            print(result)
             self._dump_results(result, experiment_name=self.name)
         except Exception:
             logging.exception("Failed to run experiment: {}".format(internal_setting))
@@ -206,8 +205,8 @@ class Experimentation(object):
         return results
     
     @staticmethod
-    def _get_results_row(name, score, train_score, internal_setting, train_key, test_key):
-        full_setting = {"Metric": name, test_key: score}
+    def _get_results_row(name, internal_setting, test_score, test_key, train_score=None, train_key=None):
+        full_setting = {"Metric": name, test_key: test_score}
 
         # measure score on train set to help detect overfitting                                                                                    
         if train_score is not None:
@@ -237,26 +236,25 @@ class Experimentation(object):
                 train_score = metric.evaluate(train_target, train_result)
             else:
                 train_score = None
-            full_setting_df = self._get_results_row(metric.name(), score, train_score, internal_setting, train_key, test_key)
+            full_setting_df = self._get_results_row(
+                metric.name(), internal_setting,
+                test_score=score, test_key=test_key,
+                train_score=train_score, train_key=train_key
+            )
             results = results.append(full_setting_df, ignore_index=True)
-        print("I AM HERE AND {} and {}".format(train_time, pred_time))
         if train_time is not None:
             full_setting_df = self._get_results_row(
                 name="train_time",
-                score=train_time,
-                train_score=None,
                 internal_setting=internal_setting,
-                train_key=None,
+                test_score=train_time,
                 test_key=test_key
             )
             results = results.append(full_setting_df, ignore_index=True)
         if pred_time is not None:
             full_setting_df = self._get_results_row(
                 name="pred_time",
-                score=pred_time,
-                train_score=None,
                 internal_setting=internal_setting,
-                train_key=None,
+                test_score=pred_time,
                 test_key=test_key
             )
             results = results.append(full_setting_df, ignore_index=True)
@@ -300,10 +298,15 @@ class Experimentation(object):
         # Unfortunately it doesn't work as expected and locks test size to train size
         test_size = int(len(dataset) * TEST_SETUP["sampling_size"])
         if test_size + training_size > len(dataset):
-            print(test_size, training_size, len(dataset))
-            print(
-                "Invalid training size provided.  Training size must be less than {} of dataset size.".format(
-                    TEST_SETUP["sampling_size"]
+            logging.warning(
+                (
+                    "Invalid training size provided.  Training size must be less than {sample_size} of dataset size."
+                    "the length of dataset is {ds_size}, but we have a train size of {train_size} and test {test_size}"
+                ).format(
+                    sample_size=TEST_SETUP["sampling_size"],
+                    ds_size=len(dataset),
+                    train_size=training_size,
+                    test_size=test_size
                 )
             )
             return

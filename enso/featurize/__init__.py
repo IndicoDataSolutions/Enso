@@ -69,7 +69,7 @@ class Featurization(object):
     def _load_dataset(dataset_name):
         """Responsible for finding datasets and reading them into dataframes."""
         dataset = "Data/%s" % dataset_name  # TODO Data is hard coded although seems configurable from config.
-        if "SequenceLabeling" in dataset or "RationalClassify":
+        if "SequenceLabeling" in dataset or "RationalClassify" in dataset:
             with open("%s.json" % dataset, "rt") as fp:
                 return json.load(fp)
         elif "Classify" in dataset:

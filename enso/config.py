@@ -61,12 +61,12 @@ DATA = {
     # 'SequenceLabeling/brown_verbs',
     # 'SequenceLabeling/brown_pronouns',
     # 'SequenceLabeling/brown_adverbs',
-    'RationalClassify/bank_qualified',
-    'RationalClassify/evidence_inference',
-    'RationalClassify/federal_tax',
-    'RationalClassify/interest_frequency',
-    'RationalClassify/aviation',
-    'RationalClassify/movie_reviews',
+    'RationalizedClassify/bank_qualified',
+    'RationalizedClassify/evidence_inference',
+    'RationalizedClassify/federal_tax',
+    'RationalizedClassify/interest_frequency',
+    'RationaizedlClassify/aviation',
+    'RationalizedClassify/movie_reviews',
 }
 
 # Featurizers to activate
@@ -89,9 +89,9 @@ FEATURIZERS = {
 EXPERIMENTS = {
     # "FinetuneSequenceLabel",
     # "IndicoSequenceLabel"
-    "LogisticRegressionCVRationalized",
+    "LRBaselineNonRationalized",
     "FinetuneSeqBaselineRationalized",
-    "FinetuneClfBaselineRationalized",
+    "FinetuneClfBaselineNonRationalized",
 #    "LogisticRegressionCV",
 #    "KNNCV",
 #    "TfidfKNN",
@@ -111,7 +111,7 @@ METRICS = {
 
 # Test setup metadata
 TEST_SETUP = {
-    "train_sizes": [20, 40, 60, 80, 100, 150],
+    "train_sizes": [20, 40, 60, 80, 100, 150, 200, 300, 400, 500],
     "n_splits": 5,
     "samplers": ['NoSampler'],
 #    "samplers": ["ImbalanceSampler"],
