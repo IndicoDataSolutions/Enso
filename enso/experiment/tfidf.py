@@ -10,7 +10,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from enso.experiment import ClassificationExperiment
 from enso.experiment.k_centers import KCentersAlgorithm
 from enso.experiment.grid_search import GridSearch
-from enso.experiment.gmean import GMeanAlgorithm
 from enso.registry import Registry, ModeKeys
 
 
@@ -89,15 +88,3 @@ class TfidfKCenters(TfidfModelGridSearch):
             "metric": ["cosine", "euclidean", "l1"],
             "mean": ["additive", "geometric"],
         }
-
-
-@Registry.register_experiment(
-    ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")]
-)
-class TfidfGMean(TfidfModelGridSearch):
-    def __init__(self, *args, **kwargs):
-        """Initialize internal classifier."""
-        super().__init__(*args, **kwargs)
-        self.base_model = GMeanAlgorithm
-        self.param_grid = {"metric": ["cosine", "euclidean", "l1"]}
-

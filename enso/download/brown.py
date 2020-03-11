@@ -25,7 +25,12 @@ def label_preproc(label, regex, whole_tag=False):
 def brown_corpus_tags(task_name, tag_regex, whole_tag=False):
     task_type = ModeKeys.SEQUENCE
     filename = "brown_{}.json".format(task_name)
-    save_path = os.path.join(config.DATA_DIRECTORY, task_type.value, filename)
+
+    task_dir = os.path.join(config.DATA_DIRECTORY, task_type.value,)
+    if not os.path.exists(task_dir):
+        os.mkdir(task_dir)
+
+    save_path = os.path.join(task_dir, filename)
 
     docs = []
     for tagged_sent in tqdm(brown.tagged_sents(), desc=task_name):
