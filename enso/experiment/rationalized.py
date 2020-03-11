@@ -90,10 +90,9 @@ class FinetuneSeqBaselineRationalized(ClassificationExperiment):
             )
 
         for sample in preds:
-            overall_confidence = {k: safe_mean([s["confidence"][k] for s in sample]) + 1e-10 for k in classes}
-            norm_factor = sum(overall_confidence.values())
-            overall_conficence = {k: v / norm_factor for k, v in overall_confidence.items()}
-            output.append(overall_confidence)
+            output.append(
+                {k: safe_mean([s["confidence"][k] for s in sample]) + 1e-10 for k in classes}
+            )
         return pd.DataFrame.from_records(output)
 
     def cleanup(self):

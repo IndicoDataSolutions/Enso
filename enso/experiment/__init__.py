@@ -156,7 +156,6 @@ class Experimentation(object):
                 train_time=train_time,
                 pred_time=pred_time,
             )
-            print(result)
             self._dump_results(result, experiment_name=self.name)
         except Exception:
             logging.exception("Failed to run experiment: {}".format(internal_setting))
