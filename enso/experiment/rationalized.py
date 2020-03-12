@@ -83,7 +83,6 @@ class FinetuneSeqBaselineRationalized(ClassificationExperiment):
         classes = self.model.input_pipeline.label_encoder.classes_[:]
         classes.remove("<PAD>")
         output = []
-        print(classes)
         for sample in preds:
             output.append(
                 {k: safe_mean([s["confidence"][k] for s in sample]) + 1e-10 for k in classes}

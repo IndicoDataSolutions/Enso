@@ -265,7 +265,6 @@ class Experimentation(object):
         if not experiment_name:
             experiment_name = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
         result_path = os.path.join(RESULTS_DIRECTORY, experiment_name)
-#        results = results.dropna()
 
         if not os.path.exists(result_path):
             os.makedirs(result_path)
