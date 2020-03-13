@@ -69,7 +69,10 @@ class Featurization(object):
     def _load_dataset(dataset_name):
         """Responsible for finding datasets and reading them into dataframes."""
         dataset = "Data/%s" % dataset_name  # TODO Data is hard coded although seems configurable from config.
+<<<<<<< HEAD
 
+=======
+>>>>>>> 3a4bb11... ADD: WeightedGloveClassifier
         if "SequenceLabeling" in dataset or "RationalizedClassify" in dataset:
             with open("%s.json" % dataset, "rt") as fp:
                 return json.load(fp)
