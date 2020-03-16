@@ -61,11 +61,11 @@ DATA = {
     # 'SequenceLabeling/brown_verbs',
     # 'SequenceLabeling/brown_pronouns',
     # 'SequenceLabeling/brown_adverbs',
-    'RationalizedClassify/bank_qualified',
+    'RationalizedClassify/short_bank_qualified',
     'RationalizedClassify/evidence_inference',
-    'RationalizedClassify/federal_tax',
-    'RationalizedClassify/interest_frequency',
-    'RationaizedlClassify/aviation',
+    'RationalizedClassify/short_federal_tax',
+    'RationalizedClassify/short_interest_frequency',
+    'RationalizedClassify/aviation',
     'RationalizedClassify/movie_reviews',
 }
 
