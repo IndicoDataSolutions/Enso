@@ -174,12 +174,20 @@ class ReweightedGloveClassifier(ClassificationExperiment):
         )
 
 @Registry.register_experiment(ModeKeys.RATIONALIZED, requirements=[("Featurizer", "PlainTextFeaturizer")])
-class DistReweightedGloveClassifier(ReweightedGloveClassifier):
+class DistReweightedGloveClassifierCV(GridSearch):
 
     NLP = None
 
     def __init__(self, *args, **kwargs):
-        ClassificationExperiment.__init__(self, auto_resample=False, *args, **kwargs)
+        super().__init__(*args, **kwargs)
+        self.base_model = LogisticRegression
+        self.param_grid = {
+            "penalty": ["l2"],
+            "max_iter": [500],
+            "C": [0.1, 1.0, 10.0, 100.0, 1000.0],
+            "solver": ["lbfgs"],
+            "multi_class": ["multinomial"],
+        }
         self.model = LogisticRegression()
         self.rationale_weight = {}
         if self.NLP is None:
@@ -216,3 +224,37 @@ class DistReweightedGloveClassifier(ReweightedGloveClassifier):
             return np.zeros_like(doc.vector)
         else:
             return doc_vect / np.linalg.norm(doc_vect)
+
+    def fit(self, X, Y):
+        # In this naive scenario we're only trying to downweight
+        # irrelevant terms -- rationales are shared across classes
+        rationales = []
+        labels = []
+        for x, l in zip(X, Y):
+            labels.append(l[1])
+            if l[0]:
+                rationales.append([{**label, "label": l[1]} for label in l[0]])
+            else:
+                rationales.append([{"start": 0, "end": len(x), "label": l[1], "text": x}])
+        rationale_texts = [
+            rationale['text'] 
+            for doc in rationales 
+            for rationale in doc
+        ]
+        docs = np.asarray([self.NLP(str(x), disable=['ner', 'tagger', 'textcat']) for x in X])
+        rationale_docs = np.asarray([self.NLP(rationale) for rationale in rationale_texts])
+        self._compute_p_rationale(docs, rationale_docs)
+
+        doc_vects = np.asarray([self._featurize(doc) for doc in docs])
+        resampled_x, resampled_y = self.resample(doc_vects, labels)
+        super().fit(resampled_x, resampled_y)
+
+
+    def predict(self, X, **kwargs):
+        docs = np.asarray([self.NLP(str(x), disable=['ner', 'tagger', 'textcat']) for x in X])
+        doc_vects = np.asarray([self._featurize(doc) for doc in docs])
+        probas = self.best_model.predict_proba(doc_vects) 
+        labels = self.best_model.classes_
+        return pd.DataFrame(
+            {label: probas[:, i] for i, label in enumerate(labels)}
+        )
