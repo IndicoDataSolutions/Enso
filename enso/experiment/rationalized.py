@@ -120,13 +120,13 @@ class ReweightedGloveClassifier(ClassificationExperiment):
         ])
 
         # smoothing for unseen terms
-        base_freq = 1. / sum(word_counts.values())
+        base_freq = np.sqrt(1. / sum(word_counts.values()))
         self.p_rationale_given_word = defaultdict(lambda: base_freq)
 
         for word, count in rationale_word_counts.items():
             # there can be slight difference in tokenization -- so we set 
             # word counts to be the rationale word count when we encounter this
-            self.p_rationale_given_word[word] = count / word_counts.get(word, count)
+            self.p_rationale_given_word[word] = np.sqrt(count / word_counts.get(word, count))
 
         return self.p_rationale_given_word
 
@@ -172,4 +172,47 @@ class ReweightedGloveClassifier(ClassificationExperiment):
         return pd.DataFrame(
             {label: probas[:, i] for i, label in enumerate(labels)}
         )
-      
+
+@Registry.register_experiment(ModeKeys.RATIONALIZED, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class DistReweightedGloveClassifier(ReweightedGloveClassifier):
+
+    NLP = None
+
+    def __init__(self, *args, **kwargs):
+        ClassificationExperiment.__init__(self, auto_resample=False, *args, **kwargs)
+        self.model = LogisticRegression()
+        self.rationale_weight = {}
+        if self.NLP is None:
+            self.NLP = spacy.load('en_vectors_web_lg')
+
+    def _compute_p_rationale(self, docs, rationale_docs):
+        rationale_vecs = [
+            doc.vector / np.linalg.norm(doc.vector) 
+            for doc in rationale_docs 
+            if doc.has_vector and np.any(np.nonzero(doc.vector))
+        ]
+        rationale_proto = np.mean(rationale_vecs, axis=0)
+        self.normalized_rationale_proto = rationale_proto / np.linalg.norm(rationale_proto)
+               
+    def _rationale_weight(self, word):
+        cosine_sim = np.dot(word.vector / np.linalg.norm(word.vector), self.normalized_rationale_proto)
+        return (1 + cosine_sim) / 2.
+
+    def _valid(self, token):
+        return (
+            token.has_vector 
+            and not token.is_stop 
+            and np.any(np.nonzero(token.vector))
+        )
+
+    def _featurize(self, doc):
+        doc_vect = np.mean([
+            token.vector * self._rationale_weight(token)
+            for token in doc
+            if self._valid(token)
+        ], axis=0)
+
+        if not np.any(np.nonzero(doc_vect)):
+            return np.zeros_like(doc.vector)
+        else:
+            return doc_vect / np.linalg.norm(doc_vect)
