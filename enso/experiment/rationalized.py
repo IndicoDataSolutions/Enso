@@ -173,9 +173,9 @@ class ReweightedGloveClassifier(ClassificationExperiment):
             {label: probas[:, i] for i, label in enumerate(labels)}
         )
 
-@Registry.register_experiment(ModeKeys.RATIONALIZED, requirements=[("Featurizer", "PlainTextFeaturizer")])
-class DistReweightedGloveClassifierCV(GridSearch):
 
+class BaseRationaleGridSearch(GridSearch):
+    
     NLP = None
 
     def __init__(self, *args, **kwargs):
@@ -193,7 +193,51 @@ class DistReweightedGloveClassifierCV(GridSearch):
         if self.NLP is None:
             self.NLP = spacy.load('en_vectors_web_lg')
 
-    def _compute_p_rationale(self, docs, rationale_docs):
+    def _valid(self, token):
+        return (
+            token.has_vector 
+            and not token.is_stop 
+            and np.any(np.nonzero(token.vector))
+        )
+
+    def fit(self, X, Y):
+        # In this naive scenario we're only trying to downweight
+        # irrelevant terms -- rationales are shared across classes
+        rationales = []
+        labels = []
+        for x, l in zip(X, Y):
+            labels.append(l[1])
+            if l[0]:
+                rationales.append([{**label, "label": l[1]} for label in l[0]])
+            else:
+                rationales.append([])
+        rationale_texts = [
+            rationale['text'] 
+            for doc in rationales 
+            for rationale in doc
+        ]
+        docs = np.asarray([self.NLP(str(x), disable=['ner', 'tagger', 'textcat']) for x in X])
+        rationale_docs = np.asarray([self.NLP(rationale) for rationale in rationale_texts if len(rationale)])
+        self._train_rationale_model(docs, rationale_docs)
+
+        doc_vects = np.asarray([self._featurize(doc) for doc in docs])
+        resampled_x, resampled_y = self.resample(doc_vects, labels)
+        super().fit(resampled_x, resampled_y)
+
+    def predict(self, X, **kwargs):
+        docs = np.asarray([self.NLP(str(x), disable=['ner', 'tagger', 'textcat']) for x in X])
+        doc_vects = np.asarray([self._featurize(doc) for doc in docs])
+        probas = self.best_model.predict_proba(doc_vects) 
+        labels = self.best_model.classes_
+        return pd.DataFrame(
+            {label: probas[:, i] for i, label in enumerate(labels)}
+        )
+
+
+@Registry.register_experiment(ModeKeys.RATIONALIZED, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class DistReweightedGloveClassifierCV(BaseRationaleGridSearch):
+
+    def _train_rationale_model(self, docs, rationale_docs):
         rationale_vecs = [
             doc.vector / np.linalg.norm(doc.vector) 
             for doc in rationale_docs 
@@ -205,13 +249,6 @@ class DistReweightedGloveClassifierCV(GridSearch):
     def _rationale_weight(self, word):
         cosine_sim = np.dot(word.vector / np.linalg.norm(word.vector), self.normalized_rationale_proto)
         return (1 + cosine_sim) / 2.
-
-    def _valid(self, token):
-        return (
-            token.has_vector 
-            and not token.is_stop 
-            and np.any(np.nonzero(token.vector))
-        )
 
     def _featurize(self, doc):
         doc_vect = np.mean([
@@ -225,36 +262,47 @@ class DistReweightedGloveClassifierCV(GridSearch):
         else:
             return doc_vect / np.linalg.norm(doc_vect)
 
-    def fit(self, X, Y):
-        # In this naive scenario we're only trying to downweight
-        # irrelevant terms -- rationales are shared across classes
-        rationales = []
-        labels = []
-        for x, l in zip(X, Y):
-            labels.append(l[1])
-            if l[0]:
-                rationales.append([{**label, "label": l[1]} for label in l[0]])
-            else:
-                rationales.append([{"start": 0, "end": len(x), "label": l[1], "text": x}])
-        rationale_texts = [
-            rationale['text'] 
-            for doc in rationales 
-            for rationale in doc
+
+@Registry.register_experiment(ModeKeys.RATIONALIZED, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class RationaleInformedLRCV(BaseRationaleGridSearch):
+
+    def _train_rationale_model(self, docs, rationale_docs):
+        rationale_vecs = [
+            doc.vector / np.linalg.norm(doc.vector) 
+            for doc in rationale_docs 
+            if doc.has_vector and np.any(np.nonzero(doc.vector))
         ]
-        docs = np.asarray([self.NLP(str(x), disable=['ner', 'tagger', 'textcat']) for x in X])
-        rationale_docs = np.asarray([self.NLP(rationale) for rationale in rationale_texts])
-        self._compute_p_rationale(docs, rationale_docs)
+        rationale_targets = [1] * len(rationale_vecs)
+        background_vecs = [
+            doc.vector / np.linalg.norm(doc.vector) 
+            for doc in rationale_docs 
+            if doc.has_vector and np.any(np.nonzero(doc.vector))
+        ]
+        background_targets = [0] * len(rationale_vecs)
+        X = rationale_vecs + background_vecs
+        Y = rationale_targets + background_targets
 
-        doc_vects = np.asarray([self._featurize(doc) for doc in docs])
-        resampled_x, resampled_y = self.resample(doc_vects, labels)
-        super().fit(resampled_x, resampled_y)
-
-
-    def predict(self, X, **kwargs):
-        docs = np.asarray([self.NLP(str(x), disable=['ner', 'tagger', 'textcat']) for x in X])
-        doc_vects = np.asarray([self._featurize(doc) for doc in docs])
-        probas = self.best_model.predict_proba(doc_vects) 
-        labels = self.best_model.classes_
-        return pd.DataFrame(
-            {label: probas[:, i] for i, label in enumerate(labels)}
+        cv_rationale_model = GridSearchCV(
+            self.base_model(),
+            param_grid=self.param_grid,
+            cv=OversampledKFold(self.resampler_),
+            refit=False,
         )
+        cv_rationale_model.fit(X, Y)
+
+        self.rationale_model = self.base_model(**cv_rationale_model.best_params_)
+        self.rationale_model.fit(X, Y)
+
+    def _featurize(self, doc):
+        doc_vect = np.asarray([
+            token.vector
+            for token in doc
+            if self._valid(token)
+        ])
+        rationale_weights = self.rationale_model.predict_proba(doc_vect)[:,1]
+        reweighted_doc_vect = np.sum(rationale_weights.reshape(-1, 1) * doc_vect, axis=0)
+
+        if not np.any(np.nonzero(doc_vect)):
+            return np.zeros_like(doc.vector)
+        else:
+            return reweighted_doc_vect / np.linalg.norm(reweighted_doc_vect)
