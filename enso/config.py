@@ -67,6 +67,7 @@ DATA = {
     'RationalizedClassify/short_interest_frequency',
     'RationalizedClassify/aviation',
     'RationalizedClassify/movie_reviews',
+    'RationalizedClassify/mining',
 }
 
 # Featurizers to activate
