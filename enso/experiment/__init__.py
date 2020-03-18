@@ -10,14 +10,14 @@ import abc
 from functools import wraps
 
 import concurrent.futures
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit
 from sklearn.externals import joblib
 
 from enso.sample import sample
-from enso.utils import feature_set_location, BaseObject
+from enso.utils import feature_set_location, BaseObject, RationalizedStratifiedShuffleSplit
 from enso.mode import ModeKeys
 from enso.config import (
     FEATURIZERS,
@@ -310,11 +310,15 @@ class Experimentation(object):
             )
             return
 
-        if MODE == ModeKeys.CLASSIFY:
+        if MODE in [ModeKeys.CLASSIFY]:
             splitter = StratifiedShuffleSplit(
                 TEST_SETUP["n_splits"], test_size=test_size
             )
-        elif MODE in [ModeKeys.SEQUENCE, ModeKeys.RATIONALIZED]:
+        elif MODE in [ModeKeys.RATIONALIZED]:
+            splitter = RationalizedStratifiedShuffleSplit(
+                TEST_SETUP['n_splits'], test_size=test_size
+            )
+        elif MODE in [ModeKeys.SEQUENCE]:
             splitter = ShuffleSplit(TEST_SETUP["n_splits"], test_size=test_size)
         else:
             raise ValueError(
@@ -455,3 +459,4 @@ from enso.experiment import svm
 from enso.experiment import tfidf
 from enso.experiment import knn
 from enso.experiment import rationalized
+from enso.experiment import crfac

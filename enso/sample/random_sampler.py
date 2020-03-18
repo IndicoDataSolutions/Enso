@@ -57,7 +57,6 @@ class RandomRationalized(Random):
                 points.append(self.train_indices[index])
         return points
 
-
 @Registry.register_sampler(ModeKeys.SEQUENCE)
 class RandomSequence(Random):
     """

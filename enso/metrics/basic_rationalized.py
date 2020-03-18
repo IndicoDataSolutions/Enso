@@ -2,6 +2,7 @@
 from sklearn.metrics import roc_auc_score, accuracy_score, log_loss
 import numpy as np
 
+from collections import Counter
 from enso.metrics import ClassificationMetric
 from enso.utils import labels_to_binary
 from enso.registry import Registry, ModeKeys
@@ -12,7 +13,10 @@ class MacroRocAucRationalized(ClassificationMetric):
 
     def evaluate(self, ground_truth, result):
         """Return AUC metric."""
+
         ground_truth = [yi[1] for yi in ground_truth]
+        
+        import ipdb; ipdb.set_trace(context=10)
         classes = list(set(ground_truth) | set(result.columns))
         classwise_auc = {}
         binary_labels = labels_to_binary(ground_truth)

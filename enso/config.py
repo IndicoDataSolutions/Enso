@@ -65,12 +65,12 @@ DATA = {
     # 'RationalizedClassify/bank_qualified',
     # 'RationalizedClassify/evidence_inference',
     # 'RationalizedClassify/federal_tax',
-    # 'RationalizedClassify/short_federal_tax',
+    'RationalizedClassify/short_federal_tax',
     # 'RationalizedClassify/interest_frequency',
-    # 'RationalizedClassify/short_interest_frequency',
+    'RationalizedClassify/short_interest_frequency',
     # 'RationalizedClassify/aviation',
     # 'RationalizedClassify/movie_reviews',
-    'RationalizedClassify/mining'
+    # 'RationalizedClassify/mining'
 }
 
 # Featurizers to activate
@@ -99,6 +99,7 @@ EXPERIMENTS = {
     # 'DistReweightedGloveClassifierCV'
     # "FinetuneSeqBaselineRationalized",
     # "FinetuneClfBaselineNonRationalized",
+    "CRFLogit",
 #    "LogisticRegressionCV",
 #    "KNNCV",
 #    "TfidfKNN",
