@@ -28,6 +28,34 @@ class Random(Sampler):
         return points
 
 
+
+@Registry.register_sampler(ModeKeys.RATIONALIZED)
+class RandomRationalized(Random):
+    """
+    Randomly selects examples from the training dataset.
+    :param data: pd.Series of feature vectors
+    :param train_labels: pd.Series of targets
+    :param train_indices: pd.Series of example indices
+    :param train_size: int number of examples to select
+    """
+    @property
+    def classes(self):
+        if not hasattr(self, "_classes"):
+            self._classes = set([label[1] for label in self.train_labels])
+        return self._classes
+
+    def _choose_starting_points(self, n_points=1):
+        """
+        Ensures a minimum of one label per class is chosen
+        """
+        points = []
+        for _ in range(n_points):
+            for cls in self.classes:
+                indices = [i for i, val in enumerate(self.train_labels) if val[1] == cls]
+                index = random.choice(indices)
+                points.append(self.train_indices[index])
+        return points
+
 @Registry.register_sampler(ModeKeys.SEQUENCE)
 class RandomSequence(Random):
     """

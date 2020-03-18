@@ -89,9 +89,10 @@ FEATURIZERS = {
 EXPERIMENTS = {
     # "FinetuneSequenceLabel",
     # "IndicoSequenceLabel"
-    "LRBaselineNonRationalized",
-    "FinetuneSeqBaselineRationalized",
-    "FinetuneClfBaselineNonRationalized",
+    #"LRBaselineNonRationalized",
+    #"FinetuneSeqBaselineRationalized",
+    #"FinetuneClfBaselineNonRationalized",
+    "CRFLogit",
 #    "LogisticRegressionCV",
 #    "KNNCV",
 #    "TfidfKNN",
@@ -113,7 +114,8 @@ METRICS = {
 TEST_SETUP = {
     "train_sizes": [20, 40, 60, 80, 100, 150, 200, 300, 400, 500],
     "n_splits": 5,
-    "samplers": ['NoSampler'],
+    #"samplers": ['NoSampler'],
+    "samplers": ['RandomRationalized'],
 #    "samplers": ["ImbalanceSampler"],
     "sampling_size": 0.2,
     "resamplers": ['RandomOverSampler']
