@@ -14,7 +14,7 @@ RESULTS_DIRECTORY = "Results"
 FEATURES_DIRECTORY = "Features"
 
 # Directory for storing experiment results
-EXPERIMENT_NAME = "Rationalized"
+EXPERIMENT_NAME = "RationalizedTest"
 
 # Name of the csv used to store results
 RESULTS_CSV_NAME = "Results.csv"
@@ -61,15 +61,15 @@ DATA = {
     # 'SequenceLabeling/brown_verbs',
     # 'SequenceLabeling/brown_pronouns',
     # 'SequenceLabeling/brown_adverbs',
-    'RationalizedClassify/short_bank_qualified',
-    'RationalizedClassify/bank_qualified',
-    'RationalizedClassify/evidence_inference',
-    'RationalizedClassify/federal_tax',
-    'RationalizedClassify/short_federal_tax',
-    'RationalizedClassify/interest_frequency',
-    'RationalizedClassify/short_interest_frequency',
-    'RationalizedClassify/aviation',
-    'RationalizedClassify/movie_reviews',
+    # 'RationalizedClassify/short_bank_qualified',
+    # 'RationalizedClassify/bank_qualified',
+    # 'RationalizedClassify/evidence_inference',
+    # 'RationalizedClassify/federal_tax',
+    # 'RationalizedClassify/short_federal_tax',
+    # 'RationalizedClassify/interest_frequency',
+    # 'RationalizedClassify/short_interest_frequency',
+    # 'RationalizedClassify/aviation',
+    # 'RationalizedClassify/movie_reviews',
     'RationalizedClassify/mining'
 }
 
