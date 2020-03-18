@@ -4,9 +4,13 @@ import os.path
 from time import strptime
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import StratifiedKFold
-
+from sklearn.model_selection import StratifiedKFold, StratifiedShuffleSplit
 from enso.config import RESULTS_DIRECTORY, FEATURES_DIRECTORY
+
+class RationalizedStratifiedShuffleSplit(StratifiedShuffleSplit):
+    
+    def split(self, X, Y):
+        yield from super().split(X, [y[1] for y in Y])
 
 
 def feature_set_location(dataset_name, featurizer_name):

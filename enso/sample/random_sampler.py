@@ -58,6 +58,7 @@ class RandomRationalized(Random):
         return points
 
 
+
 @Registry.register_sampler(ModeKeys.SEQUENCE)
 class RandomSequence(Random):
     """
