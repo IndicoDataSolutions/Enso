@@ -33,13 +33,11 @@ class Random(Sampler):
 class RandomRationalized(Random):
     """
     Randomly selects examples from the training dataset.
-
     :param data: pd.Series of feature vectors
     :param train_labels: pd.Series of targets
     :param train_indices: pd.Series of example indices
     :param train_size: int number of examples to select
     """
-
     @property
     def classes(self):
         if not hasattr(self, "_classes"):
