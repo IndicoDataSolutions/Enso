@@ -10,6 +10,13 @@ from enso.experiment.grid_search import GridSearch
 from finetune import Classifier, SequenceLabeler
 from sklearn.preprocessing import LabelBinarizer
 from collections import Counter, defaultdict
+from typing import Any, Tuple
+
+from enso.experiment.tiny_net import TinyNet
+import haiku as hk
+from jax.experimental import optimizers
+import jax.numpy as jnp
+import jax
 
 class RationalizedGridSearch(GridSearch):
     def fit(self, X, y):
@@ -306,3 +313,193 @@ class RationaleInformedLRCV(BaseRationaleGridSearch):
             return np.zeros_like(doc.vector)
         else:
             return reweighted_doc_vect / np.linalg.norm(reweighted_doc_vect)
+
+
+
+
+
+@Registry.register_experiment(ModeKeys.RATIONALIZED, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class JAXProto(ClassificationExperiment):
+
+    NLP = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(auto_resample=False, *args, **kwargs)
+        if self.NLP is None:
+            self.NLP = spacy.load('en_vectors_web_lg')
+        self.target_encoder = LabelBinarizer()
+
+    def _token_in_rationales(self, token, rationales):
+        for rationale in rationales:
+            if (rationale['start'] <= token.idx) and ((token.idx + len(token.text)) <= rationale['end']):
+                return True
+        return False
+
+    def train_iter(self, doc_vectors, rationale_targets, targets, batch_size=2, n_epochs=100):
+        for _ in range(n_epochs):
+            n_total = len(doc_vectors)
+            for batch_start in range(0, n_total, batch_size):
+                batch_end = min(batch_start + batch_size, n_total)
+                bsize = batch_end - batch_start
+                doc_vector_slice = doc_vectors[batch_start:batch_end]
+                rationale_target_slice = rationale_targets[batch_start:batch_end]
+                target_slice = np.asarray(targets[batch_start:batch_end])
+                lengths = list(map(len, doc_vector_slice))
+                max_length = max(lengths)
+                doc_tensor = np.zeros((bsize, max_length, 300))
+                rationale_tensor = np.zeros((bsize, max_length, rationale_targets[0].shape[-1]))
+                for i, (doc_vector, rationale_target) in enumerate(zip(doc_vector_slice, rationale_target_slice)):
+                    doc_tensor[i, :doc_vector.shape[0], :] = doc_vector
+                    rationale_tensor[i, :rationale_target.shape[0], :] = rationale_target
+                
+                length_mask = np.zeros((bsize, max_length))
+                for i in range(bsize):
+                    length_mask[i, :lengths[i]] = 1.
+
+                yield (doc_tensor, rationale_tensor, target_slice, length_mask)
+
+    def predict_iter(self, doc_vectors, batch_size=100):
+        n_total = len(doc_vectors)
+        for batch_start in range(0, n_total, batch_size):
+            batch_end = min(batch_start + batch_size, n_total)
+            bsize = batch_end - batch_start
+            doc_vector_slice = doc_vectors[batch_start:batch_end]
+            lengths = list(map(len, doc_vector_slice))
+            max_length = max(lengths)
+            doc_tensor = np.zeros((bsize, max_length, 300))
+            for i, doc_vector in enumerate(doc_vector_slice):
+                doc_tensor[i, :doc_vector.shape[0], :] = doc_vector
+            
+            length_mask = np.zeros((bsize, max_length))
+            for i in range(bsize):
+                length_mask[i, :lengths[i]] = 1.
+
+            yield (doc_tensor, length_mask)
+
+    def featurize_x(self, X):
+        doc_vectors = []
+        for text in X:
+            doc = self.NLP(text, disable=['ner', 'tagger', 'textcat'])
+            word_vectors = np.zeros((len(doc), 300))
+            for i, token in enumerate(doc):
+                word_vectors[i,:] = token.vector
+            doc_vectors.append(word_vectors)
+        return doc_vectors
+
+    def featurize_x_y(self, X, Y):
+        doc_vectors = []
+        rationale_targets = []
+        targets = []
+        for text, (rationales, class_target) in zip(X, Y):
+            doc = self.NLP(text, disable=['ner', 'tagger', 'textcat'])
+            word_vectors = np.zeros((len(doc), 300))
+            rationale_one_hot = np.zeros((len(doc), self.n_classes))
+            target_one_hot = self.target_encoder.transform([class_target])[0]
+            for i, token in enumerate(doc):
+                word_vectors[i,:] = token.vector
+                if self._token_in_rationales(token, rationales):
+                    rationale_one_hot[i,:] = target_one_hot
+
+            doc_vectors.append(word_vectors)
+            rationale_targets.append(rationale_one_hot)
+            targets.append(target_one_hot)
+
+        # (batch, seq, hidden) * (batch, seq, one_hot)
+        stacked_docs = np.vstack(doc_vectors)
+        stacked_targets = np.vstack(rationale_targets)
+        
+        rationale_proto = np.einsum('bsh,bst->ht', stacked_docs, stacked_targets)
+        rationale_proto /= np.einsum('bst->t', stacked_targets)
+        return doc_vectors, rationale_targets, targets, rationale_proto
+        
+      
+    def fit(self, X, Y):
+        self.target_encoder.fit([y[1] for y in Y])
+        self.n_classes = len(self.target_encoder.classes_)
+
+        doc_vectors, rationale_targets, targets, proto = self.featurize_x_y(X, Y)
+        train = self.train_iter(doc_vectors, rationale_targets, targets, batch_size=2, n_epochs=500)
+
+        model_fn = lambda x, length_mask: TinyNet(kernel_size=1, n_classes=self.n_classes, rationale_proto=proto)(x, length_mask)
+        model = hk.transform(model_fn)
+        rng = jax.random.PRNGKey(0)
+        sample_data_point = next(train)
+        params = model.init(rng, sample_data_point[0], sample_data_point[-1])
+
+        opt_init, opt_update, get_params = optimizers.adam(1e-3)
+        opt_state = opt_init(params)
+        
+        @jax.jit
+        def loss(
+            params: hk.Params,
+            inputs: np.ndarray,
+            rationale_targets: np.ndarray,
+            targets: np.ndarray,
+            length_mask: np.ndarray,
+        ):
+            batch_size = inputs.shape[0]
+
+            rationale_log_probs, clf_log_probs = model.apply(params, x=inputs, length_mask=length_mask)
+            rationale_xent = -jnp.mean(rationale_targets * rationale_log_probs * jnp.expand_dims(length_mask, -1))
+            clf_xent = -jnp.mean(targets * clf_log_probs)
+            return rationale_xent + clf_xent
+
+        @jax.jit
+        def update(
+            params: hk.Params,
+            opt_state: Any,
+            inputs: np.ndarray,
+            rationale_targets: np.ndarray,
+            targets: np.ndarray,
+            length_mask: np.ndarray,
+            step: int,
+        ) -> Tuple[hk.Params, Any]:
+            current_loss, gradient = jax.value_and_grad(loss)(params, inputs=inputs, rationale_targets=rationale_targets, targets=targets, length_mask=length_mask)
+            opt_state = opt_update(step, gradient, opt_state)
+            new_params = get_params(opt_state)
+            return current_loss, new_params, opt_state
+
+                
+        @jax.jit
+        def predict(
+            params: hk.Params,
+            inputs: np.ndarray,
+            length_mask: np.ndarray,
+        ) -> Tuple[hk.Params, Any]:
+            _, clf_log_probs = model.apply(params, x=inputs, length_mask=length_mask)
+            return jnp.exp(clf_log_probs)
+
+        self.predict_fn = predict
+
+        step = 0
+        for (x_batch, rationale_target_batch, target_batch, length_mask_batch) in train:
+            current_loss, params, opt_state = update(
+                params,
+                opt_state,
+                x_batch,
+                rationale_target_batch,
+                target_batch,
+                length_mask_batch,
+                step
+            )
+            step += 1
+
+        self.params = params
+
+    def predict(self, X, **kwargs):
+        doc_vectors = self.featurize_x(X)
+        probas = []
+        data_iter = self.predict_iter(doc_vectors, batch_size=100)
+        for batch_vectors, batch_length_mask in data_iter:
+            batch_probas = self.predict_fn(
+                params=self.params,
+                inputs=batch_vectors,
+                length_mask=batch_length_mask
+            ) 
+            probas.extend(batch_probas.tolist())
+        probas = np.asarray(probas)
+        labels = self.target_encoder.classes_
+        df = pd.DataFrame(
+            {label: probas[:, i] for i, label in enumerate(labels)}
+        )
+        return df

@@ -31,7 +31,7 @@ class SafeStratifiedShuffleSplit(StratifiedShuffleSplit):
                 test_idxs.append(test_index)
         remaining_idxs = [idx for idxs in idxs_by_class.values() for idx in idxs]
         return train_idxs, test_idxs, remaining_idxs
-        
+
     def split(self, X, Y):
         Y = np.asarray(Y)
         idxs = np.arange(len(Y))
@@ -39,13 +39,13 @@ class SafeStratifiedShuffleSplit(StratifiedShuffleSplit):
             train_idxs, test_idxs, remaining_idxs = self._choose_starting_points(idxs, Y, n_points=1)
             try:
                 train_remaining_idxs, test_remaining_idxs = train_test_split(
-                    remaining_idxs, test_size=1/self.n_splits, stratify=Y[remaining_idxs]
+                    remaining_idxs, test_size=1 / self.n_splits, stratify=Y[remaining_idxs]
                 )
             except ValueError:
                 # In the remaning datapoints, we don't have at least 2 examples per class. Settle for random split
                 # since we've already selected at least one point per class per split.
                 train_remaining_idxs, test_remaining_idxs = train_test_split(
-                    remaining_idxs, test_size=1/self.n_splits
+                    remaining_idxs, test_size=1 / self.n_splits
                 )
             yield train_remaining_idxs + train_idxs, test_remaining_idxs + test_idxs
 
@@ -57,7 +57,7 @@ class RationalizedStratifiedShuffleSplit(SafeStratifiedShuffleSplit):
 
 def feature_set_location(dataset_name, featurizer_name):
     """Responsible for generating filenames for generated feature sets."""
-    base_dir, _, filename = dataset_name.rpartition('/')
+    base_dir, _, filename = dataset_name.rpartition("/")
     write_location = "%s/%s/" % (FEATURES_DIRECTORY, base_dir)
     dump_name = "%s_%s_features.csv" % (filename, featurizer_name)
     return write_location + dump_name
