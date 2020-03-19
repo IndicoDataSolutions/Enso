@@ -39,6 +39,7 @@ class RandomRationalized(Random):
     :param train_indices: pd.Series of example indices
     :param train_size: int number of examples to select
     """
+
     @property
     def classes(self):
         if not hasattr(self, "_classes"):

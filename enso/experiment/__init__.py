@@ -8,6 +8,7 @@ from shutil import copyfile
 from time import gmtime, strftime
 import abc
 from functools import wraps
+from collections import Counter
 
 import concurrent.futures
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
@@ -331,11 +332,17 @@ class Experimentation(object):
             yield splitter.split(np.zeros(len(dataset)), dataset[target]), target
 
     @staticmethod
-    def _load_dataset(dataset_name, featurizer_name):
+    def _load_dataset(dataset_name, featurizer_name, min_lf=2):
         """Responsible for loading a given dataset given the dataset_name and featurizer."""
         read_location = feature_set_location(dataset_name, featurizer_name)
         logging.info("Loading Dataset: %s" % read_location)
-        return joblib.load(read_location)
+        if min_lf == 0:
+            return joblib.load(read_location)
+        unfiltered = joblib.load(read_location)
+        label_counts = Counter([j[1] for j in unfiltered.Targets])
+        drop_labels = [i for i in label_counts if label_counts[i] >= min_lf]
+        filtered = unfiltered[[label[1] in drop_labels for label in unfiltered.Targets]]
+        return filtered
 
 
 class VerifyOutput(BaseObject):

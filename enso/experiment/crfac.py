@@ -47,7 +47,7 @@ class CRFLogit(ClassificationExperiment):
     def fit(self, X, Y):
 
         # Make special features for the CRF model
-        spans = crf_processing.get_spans_enso(X, Y)
+        spans = crf_processing.get_spans_enso(X, Y, trim_front=True)
         spantexts = [crf_processing.get_span_texts(span) for span in spans]
         features = [crf_processing.make_crf_features(spantext) for spantext in spantexts]
         X_train_crf = [crf_processing.sent2features(s) for s in features]

@@ -15,8 +15,6 @@ class MacroRocAucRationalized(ClassificationMetric):
         """Return AUC metric."""
 
         ground_truth = [yi[1] for yi in ground_truth]
-        
-        import ipdb; ipdb.set_trace(context=10)
         classes = list(set(ground_truth) | set(result.columns))
         classwise_auc = {}
         binary_labels = labels_to_binary(ground_truth)

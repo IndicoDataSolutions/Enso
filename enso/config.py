@@ -61,16 +61,16 @@ DATA = {
     # 'SequenceLabeling/brown_verbs',
     # 'SequenceLabeling/brown_pronouns',
     # 'SequenceLabeling/brown_adverbs',
-    # 'RationalizedClassify/short_bank_qualified',
-    # 'RationalizedClassify/bank_qualified',
-    # 'RationalizedClassify/evidence_inference',
-    # 'RationalizedClassify/federal_tax',
+    'RationalizedClassify/short_bank_qualified',
+    'RationalizedClassify/bank_qualified',
+    'RationalizedClassify/evidence_inference',
+    'RationalizedClassify/federal_tax',
     'RationalizedClassify/short_federal_tax',
-    # 'RationalizedClassify/interest_frequency',
+    'RationalizedClassify/interest_frequency',
     'RationalizedClassify/short_interest_frequency',
-    # 'RationalizedClassify/aviation',
-    # 'RationalizedClassify/movie_reviews',
-    # 'RationalizedClassify/mining'
+    'RationalizedClassify/aviation',
+    'RationalizedClassify/movie_reviews',
+    'RationalizedClassify/mining'
 }
 
 # Featurizers to activate
@@ -95,7 +95,7 @@ EXPERIMENTS = {
     # "IndicoSequenceLabel"
     "LRBaselineNonRationalized",
     "DistReweightedGloveClassifierCV",
-    "RationaleInformedLRCV"
+    "RationaleInformedLRCV",
     # 'DistReweightedGloveClassifierCV'
     # "FinetuneSeqBaselineRationalized",
     # "FinetuneClfBaselineNonRationalized",
