@@ -21,7 +21,7 @@ RESULTS_CSV_NAME = "Results.csv"
 
 # Datasets to featurize or run experiments on
 DATA = {
-#    "Classify/AirlineComplaints",
+    #    "Classify/AirlineComplaints",
     # "Classify/AirlineNegativity",
     # "Classify/AirlineSentiment",
     # "Classify/BrandEmotion",
@@ -56,7 +56,7 @@ DATA = {
     # "Classify/SST-binary"
     # Seqence
     # 'SequenceLabeling/Reuters-128',
-    'SequenceLabeling/table_synth',
+    "SequenceLabeling/table_synth",
     # 'SequenceLabeling/bonds_new',
     # 'SequenceLabeling/tables',
     # 'SequenceLabeling/typed_cols',
@@ -74,7 +74,7 @@ DATA = {
     # 'RationalizedClassify/short_interest_frequency',
     # 'RationalizedClassify/aviation',
     # 'RationalizedClassify/movie_reviews',
-    # 'RationalizedClassify/mining'
+    "RationalizedClassify/mining",
 }
 
 # Featurizers to activate
@@ -105,24 +105,24 @@ EXPERIMENTS = {
     # 'DistReweightedGloveClassifierCV'
     # "FinetuneSeqBaselineRationalized",
     # "FinetuneClfBaselineNonRationalized",
-#    "LogisticRegressionCV",
-#    "KNNCV",
-#    "TfidfKNN",
-#    "TfidfLogisticRegression",
-#    "KCenters",
-#    "TfidfKCenters"
+    #    "LogisticRegressionCV",
+    #    "KNNCV",
+    #    "TfidfKNN",
+    #    "TfidfLogisticRegression",
+    #    "KCenters",
+    #    "TfidfKCenters"
     # "SupportVectorMachineCV",
 }
 
 # Metrics to compute
 METRICS = {
-#    "Accuracy",
+    #    "Accuracy",
     # "AccuracyRationalized",
     # "MacroRocAucRationalized",
-#    "MacroRocAuc",
+    #    "MacroRocAuc",
     "MacroCharF1",
     "MacroCharRecall",
-    "MacroCharPrecision"
+    "MacroCharPrecision",
 }
 
 # Test setup metadata
@@ -130,11 +130,11 @@ TEST_SETUP = {
     "train_sizes": [20, 40, 60, 80, 100, 150, 200, 300, 400, 500],
     "n_splits": 5,
     # "samplers": ['RandomRationalized'],
-#    "samplers": ["ImbalanceSampler"],
+    #    "samplers": ["ImbalanceSampler"],
     "samplers": ["RandomSequence"],
     "sampling_size": 0.2,
-    "resamplers": ['NoResampler']
-#    "resamplers": ["RandomOverSampler"],
+    "resamplers": ["NoResampler"]
+    #    "resamplers": ["RandomOverSampler"],
 }
 
 # Visualizations to display
@@ -190,17 +190,15 @@ indicoio.config.api_key = ""
 # EXPERIMENT_PARAMS = {}
 
 # For testing
-EXPERIMENT_PARAMS = {
-    'All': {"lr_warmup": [0.1, 0.2]}
-}
+EXPERIMENT_PARAMS = {"All": {"lr_warmup": [0.1, 0.2]}}
 
 # EXPERIMENT_PARAMS = {
-    # 'All': {
-    #     "lr_warmup": [0.1, 0.2],
-    #     "lr": [1e-5, 1e-4],
-    #     "batch_size": [8, 16],
-    #     "n_epochs": [16, 32],
-    # },
+# 'All': {
+#     "lr_warmup": [0.1, 0.2],
+#     "lr": [1e-5, 1e-4],
+#     "batch_size": [8, 16],
+#     "n_epochs": [16, 32],
+# },
 #     'RoBERTaSeqLab': {
 #         'base_model_path': [
 #             "roberta-model-sm-v2.jl",

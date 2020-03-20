@@ -12,7 +12,7 @@ from sklearn.preprocessing import LabelBinarizer
 from collections import Counter, defaultdict
 from typing import Any, Tuple
 
-from enso.experiment.tiny_net import TinyNet
+from enso.experiment.tiny_net import TinyNet, BetterLabelBinarizer
 import haiku as hk
 from jax.experimental import optimizers
 import jax.numpy as jnp
@@ -327,7 +327,7 @@ class JAXProto(ClassificationExperiment):
         super().__init__(auto_resample=False, *args, **kwargs)
         if self.NLP is None:
             self.NLP = spacy.load('en_vectors_web_lg')
-        self.target_encoder = LabelBinarizer()
+        self.target_encoder = BetterLabelBinarizer()
 
     def _token_in_rationales(self, token, rationales):
         for rationale in rationales:
@@ -407,13 +407,19 @@ class JAXProto(ClassificationExperiment):
         # (batch, seq, hidden) * (batch, seq, one_hot)
         stacked_docs = np.vstack(doc_vectors)
         stacked_targets = np.vstack(rationale_targets)
-        
-        rationale_proto = np.einsum('bsh,bst->ht', stacked_docs, stacked_targets)
-        rationale_proto /= np.einsum('bst->t', stacked_targets)
+
+        rationale_proto = np.einsum('sh,st->ht', stacked_docs, stacked_targets)
+        rationale_proto /= np.einsum('st->t', stacked_targets)
+
         return doc_vectors, rationale_targets, targets, rationale_proto
         
       
     def fit(self, X, Y):
+        # No rationale means everything is a rationale
+        for x, y in zip(X, Y):
+            if not y[0]:
+                y[0].append({"start": 0, "end": len(x), "label": y[1], "text": x})
+       
         self.target_encoder.fit([y[1] for y in Y])
         self.n_classes = len(self.target_encoder.classes_)
 
