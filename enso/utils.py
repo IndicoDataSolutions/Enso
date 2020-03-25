@@ -36,9 +36,16 @@ class SafeStratifiedShuffleSplit(StratifiedShuffleSplit):
         idxs = np.arange(len(Y))
         for _ in range(self.n_splits):
             train_idxs, test_idxs, remaining_idxs = self._choose_starting_points(idxs, Y, n_points=1)
-            train_remaining_idxs, test_remaining_idxs = train_test_split(
-                remaining_idxs, test_size=1/self.n_splits, stratify=Y[remaining_idxs]
-            ) 
+            try:
+                train_remaining_idxs, test_remaining_idxs = train_test_split(
+                    remaining_idxs, test_size=1/self.n_splits, stratify=Y[remaining_idxs]
+                )
+            except ValueError:
+                # In the remaning datapoints, we don't have at least 2 examples per class. Settle for random split
+                # since we've already selected at least one point per class per split.
+                train_remaining_idxs, test_remaining_idxs = train_test_split(
+                    remaining_idxs, test_size=1/self.n_splits
+                )
             yield train_remaining_idxs + train_idxs, test_remaining_idxs + test_idxs
 
 class RationalizedStratifiedShuffleSplit(SafeStratifiedShuffleSplit):
