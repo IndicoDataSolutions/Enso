@@ -28,7 +28,7 @@ class CRFLogit(ClassificationExperiment):
         self.extraction_model = sklearn_crfsuite.CRF(
                 algorithm='lbfgs',
                 c1=0.1,
-                c2=0.1,
+                c2=1.0,
                 max_iterations=100,
                 all_possible_transitions=True
         )
@@ -47,10 +47,10 @@ class CRFLogit(ClassificationExperiment):
     def fit(self, X, Y):
 
         # Make special features for the CRF model
-        spans = crf_processing.get_spans_enso(X, Y, trim_front=True)
+        spans = crf_processing.get_spans_enso(X, Y, trim_front=False)
         spantexts = [crf_processing.get_span_texts(span) for span in spans]
         features = [crf_processing.make_crf_features(spantext) for spantext in spantexts]
-        X_train_crf = [crf_processing.sent2features(s) for s in features]
+        X_train_crf = [crf_processing.sent2features(s, self.spacy_vectorize) for s in features]
         Y_train_crf = [crf_processing.sent2labels(s) for s in features] 
 
         self.extraction_model.fit(X_train_crf, Y_train_crf)
