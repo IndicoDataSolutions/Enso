@@ -467,3 +467,4 @@ from enso.experiment import tfidf
 from enso.experiment import knn
 from enso.experiment import rationalized
 from enso.experiment import crfac
+from enso.experiment import biased_logit

@@ -98,7 +98,8 @@ EXPERIMENTS = {
     #"RationaleInformedLRCV",
     #"FinetuneSeqBaselineRationalized",
     #"FinetuneClfBaselineNonRationalized",
-    "CRFLogit",
+    #"CRFLogit",
+    "BiasedLogit",
 #    "LogisticRegressionCV",
 #    "KNNCV",
 #    "TfidfKNN",
@@ -118,7 +119,7 @@ METRICS = {
 
 # Test setup metadata
 TEST_SETUP = {
-    "train_sizes": [20, 40, 60, 80, 100, 150, 200, 300, 400, 500],
+    "train_sizes": [20], #, 40, 60, 80, 100, 150, 200, 300, 400, 500],
     "n_splits": 5,
     "samplers": ['RandomRationalized'],
 #    "samplers": ["ImbalanceSampler"],
