@@ -4,9 +4,6 @@ from spacy.tokenizer import Tokenizer
 from spacy.lang.en import English
 
 
-# TODO: remove first two lines and adjust offsets by length of those lines
-# TODO: Factor this out of the processing script, just want to
-# test quickly.
 from itertools import chain
 
 import nltk
@@ -30,9 +27,12 @@ def crf_filter_text(text, crf):
     return text_out
 
 
-def word2features(sent, i):
+def word2features(sent, i, spacy_vectorizer=None):
     word = sent[i][0]
     postag = sent[i][1]
+    # TODO: initialize spacy object here.
+
+
 
     features = {
         'bias': 1.0,
@@ -45,6 +45,10 @@ def word2features(sent, i):
         'postag': postag,
         'postag[:2]': postag[:2],
     }
+    if spacy_vectorizer is not None:
+        spacy_vector = spacy_vectorizer([word])[0]
+        vector_features = {"vector_idx-"+str(i): j for i, j in enumerate(spacy_vector)}
+        features.update(vector_features)
     if i > 0:
         word1 = sent[i-1][0]
         postag1 = sent[i-1][1]
@@ -55,6 +59,10 @@ def word2features(sent, i):
             '-1:postag': postag1,
             '-1:postag[:2]': postag1[:2],
         })
+        if spacy_vectorizer is not None:
+            spacy_vector = spacy_vectorizer([word1])[0]
+            vector_features = {"-1:vector_idx-"+str(i): j for i, j in enumerate(spacy_vector)}
+            features.update(vector_features)
     else:
         features['BOS'] = True
 
@@ -68,14 +76,18 @@ def word2features(sent, i):
             '+1:postag': postag1,
             '+1:postag[:2]': postag1[:2],
         })
+        if spacy_vectorizer is not None:
+            spacy_vector = spacy_vectorizer([word1])[0]
+            vector_features = {"vector_idx-"+str(i): j for i, j in enumerate(spacy_vector)}
+            features.update(vector_features)
     else:
         features['EOS'] = True
 
     return features
 
 
-def sent2features(sent):
-    return [word2features(sent, i) for i in range(len(sent))]
+def sent2features(sent, spacy_vectorizer=None):
+    return [word2features(sent, i, spacy_vectorizer) for i in range(len(sent))]
 
 def sent2labels(sent):
     return [label for token, postag, label in sent]
@@ -122,9 +134,6 @@ def get_spans_enso(X, Y, trim_front=False):
         spans.append((text, sorted(
             [max(0, span[j] - offset) for span in y[0]
                 for j in span if j in ['start', 'end']])))
-        spans.append((text, sorted(
-            [max(0, span[j] - offset) for span in y[0]
-                for j in span if j in ['startOffset', 'endOffset']])))
     return spans
 
 def get_spans(df, trim_front=False):
@@ -168,7 +177,7 @@ def make_crf_features(span_texts):
     features = []
     for span in span_texts:
         span_feats = []
-        # Note, can iterate through toekinzer.pipe(...)
+        # Note, can iterate through tokenzer.pipe(...)
         # but would need to redo so we can match the labels up
         if span[1] == 'O':
             for token in tokenizer(span[0]):

@@ -332,7 +332,7 @@ class Experimentation(object):
             yield splitter.split(np.zeros(len(dataset)), dataset[target]), target
 
     @staticmethod
-    def _load_dataset(dataset_name, featurizer_name, min_lf=0):
+    def _load_dataset(dataset_name, featurizer_name, min_lf=2):
         """Responsible for loading a given dataset given the dataset_name and featurizer."""
         read_location = feature_set_location(dataset_name, featurizer_name)
         logging.info("Loading Dataset: %s" % read_location)
