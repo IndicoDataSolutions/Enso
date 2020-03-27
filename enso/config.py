@@ -71,7 +71,11 @@ DATA = {
     # 'RationalizedClassify/federal_tax',
     "RationalizedClassify/short_federal_tax",
     # 'RationalizedClassify/interest_frequency',
+<<<<<<< HEAD
     "RationalizedClassify/short_interest_frequency",
+=======
+    # 'RationalizedClassify/short_interest_frequency',
+>>>>>>> 7e492d4... WIP
     # 'RationalizedClassify/aviation',
     # 'RationalizedClassify/movie_reviews',
     "RationalizedClassify/mining",
@@ -99,6 +103,12 @@ EXPERIMENTS = {
     # "FinetuneSequenceLabel",
     "RoBERTaSeqLab",
     # "IndicoSequenceLabel"
+<<<<<<< HEAD
+=======
+    # "ProtoV1",
+    # "ProtoV2"
+    "ProtoV3L2"
+>>>>>>> 7e492d4... WIP
     # "LRBaselineNonRationalized",
     # "DistReweightedGloveClassifierCV",
     # "RationaleInformedLRCV"

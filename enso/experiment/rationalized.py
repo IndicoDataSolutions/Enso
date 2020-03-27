@@ -330,7 +330,8 @@ class JaxBase(ClassificationExperiment):
         self.target_encoder = BetterLabelBinarizer()
         self.hparams = {
             'n_epochs': 500,
-            'alpha': 0.5
+            'alpha': 0.5,
+            'l2_coef': 0.01
         }
 
     def _token_in_rationales(self, token, rationales):
@@ -452,7 +453,9 @@ class JaxBase(ClassificationExperiment):
             rationale_log_probs, clf_log_probs = model.apply(params, x=inputs, length_mask=length_mask)
             rationale_xent = -jnp.mean(rationale_targets * rationale_log_probs * jnp.expand_dims(length_mask, -1))
             clf_xent = -jnp.mean(targets * clf_log_probs)
-            return self.hparams['alpha'] * rationale_xent + (1 - self.hparams['alpha']) * clf_xent
+            loss = self.hparams['alpha'] * rationale_xent + (1 - self.hparams['alpha']) * clf_xent
+            regularization_loss = self.hparams['l2_coef'] * jax.experimental.optimizers.l2_norm(params)
+            return loss + regularization_loss
 
         @jax.jit
         def update(
@@ -515,7 +518,7 @@ class JaxBase(ClassificationExperiment):
         return df
 
 @Registry.register_experiment(ModeKeys.RATIONALIZED, requirements=[("Featurizer", "PlainTextFeaturizer")])
-class ProtoV3BS2(JaxBase):
+class ProtoV3L2(JaxBase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
