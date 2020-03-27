@@ -47,7 +47,39 @@ class BetterLabelBinarizer():
         return X
     
 
-class TinyNet(hk.Module):
+class BothProto(hk.Module):
+    def __init__(self, kernel_size: int, n_classes: int, rationale_proto: np.ndarray):
+        super().__init__()
+        self.kernel_size = kernel_size
+        self.n_classes = n_classes
+        self.rationale_proto = rationale_proto
+    
+    def __call__(self, x: jnp.ndarray, length_mask: jnp.ndarray):
+        """
+        x: (batch, seq, n_hidden)
+        """
+        rationale_logits = hk.Conv1D(
+            output_channels=self.n_classes,
+            kernel_shape=self.kernel_size,
+            w_init=hk.initializers.Constant(self.rationale_proto)
+        )(x)
+        rationale_log_probas = jax.nn.log_sigmoid(rationale_logits)
+        rationale_probas = jnp.exp(rationale_log_probas) # (batch, seq, n_classes)
+        length_mask = jnp.expand_dims(length_mask, -1)
+        masked_rationale_probas = rationale_probas * length_mask
+        lengths = jnp.sum(length_mask, axis=1)
+        clf_embed = jnp.einsum('bsh,bsc->bhc', x, masked_rationale_probas) / np.reshape(lengths, [x.shape[0], 1, 1])  # (batch, hidden, classes)
+        clf_protos = hk.get_parameter(
+            "w", 
+            shape=[clf_embed.shape[1], self.n_classes], 
+            init=hk.initializers.Constant(self.rationale_proto)
+        )
+        clf_logits = jnp.einsum('bhc,hc->bc', clf_embed, clf_protos)
+        clf_log_probas = jax.nn.log_softmax(clf_logits)
+        return rationale_log_probas, clf_log_probas
+
+
+class RationaleProto(hk.Module):
     def __init__(self, kernel_size: int, n_classes: int, rationale_proto: np.ndarray):
         super().__init__()
         self.kernel_size = kernel_size

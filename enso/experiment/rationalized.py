@@ -12,7 +12,7 @@ from sklearn.preprocessing import LabelBinarizer
 from collections import Counter, defaultdict
 from typing import Any, Tuple
 
-from enso.experiment.tiny_net import TinyNet, BetterLabelBinarizer
+from enso.experiment.tiny_net import RationaleProto, BothProto, BetterLabelBinarizer
 import haiku as hk
 from jax.experimental import optimizers
 import jax.numpy as jnp
@@ -319,7 +319,7 @@ class RationaleInformedLRCV(BaseRationaleGridSearch):
 
 
 @Registry.register_experiment(ModeKeys.RATIONALIZED, requirements=[("Featurizer", "PlainTextFeaturizer")])
-class JAXProto(ClassificationExperiment):
+class JaxBase(ClassificationExperiment):
 
     NLP = None
 
@@ -328,6 +328,10 @@ class JAXProto(ClassificationExperiment):
         if self.NLP is None:
             self.NLP = spacy.load('en_vectors_web_lg')
         self.target_encoder = BetterLabelBinarizer()
+        self.hparams = {
+            'n_epochs': 500,
+            'alpha': 0.5
+        }
 
     def _token_in_rationales(self, token, rationales):
         for rationale in rationales:
@@ -424,9 +428,9 @@ class JAXProto(ClassificationExperiment):
         self.n_classes = len(self.target_encoder.classes_)
 
         doc_vectors, rationale_targets, targets, proto = self.featurize_x_y(X, Y)
-        train = self.train_iter(doc_vectors, rationale_targets, targets, batch_size=2, n_epochs=500)
+        train = self.train_iter(doc_vectors, rationale_targets, targets, batch_size=4, n_epochs=1000)
 
-        model_fn = lambda x, length_mask: TinyNet(kernel_size=1, n_classes=self.n_classes, rationale_proto=proto)(x, length_mask)
+        model_fn = lambda x, length_mask: self.base_model(kernel_size=1, n_classes=self.n_classes, rationale_proto=proto)(x, length_mask)
         model = hk.transform(model_fn)
         rng = jax.random.PRNGKey(0)
         sample_data_point = next(train)
@@ -448,7 +452,7 @@ class JAXProto(ClassificationExperiment):
             rationale_log_probs, clf_log_probs = model.apply(params, x=inputs, length_mask=length_mask)
             rationale_xent = -jnp.mean(rationale_targets * rationale_log_probs * jnp.expand_dims(length_mask, -1))
             clf_xent = -jnp.mean(targets * clf_log_probs)
-            return rationale_xent + clf_xent
+            return self.hparams['alpha'] * rationale_xent + (1 - self.hparams['alpha']) * clf_xent
 
         @jax.jit
         def update(
@@ -509,3 +513,18 @@ class JAXProto(ClassificationExperiment):
             {label: probas[:, i] for i, label in enumerate(labels)}
         )
         return df
+
+@Registry.register_experiment(ModeKeys.RATIONALIZED, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class ProtoV3BS2(JaxBase):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.base_model = RationaleProto
+
+
+@Registry.register_experiment(ModeKeys.RATIONALIZED, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class ProtoV2(JaxBase):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.base_model = BothProto
