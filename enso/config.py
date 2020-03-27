@@ -111,9 +111,12 @@ EXPERIMENTS = {
 # Metrics to compute
 METRICS = {
 #    "Accuracy",
-    "AccuracyRationalized",
-    "MacroRocAucRationalized",
-#    "MacroRocAuc"
+    # "AccuracyRationalized",
+    # "MacroRocAucRationalized",
+#    "MacroRocAuc",
+    "MacroCharF1",
+    "MacroCharRecall",
+    "MacroCharPrecision"
 }
 
 # Test setup metadata
@@ -157,3 +160,36 @@ GOLD_FRAC = 0.05
 CORRUPTION_FRAC = 0.4
 
 indicoio.config.api_key = ""
+
+EXPERIMENT_PARAMS = {
+    'All': {
+        "lr_warmup": [0.1, 0.2],
+        "lr": [1e-5, 1e-4],
+        "batch_size": [8, 16],
+        "n_epochs": [16, 32],
+    },
+    'RoBERTaSeqLab': {
+        'base_model_path': [
+            "roberta-model-sm-v2.jl",
+            "mlm_baseline.jl",
+            "mlm_baseline_2nd_5.jl",
+            "mlm_baseline_3rd_5.jl"
+        ]
+    },
+    'LambertSeqLab': {
+        'base_model_path': [
+            "lambert_mlm.jl",
+            "lambert_mlm_2nd_5.jl",
+            "lambert_mlm_3rd_5.jl",
+            "lambert_mlm_pos_removal.jl"
+        ]
+    },
+    'SidekickSeqLab': {
+        'base_model_path': [
+            "sidekick_mlm.jl",
+            "sidekick_mlm_2nd_5.jl",
+            "sidekick_mlm_3rd_5.jl",
+            "sidekick_mlm_pos_removal.jl"
+        ]
+    }
+}
