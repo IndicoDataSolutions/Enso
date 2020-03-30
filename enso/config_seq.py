@@ -128,7 +128,7 @@ TEST_SETUP = {
 #    "samplers": ["ImbalanceSampler"],
     "samplers": ["RandomSequence"],
     "sampling_size": 0.2,
-    "resamplers": ['RandomOverSampler']
+    "resamplers": ['NoResampler']
 #    "resamplers": ["RandomOverSampler"],
 }
 

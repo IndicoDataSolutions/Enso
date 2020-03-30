@@ -128,7 +128,7 @@ TEST_SETUP = {
 #    "samplers": ["ImbalanceSampler"],
     "samplers": ["RandomSequence"],
     "sampling_size": 0.2,
-    "resamplers": ['RandomOverSampler']
+    "resamplers": ['NoResampler']
 #    "resamplers": ["RandomOverSampler"],
 }
 
@@ -163,6 +163,8 @@ CORRUPTION_FRAC = 0.4
 
 indicoio.config.api_key = ""
 
+# If we have no experiment hyperparameters we hope to modify,
+# EXPERIMENT_PARAMS = {}
 EXPERIMENT_PARAMS = {
     'All': {
         "lr_warmup": [0.1, 0.2],
