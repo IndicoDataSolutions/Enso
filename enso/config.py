@@ -14,7 +14,7 @@ RESULTS_DIRECTORY = "Results"
 FEATURES_DIRECTORY = "Features"
 
 # Directory for storing experiment results
-EXPERIMENT_NAME = "RationalizedTest"
+EXPERIMENT_NAME = "DocRep"
 
 # Name of the csv used to store results
 RESULTS_CSV_NAME = "Results.csv"
@@ -55,7 +55,7 @@ DATA = {
     # "Classify/TextSpam",
     # "Classify/SST-binary"
     # Seqence
-    # 'SequenceLabeling/Reuters-128',
+    'SequenceLabeling/Reuters-128',
     # 'SequenceLabeling/brown_all',
     # 'SequenceLabeling/brown_nouns',
     # 'SequenceLabeling/brown_verbs',
@@ -65,9 +65,9 @@ DATA = {
     # 'RationalizedClassify/bank_qualified',
     # 'RationalizedClassify/evidence_inference',
     # 'RationalizedClassify/federal_tax',
-    'RationalizedClassify/short_federal_tax',
+    # 'RationalizedClassify/short_federal_tax',
     # 'RationalizedClassify/interest_frequency',
-    'RationalizedClassify/short_interest_frequency',
+    # 'RationalizedClassify/short_interest_frequency',
     # 'RationalizedClassify/aviation',
     # 'RationalizedClassify/movie_reviews',
     # 'RationalizedClassify/mining'
@@ -77,7 +77,7 @@ DATA = {
 FEATURIZERS = {
     "PlainTextFeaturizer",
     # "IndicoStandard",
-    "SpacyGloveFeaturizer",
+    # "SpacyGloveFeaturizer",
     # "IndicoFastText",
     # "IndicoSentiment",
     # "IndicoElmo",
@@ -91,11 +91,12 @@ FEATURIZERS = {
 
 # Experiments to run
 EXPERIMENTS = {
-    # "FinetuneSequenceLabel",
+    "FinetuneSequenceLabel",
+    # "RoBERTaSeqLab",
     # "IndicoSequenceLabel"
-    "LRBaselineNonRationalized",
-    "DistReweightedGloveClassifierCV",
-    "RationaleInformedLRCV"
+    # "LRBaselineNonRationalized",
+    # "DistReweightedGloveClassifierCV",
+    # "RationaleInformedLRCV"
     # 'DistReweightedGloveClassifierCV'
     # "FinetuneSeqBaselineRationalized",
     # "FinetuneClfBaselineNonRationalized",
@@ -123,8 +124,9 @@ METRICS = {
 TEST_SETUP = {
     "train_sizes": [20, 40, 60, 80, 100, 150, 200, 300, 400, 500],
     "n_splits": 5,
-    "samplers": ['RandomRationalized'],
+    # "samplers": ['RandomRationalized'],
 #    "samplers": ["ImbalanceSampler"],
+    "samplers": ["RandomSequence"],
     "sampling_size": 0.2,
     "resamplers": ['RandomOverSampler']
 #    "resamplers": ["RandomOverSampler"],
@@ -149,9 +151,9 @@ VISUALIZATION_OPTIONS = {
     },
 }
 
-MODE = ModeKeys.RATIONALIZED
+MODE = ModeKeys.SEQUENCE
 
-N_GPUS = 1
+N_GPUS = 0
 N_CORES = 1  # multiprocessing.cpu_count()
 
 FIX_REQUIREMENTS = True

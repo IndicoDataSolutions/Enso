@@ -92,7 +92,7 @@ FEATURIZERS = {
 # Experiments to run
 EXPERIMENTS = {
     "FinetuneSequenceLabel",
-    "RoBERTaSeqLab",
+    # "RoBERTaSeqLab",
     # "IndicoSequenceLabel"
     # "LRBaselineNonRationalized",
     # "DistReweightedGloveClassifierCV",
