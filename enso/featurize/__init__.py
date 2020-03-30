@@ -185,6 +185,7 @@ class Featurizer(BaseObject):
 from enso.featurize import indico_features
 from enso.featurize import plain_text
 from enso.featurize import spacy_features
+from enso.featurize import text_context
 
 try:
     # These require tensorflow which is not strictly a requirement of enso.
