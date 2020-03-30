@@ -34,7 +34,7 @@ from enso.config import (
 from enso.registry import Registry, ValidateExperiments
 from multiprocessing import Process
 
-POOL = ProcessPoolExecutor(N_CORES)
+POOL = ThreadPoolExecutor(N_CORES)
 
 
 class Experimentation(object):
@@ -180,27 +180,37 @@ class Experimentation(object):
                         # Ideally we wouldn't have to do this in a process, but at the moment
                         # creating a process and killing the process after execution is the
                         # only way to force TF to free it's GPU memory.
-                        p = Process(
-                            target=self._run_sub_experiment,
-                            kwargs={
+                        # p = Process(
+                        #     target=self._run_sub_experiment,
+                        #     kwargs={
+                        #         "experiment_cls": experiment_cls,
+                        #         "dataset": dataset,
+                        #         "train": train,
+                        #         "test": test,
+                        #         "target": target,
+                        #         "current_setting": current_setting,
+                        #     },
+                        # )
+                        # p.start()
+                        # p.join()
+                        self._run_sub_experiment(
+                            **{
                                 "experiment_cls": experiment_cls,
                                 "dataset": dataset,
                                 "train": train,
                                 "test": test,
                                 "target": target,
                                 "current_setting": current_setting,
-                            },
+                            }
                         )
-                        p.start()
-                        p.join()
                     except Exception:
                         logging.exception(
                             "Exception occurred for {}".format(current_setting)
                         )
-                    finally:
-                        p.terminate()
-                        while p.is_alive():
-                            time.sleep(0.1)
+                    # finally:
+                    #     p.terminate()
+                    #     while p.is_alive():
+                    #         time.sleep(0.1)
 
         return results
     
