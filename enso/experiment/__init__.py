@@ -8,6 +8,7 @@ from shutil import copyfile
 from time import gmtime, strftime
 import abc
 from functools import wraps
+from copy import deepcopy
 
 import concurrent.futures
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
@@ -15,6 +16,7 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit
 from sklearn.externals import joblib
+from sklearn.model_selection import ParameterGrid
 
 from enso.sample import sample
 from enso.utils import feature_set_location, BaseObject, SafeStratifiedShuffleSplit, RationalizedStratifiedShuffleSplit
@@ -30,6 +32,7 @@ from enso.config import (
     MODE,
     EXPERIMENT_NAME,
     RESULTS_CSV_NAME,
+    EXPERIMENT_PARAMS
 )
 from enso.registry import Registry, ValidateExperiments
 from multiprocessing import Process
@@ -44,6 +47,7 @@ class Experimentation(object):
         """Responsible for gathering and instantiating experiments, featurizers, and metrics."""
         self.name = name
         self.experiments = [Registry.get_experiment(e) for e in EXPERIMENTS]
+
         self.featurizers = [Registry.get_featurizer(f)() for f in FEATURIZERS]
         self.metrics = [Registry.get_metric(m)() for m in METRICS]
         self.columns = [
@@ -112,12 +116,12 @@ class Experimentation(object):
         return True
 
     def _run_sub_experiment(
-        self, experiment_cls, dataset, train, test, target, current_setting
+        self, experiment_cls, dataset, train, test, target, current_setting, experiment_hparams={}
     ):
         experiment = experiment_cls(
-            Registry.get_resampler(current_setting["Resampler"])
+            Registry.get_resampler(current_setting["Resampler"]),
+            **experiment_hparams
         )
-
         name = experiment.name()
         internal_setting = {"Experiment": name}
         internal_setting.update(current_setting)
@@ -164,6 +168,24 @@ class Experimentation(object):
         """Responsible for running all experiments specified in config."""
         results = pd.DataFrame(columns=self.columns)
         dataset = self._load_dataset(dataset_name, current_setting.get("Featurizer"))
+        if EXPERIMENT_PARAMS:
+            exp_params = deepcopy(EXPERIMENT_PARAMS)
+            # add any experiments that were not included
+            for experiment_cls in experiments:
+                if experiment_cls.__name__ not in exp_params:
+                    exp_params[experiment_cls.__name__] = {}
+            # add the 'All' configuration to all the experiments
+            if 'All' in EXPERIMENT_PARAMS.keys():
+                for k, v in exp_params.items():
+                    if k != 'All':
+                        v.update(EXPERIMENT_PARAMS['All'])
+            del exp_params['All']
+            hparams_by_experiment = {
+                exp_name: list(ParameterGrid(hparams)) for exp_name, hparams in exp_params.items()
+            }
+        else:
+            hparams_by_experiment = {}
+
         for splitter, target in self._split_dataset(
             dataset, current_setting["TrainSize"]
         ):
@@ -176,41 +198,43 @@ class Experimentation(object):
                     current_setting["TrainSize"],
                 )
                 for experiment_cls in experiments:
-                    try:
-                        # Ideally we wouldn't have to do this in a process, but at the moment
-                        # creating a process and killing the process after execution is the
-                        # only way to force TF to free it's GPU memory.
-                        # p = Process(
-                        #     target=self._run_sub_experiment,
-                        #     kwargs={
-                        #         "experiment_cls": experiment_cls,
-                        #         "dataset": dataset,
-                        #         "train": train,
-                        #         "test": test,
-                        #         "target": target,
-                        #         "current_setting": current_setting,
-                        #     },
-                        # )
-                        # p.start()
-                        # p.join()
-                        self._run_sub_experiment(
-                            **{
-                                "experiment_cls": experiment_cls,
-                                "dataset": dataset,
-                                "train": train,
-                                "test": test,
-                                "target": target,
-                                "current_setting": current_setting,
-                            }
-                        )
-                    except Exception:
-                        logging.exception(
-                            "Exception occurred for {}".format(current_setting)
-                        )
-                    # finally:
-                    #     p.terminate()
-                    #     while p.is_alive():
-                    #         time.sleep(0.1)
+                    for experiment_hparams in hparams_by_experiment.get(experiment_cls.__name__, [{}]):
+                        try:
+                            # Ideally we wouldn't have to do this in a process, but at the moment
+                            # creating a process and killing the process after execution is the
+                            # only way to force TF to free it's GPU memory.
+                            # p = Process(
+                            #     target=self._run_sub_experiment,
+                            #     kwargs={
+                            #         "experiment_cls": experiment_cls,
+                            #         "dataset": dataset,
+                            #         "train": train,
+                            #         "test": test,
+                            #         "target": target,
+                            #         "current_setting": current_setting,
+                            #     },
+                            # )
+                            # p.start()
+                            # p.join()
+                            self._run_sub_experiment(
+                                **{
+                                    "experiment_cls": experiment_cls,
+                                    "dataset": dataset,
+                                    "train": train,
+                                    "test": test,
+                                    "target": target,
+                                    "current_setting": current_setting,
+                                    "experiment_hparams": experiment_hparams
+                                }
+                            )
+                        except Exception:
+                            logging.exception(
+                                "Exception occurred for {}".format(current_setting)
+                            )
+                        # finally:
+                        #     p.terminate()
+                        #     while p.is_alive():
+                        #         time.sleep(0.1)
 
         return results
     
@@ -375,7 +399,7 @@ class Experiment(BaseObject):
         """
         Instantiate a new experiment
         """
-        super().__init__(*args, **kwargs)
+        super().__init__()
         self.resampler_ = resampler
         self.auto_resample_ = auto_resample
 
