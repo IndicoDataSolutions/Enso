@@ -459,3 +459,4 @@ from enso.experiment import svm
 from enso.experiment import tfidf
 from enso.experiment import knn
 from enso.experiment import rationalized
+from enso.experiment import doc_rep
