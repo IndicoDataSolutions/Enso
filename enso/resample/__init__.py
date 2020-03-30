@@ -16,7 +16,7 @@ class Resampler(metaclass=ABCMeta):
         """ """
 
 
-@Registry.register_resampler(ModeKeys.ANY)
+@Registry.register_resampler(ModeKeys.CLASSIFY)
 class RandomOverSampler(Resampler):
     @staticmethod
     def resample(X, y, max_ratio=50):
