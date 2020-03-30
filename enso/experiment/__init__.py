@@ -125,6 +125,7 @@ class Experimentation(object):
         name = experiment.name()
         internal_setting = {"Experiment": name}
         internal_setting.update(current_setting)
+        internal_setting.update(experiment_hparams)
         if self.experiment_has_been_run(internal_setting):
             logging.info("Experiment has been run, skipping...")
             return
@@ -166,7 +167,6 @@ class Experimentation(object):
 
     def _run_experiment(self, dataset_name, current_setting, experiments):
         """Responsible for running all experiments specified in config."""
-        results = pd.DataFrame(columns=self.columns)
         dataset = self._load_dataset(dataset_name, current_setting.get("Featurizer"))
         if EXPERIMENT_PARAMS:
             exp_params = deepcopy(EXPERIMENT_PARAMS)
@@ -183,8 +183,16 @@ class Experimentation(object):
             hparams_by_experiment = {
                 exp_name: list(ParameterGrid(hparams)) for exp_name, hparams in exp_params.items()
             }
+            # make sure all experiments share the same experiment params
+            param_keys = list(list(exp_params.values())[0].keys())
+            assert all(set(param_keys) == set(hparams.keys())
+                       for hparams in exp_params.values())
+            # add the experiment params to self.columns
+            self.columns += param_keys
         else:
             hparams_by_experiment = {}
+
+        results = pd.DataFrame(columns=self.columns)
 
         for splitter, target in self._split_dataset(
             dataset, current_setting["TrainSize"]
