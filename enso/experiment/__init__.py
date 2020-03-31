@@ -116,8 +116,11 @@ class Experimentation(object):
         return True
 
     def _run_sub_experiment(
-        self, experiment_cls, dataset, train, test, target, current_setting, experiment_hparams={}
+        self, experiment_cls, dataset, train, test, target, current_setting, experiment_hparams=None
     ):
+        if experiment_hparams is None:
+            experiment_hparams = {}
+
         experiment = experiment_cls(
             Registry.get_resampler(current_setting["Resampler"]),
             **experiment_hparams
@@ -183,7 +186,7 @@ class Experimentation(object):
             hparams_by_experiment = {
                 exp_name: list(ParameterGrid(hparams)) for exp_name, hparams in exp_params.items()
             }
-            # make sure all experiments share the same experiment params
+            # make sure all experiments share the same experiment param keys (not necessarily values)
             param_keys = list(list(exp_params.values())[0].keys())
             assert all(set(param_keys) == set(hparams.keys())
                        for hparams in exp_params.values())
