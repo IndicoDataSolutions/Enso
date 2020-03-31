@@ -193,7 +193,6 @@ class Experimentation(object):
             hparams_by_experiment = {}
 
         results = pd.DataFrame(columns=self.columns)
-
         for splitter, target in self._split_dataset(
             dataset, current_setting["TrainSize"]
         ):
