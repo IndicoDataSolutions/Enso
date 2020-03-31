@@ -151,7 +151,9 @@ VISUALIZATION_OPTIONS = {
         "y_tile": "Dataset",
         "x_axis": "TrainSize",
         "y_axis": "Result",
-        "lines": ["Experiment", "Featurizer", "Sampler", "Resampler"],
+        "lines": ["Experiment", "Featurizer", "Sampler", "Resampler",
+                  "lr", "lr_warmup", "batch_size", "n_epochs", "base_model_path"],
+        # "lines": ["Experiment", "Featurizer", "Sampler", "Resampler"],
         "category": "merge",
         "cv": "mean",
         "filename": "TestResult",
@@ -173,39 +175,40 @@ indicoio.config.api_key = ""
 # If we have no experiment hyperparameters we hope to modify:
 # EXPERIMENT_PARAMS = {}
 
-EXPERIMENT_PARAMS = {
-    'All': {"lr_warmup": [0.1, 0.2]}
-}
-
+# For testing
 # EXPERIMENT_PARAMS = {
-#     'All': {
-#         "lr_warmup": [0.1, 0.2],
-#         "lr": [1e-5, 1e-4],
-#         "batch_size": [8, 16],
-#         "n_epochs": [16, 32],
-#     },
-#     'RoBERTaSeqLab': {
-#         'base_model_path': [
-#             "roberta-model-sm-v2.jl",
-#             "mlm_baseline.jl",
-#             "mlm_baseline_2nd_5.jl",
-#             "mlm_baseline_3rd_5.jl"
-#         ]
-#     },
-#     'LambertSeqLab': {
-#         'base_model_path': [
-#             "lambert_mlm.jl",
-#             "lambert_mlm_2nd_5.jl",
-#             "lambert_mlm_3rd_5.jl",
-#             "lambert_mlm_pos_removal.jl"
-#         ]
-#     },
-#     'SidekickSeqLab': {
-#         'base_model_path': [
-#             "sidekick_mlm.jl",
-#             "sidekick_mlm_2nd_5.jl",
-#             "sidekick_mlm_3rd_5.jl",
-#             "sidekick_mlm_pos_removal.jl"
-#         ]
-#     }
+#     'All': {"lr_warmup": [0.1, 0.2]}
 # }
+
+EXPERIMENT_PARAMS = {
+    'All': {
+        "lr_warmup": [0.1, 0.2],
+        "lr": [1e-5, 1e-4],
+        "batch_size": [8, 16],
+        "n_epochs": [16, 32],
+    },
+    'RoBERTaSeqLab': {
+        'base_model_path': [
+            "roberta-model-sm-v2.jl",
+            "mlm_baseline.jl",
+            "mlm_baseline_2nd_5.jl",
+            "mlm_baseline_3rd_5.jl"
+        ]
+    },
+    'LambertSeqLab': {
+        'base_model_path': [
+            "lambert_mlm.jl",
+            "lambert_mlm_2nd_5.jl",
+            "lambert_mlm_3rd_5.jl",
+            "lambert_mlm_pos_removal.jl"
+        ]
+    },
+    'SidekickSeqLab': {
+        'base_model_path': [
+            "sidekick_mlm.jl",
+            "sidekick_mlm_2nd_5.jl",
+            "sidekick_mlm_3rd_5.jl",
+            "sidekick_mlm_pos_removal.jl"
+        ]
+    }
+}

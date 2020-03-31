@@ -46,6 +46,8 @@ class FacetGridVisualizer(ClassificationVisualizer):
         sns.set(style="ticks", color_codes=True)
 
         if isinstance(lines, (tuple, list)):
+            for col in lines:
+                results[col] = results[col].astype(str)
             results['key'] = results[lines].apply(lambda x: ','.join(x), axis=1)
             lines = 'key'
         y_tiles = np.unique(results[y_tile])
