@@ -57,9 +57,9 @@ DATA = {
     # Seqence
     # 'SequenceLabeling/Reuters-128',
     'SequenceLabeling/table_synth',
-    # 'SequenceLabeling/bonds',
-    # 'SequenceLabeling/tables',
-    # 'SequenceLabeling/typed_cols',
+    'SequenceLabeling/bonds_new',
+    'SequenceLabeling/tables',
+    'SequenceLabeling/typed_cols',
     # 'SequenceLabeling/brown_all',
     # 'SequenceLabeling/brown_nouns',
     # 'SequenceLabeling/brown_verbs',
@@ -190,25 +190,25 @@ EXPERIMENT_PARAMS = {
     'RoBERTaSeqLab': {
         'base_model_path': [
             "roberta-model-sm-v2.jl",
-            "mlm_baseline.jl",
-            "mlm_baseline_2nd_5.jl",
-            "mlm_baseline_3rd_5.jl"
+            # "filtered_mlm_baseline.jl",
+            # "filtered_mlm_baseline_2nd_5.jl",
+            "filtered_mlm_baseline_3rd_5.jl"
         ]
     },
     'LambertSeqLab': {
         'base_model_path': [
-            "lambert_mlm.jl",
-            "lambert_mlm_2nd_5.jl",
-            "lambert_mlm_3rd_5.jl",
-            "lambert_mlm_pos_removal.jl"
+            # "filtered_lambert_mlm.jl",
+            # "filtered_lambert_mlm_2nd_5.jl",
+            "filtered_lambert_mlm_3rd_5.jl",
+            # "filtered_lambert_mlm_pos_removal.jl"
         ]
     },
     'SidekickSeqLab': {
         'base_model_path': [
-            "sidekick_mlm.jl",
-            "sidekick_mlm_2nd_5.jl",
-            "sidekick_mlm_3rd_5.jl",
-            "sidekick_mlm_pos_removal.jl"
+            # "filtered_sidekick_mlm.jl",
+            # "filtered_sidekick_mlm_2nd_5.jl",
+            "filtered_sidekick_mlm_3rd_5.jl",
+            # "sidekick_mlm_pos_removal.jl"
         ]
     }
 }
