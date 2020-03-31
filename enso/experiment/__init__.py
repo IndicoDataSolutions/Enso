@@ -178,6 +178,7 @@ class Experimentation(object):
                 if experiment_cls.__name__ not in exp_params:
                     exp_params[experiment_cls.__name__] = {}
             # add the 'All' configuration to all the experiments
+            exp_params = {('All' if k.upper() == 'ALL' else k):v for k, v in exp_params.items()}
             if 'All' in EXPERIMENT_PARAMS.keys():
                 for k, v in exp_params.items():
                     if k != 'All':
