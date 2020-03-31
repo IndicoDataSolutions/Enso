@@ -223,6 +223,7 @@ class Experimentation(object):
                                     "test": test,
                                     "target": target,
                                     "current_setting": current_setting,
+                                    "experiment_hparams": experiment_hparams
                                 },
                             )
                             p.start()
