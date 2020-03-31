@@ -74,7 +74,7 @@ class LambertSeqLab(SidekickSeqLab):
             context_in_base_model = False
         ))
         self.model_config.update(kwargs)
-        self.model = SequenceLabeler()
+        self.model = SequenceLabeler(**self.model_config)
             
 
 
