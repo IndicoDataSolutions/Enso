@@ -79,6 +79,8 @@ class Featurization(object):
             if 'Target' not in df:
                 raise ValueError("File %s has no column 'Target'" % dataset_name)
             return df
+        elif "DocRep" in dataset:
+            return pd.read_csv("{}.csv".format(dataset))
         else:
             raise FileNotFoundError("Dataset type : %s not understood" % dataset_name)
 

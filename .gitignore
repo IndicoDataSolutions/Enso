@@ -97,3 +97,6 @@ Results/*
 # Docs
 docs/_build/*
 docs/html/*
+Data/*
+Features/*
+Results/*

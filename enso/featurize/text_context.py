@@ -4,7 +4,10 @@ import pandas as pd
 
 from enso.featurize import Featurizer
 from enso.utils import feature_set_location
+from enso.registry import Registry, ModeKeys
 
+
+@Registry.register_featurizer(ModeKeys.SEQUENCE)
 class TextContextFeaturizer(Featurizer):
     """
     Takes a list of dictionaries, serialized as jsons, and converts them to
@@ -45,13 +48,11 @@ class TextContextFeaturizer(Featurizer):
             print("Skipping, already have this feature combination.")
             return
 
-        if type(dataset) != list:
-            raise ValueError("dataset must be a list")
-        text = [d['text'] for d in dataset]
-        features = [(d['text'], d['context']) for d in dataset]
-        new_dataset = pd.DataFrame(data={
-            "Text": text,
-            "Targets": [d['labels'] for d in dataset],
-            "Features": features
-        })
+        if type(dataset) != dict:
+            raise ValueError("dataset must be a dict")
+        text = dataset['text']
+        context = dataset['context']
+        labels = dataset['labels']
+        feats = [(t, c) for t, c in zip(text, context)]
+        new_dataset = pd.DataFrame.from_dict({'Text': text, 'Features': feats, 'Targets': labels})
         self._write(new_dataset, dataset_name)

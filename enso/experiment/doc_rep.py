@@ -5,7 +5,7 @@ from enso.registry import Registry, ModeKeys
 from enso.experiment.finetuning import FinetuneSequenceLabel
 
 
-@Registry.register_experiment(ModeKeys.SEQUENCE, requirements=[("Featurizer", "PlainTextFeaturizer")])
+@Registry.register_experiment(ModeKeys.SEQUENCE, requirements=[("Featurizer", "TextContextFeaturizer")])
 class SidekickSeqLab(FinetuneSequenceLabel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -35,7 +35,15 @@ class SidekickSeqLab(FinetuneSequenceLabel):
         self.model_config.update(kwargs)
         self.model = SequenceLabeler(**self.model_config)
 
-@Registry.register_experiment(ModeKeys.SEQUENCE, requirements=[("Featurizer", "PlainTextFeaturizer")])
+    def fit(self, X, y):
+        text, context = zip(*X)
+        self.model.fit(text, y, context=context)
+
+    def predict(self, X, **kwargs):
+        text, context = zip(*X)
+        return self.model.predict(text, context=context)
+
+@Registry.register_experiment(ModeKeys.SEQUENCE, requirements=[("Featurizer", "TextContextFeaturizer")])
 class RoBERTaSeqLab(SidekickSeqLab):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -48,7 +56,15 @@ class RoBERTaSeqLab(SidekickSeqLab):
         self.model_config.update(kwargs)
         self.model = SequenceLabeler(**self.model_config)
 
-@Registry.register_experiment(ModeKeys.SEQUENCE, requirements=[("Featurizer", "PlainTextFeaturizer")])
+    def fit(self, X, y):
+        text, context = zip(*X)
+        self.model.fit(text, y)
+
+    def predict(self, X, **kwargs):
+        text, context = zip(*X)
+        return self.model.predict(text)
+
+@Registry.register_experiment(ModeKeys.SEQUENCE, requirements=[("Featurizer", "TextContextFeaturizer")])
 class LambertSeqLab(SidekickSeqLab):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
