@@ -57,9 +57,9 @@ DATA = {
     # Seqence
     # 'SequenceLabeling/Reuters-128',
     'SequenceLabeling/table_synth',
-    'SequenceLabeling/bonds_new',
-    'SequenceLabeling/tables',
-    'SequenceLabeling/typed_cols',
+    # 'SequenceLabeling/bonds_new',
+    # 'SequenceLabeling/tables',
+    # 'SequenceLabeling/typed_cols',
     # 'SequenceLabeling/brown_all',
     # 'SequenceLabeling/brown_nouns',
     # 'SequenceLabeling/brown_verbs',
@@ -138,25 +138,41 @@ TEST_SETUP = {
 }
 
 # Visualizations to display
-VISUALIZATIONS = {"FacetGridVisualizer"}
+VISUALIZATIONS = {"FacetGridBestVisualizer"}
 
 # kwargs to pass directly into visualizations
+# VISUALIZATION_OPTIONS = {
+#     "display": True,
+#     "save": True,
+#     "FacetGridVisualizer": {
+#         "x_tile": "Metric",
+#         "y_tile": "Dataset",
+#         "x_axis": "TrainSize",
+#         "y_axis": "Result",
+#         "lines": ["Experiment", "Featurizer", "Sampler", "Resampler",
+#                   "lr", "lr_warmup", "batch_size", "n_epochs", "base_model_path"],
+#         "category": "merge",
+#         "cv": "mean",
+#         "filename": "TestResult",
+#     },
+# }
 VISUALIZATION_OPTIONS = {
     "display": True,
     "save": True,
-    "FacetGridVisualizer": {
+    "FacetGridBestVisualizer": {
         "x_tile": "Metric",
         "y_tile": "Dataset",
         "x_axis": "TrainSize",
         "y_axis": "Result",
-        "lines": ["Experiment", "Featurizer", "Sampler", "Resampler",
-                  "lr", "lr_warmup", "batch_size", "n_epochs", "base_model_path"],
-        # "lines": ["Experiment", "Featurizer", "Sampler", "Resampler"],
+        "lines": ["Experiment", "Featurizer", "Sampler", "Resampler", "base_model_path"],
+        "pick_best": ["lr", "lr_warmup", "batch_size", "n_epochs"],
+        "metric": "MacroCharF1",
         "category": "merge",
         "cv": "mean",
         "filename": "TestResult",
     },
 }
+
 
 MODE = ModeKeys.SEQUENCE
 
@@ -174,39 +190,39 @@ indicoio.config.api_key = ""
 # EXPERIMENT_PARAMS = {}
 
 # For testing
-# EXPERIMENT_PARAMS = {
-#     'All': {"lr_warmup": [0.1, 0.2]}
-# }
-
 EXPERIMENT_PARAMS = {
-    'All': {
-        "lr_warmup": [0.1, 0.2],
-        "lr": [1e-5, 1e-4],
-        "batch_size": [8, 16],
-        "n_epochs": [16, 32],
-    },
-    'RoBERTaSeqLab': {
-        'base_model_path': [
-            "roberta-model-sm-v2.jl",
-            # "filtered_mlm_baseline.jl",
-            # "filtered_mlm_baseline_2nd_5.jl",
-            "filtered_mlm_baseline_3rd_5.jl"
-        ]
-    },
-    'LambertSeqLab': {
-        'base_model_path': [
-            # "filtered_lambert_mlm.jl",
-            # "filtered_lambert_mlm_2nd_5.jl",
-            "filtered_lambert_mlm_3rd_5.jl",
-            # "filtered_lambert_mlm_pos_removal.jl"
-        ]
-    },
-    'SidekickSeqLab': {
-        'base_model_path': [
-            # "filtered_sidekick_mlm.jl",
-            # "filtered_sidekick_mlm_2nd_5.jl",
-            "filtered_sidekick_mlm_3rd_5.jl",
-            # "sidekick_mlm_pos_removal.jl"
-        ]
-    }
+    'All': {"lr_warmup": [0.1, 0.2]}
 }
+
+# EXPERIMENT_PARAMS = {
+    # 'All': {
+    #     "lr_warmup": [0.1, 0.2],
+    #     "lr": [1e-5, 1e-4],
+    #     "batch_size": [8, 16],
+    #     "n_epochs": [16, 32],
+    # },
+#     'RoBERTaSeqLab': {
+#         'base_model_path': [
+#             "roberta-model-sm-v2.jl",
+#             # "filtered_mlm_baseline.jl",
+#             # "filtered_mlm_baseline_2nd_5.jl",
+#             "filtered_mlm_baseline_3rd_5.jl"
+#         ]
+#     },
+#     'LambertSeqLab': {
+#         'base_model_path': [
+#             # "filtered_lambert_mlm.jl",
+#             # "filtered_lambert_mlm_2nd_5.jl",
+#             "filtered_lambert_mlm_3rd_5.jl",
+#             # "filtered_lambert_mlm_pos_removal.jl"
+#         ]
+#     },
+#     'SidekickSeqLab': {
+#         'base_model_path': [
+#             # "filtered_sidekick_mlm.jl",
+#             # "filtered_sidekick_mlm_2nd_5.jl",
+#             "filtered_sidekick_mlm_3rd_5.jl",
+#             # "sidekick_mlm_pos_removal.jl"
+#         ]
+#     }
+# }
