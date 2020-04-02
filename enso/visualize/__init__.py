@@ -229,3 +229,4 @@ class ClassificationVisualizer(Visualizer):
 
 
 from enso.visualize import facets
+from enso.visualize import facets_best
