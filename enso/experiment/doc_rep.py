@@ -29,7 +29,7 @@ class SidekickSeqLab(FinetuneSequenceLabel):
                     'bottom': 0,
                 },
                 n_context_embed_per_channel=48,
-                context_in_base_model=True,
+                sidekick=True,
                 n_layers_with_aux=-1)
         )
         self.model_config.update(kwargs)
@@ -50,7 +50,7 @@ class RoBERTaSeqLab(SidekickSeqLab):
         self.model_config = dict(
             use_auxiliary_info = False,
             n_layers_with_aux = 0,
-            context_in_base_model = False,
+            sidekick = False,
             context_dim = 0
         )
         self.model_config.update(kwargs)
@@ -71,15 +71,73 @@ class LambertSeqLab(SidekickSeqLab):
         self.model_config.update(dict(
             pos_injection=True,
             n_layers_with_aux = 0,
-            context_in_base_model = False
+            sidekick = False
         ))
         self.model_config.update(kwargs)
         self.model = SequenceLabeler(**self.model_config)
             
 
+@Registry.register_experiment(ModeKeys.SEQUENCE, requirements=[("Featurizer", "TextContextFeaturizer")])
+class LambertNoPosSeqLab(SidekickSeqLab):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model_config.update(dict(
+            pos_injection=True,
+            n_layers_with_aux = 0,
+            sidekick=False,
+            pos_removal_mode="zero_out",
+            pos_decay_mode="fixed", 
+            
+        ))
+        self.model_config.update(kwargs)
+        self.model = SequenceLabeler(**self.model_config)
+
+        
+@Registry.register_experiment(ModeKeys.SEQUENCE, requirements=[("Featurizer", "TextContextFeaturizer")])
+class LambertNoPosSeqLab1024(SidekickSeqLab):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model_config.update(dict(
+            pos_injection=True,
+            n_layers_with_aux = 0,
+            sidekick=False,
+            pos_removal_mode="zero_out",
+            pos_decay_mode="fixed",
+            interpolate_pos_embeds=True, # these are zeroed out so doesn't make a difference but stops finetune from crying.
+            max_length=1024,
+        ))
+        self.model_config.update(kwargs)
+        self.model = SequenceLabeler(**self.model_config)
 
             
-        
+@Registry.register_experiment(ModeKeys.SEQUENCE, requirements=[("Featurizer", "TextContextFeaturizer")])
+class LambertHybridNoPosSeqLab(SidekickSeqLab):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model_config.update(dict(
+            pos_injection=True,
+            sidekick=True,
+            pos_removal_mode="zero_out",
+            pos_decay_mode="fixed",
+
+        ))
+        self.model_config.update(kwargs)
+        self.model = SequenceLabeler(**self.model_config)
+
+@Registry.register_experiment(ModeKeys.SEQUENCE, requirements=[("Featurizer", "TextContextFeaturizer")])
+class SidekickPlaceholderNoPos(SidekickSeqLab):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model_config.update(dict(
+            pos_injection=True,
+            sidekick=True,
+            pos_removal_mode="placeholder",
+            pos_decay_mode="fixed",
+
+	))
+        self.model_config.update(kwargs)
+        self.model = SequenceLabeler(**self.model_config)
+
         
         
         

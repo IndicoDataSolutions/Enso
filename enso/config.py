@@ -97,7 +97,12 @@ FEATURIZERS = {
 # Experiments to run
 EXPERIMENTS = {
     # "FinetuneSequenceLabel",
-    "RoBERTaSeqLab",
+#    "RoBERTaSeqLab",
+#    "SidekickSeqLab",
+    "LambertNoPosSeqLab",
+    "SidekickPlaceholderNoPos",
+    "LambertHybridNoPosSeqLab",
+    "LambertNoPosSeqLab1024",
     # "IndicoSequenceLabel"
     # "LRBaselineNonRationalized",
     # "DistReweightedGloveClassifierCV",
@@ -191,38 +196,56 @@ indicoio.config.api_key = ""
 
 # For testing
 EXPERIMENT_PARAMS = {
-    'All': {"lr_warmup": [0.1, 0.2]}
-}
+    'All': {
+        "lr_warmup": [0.1, 0.2],
+        "lr": [1e-5, 1e-4],
+        "batch_size": [8, 16],
+        "n_epochs": [16, 32],
+    },
+    'RoBERTaSeqLab': {
+        'base_model_path': [
+            "roberta-model-sm-v2.jl",
+            # "filtered_mlm_baseline.jl",
+            # "filtered_mlm_baseline_2nd_5.jl",
+#            "filtered_mlm_baseline_3rd_5.jl"
+        ]
+    },
+    'LambertSeqLab': {
+        'base_model_path': [
+            # "filtered_lambert_mlm.jl",
+            # "filtered_lambert_mlm_2nd_5.jl",
+#            "filtered_lambert_mlm_3rd_5.jl",
+            # "filtered_lambert_mlm_pos_removal.jl"
+        ]
+    },
+    'SidekickSeqLab': {
+        'base_model_path': [
+            'base_models/10epoch_sidekick.jl'
+            # "filtered_sidekick_mlm.jl",
+            # "filtered_sidekick_mlm_2nd_5.jl",
+#            "filtered_sidekick_mlm_3rd_5.jl",
+            # "sidekick_mlm_pos_removal.jl"
+        ]
+    },
+    'SidekickPlaceholderNoPos' : {
+        'base_model_path': [
+            "base_models/placeholder_sidekick.jl"
+        ]
+    },
+    'LambertNoPosSeqLab' : {
+        'base_model_path': [
+            "base_models/lambert_no_pos.jl"
+        ]
+    },
+    'LambertNoPosSeqLab1024' : {
+        'base_model_path': [
+            "base_models/lambert_no_pos.jl"
+        ]
+    },
+    'LambertHybridNoPosSeqLab' : {
+        'base_model_path': [
+            "base_models/lambert_no_pos.jl"
+        ]
+    },
 
-# EXPERIMENT_PARAMS = {
-    # 'All': {
-    #     "lr_warmup": [0.1, 0.2],
-    #     "lr": [1e-5, 1e-4],
-    #     "batch_size": [8, 16],
-    #     "n_epochs": [16, 32],
-    # },
-#     'RoBERTaSeqLab': {
-#         'base_model_path': [
-#             "roberta-model-sm-v2.jl",
-#             # "filtered_mlm_baseline.jl",
-#             # "filtered_mlm_baseline_2nd_5.jl",
-#             "filtered_mlm_baseline_3rd_5.jl"
-#         ]
-#     },
-#     'LambertSeqLab': {
-#         'base_model_path': [
-#             # "filtered_lambert_mlm.jl",
-#             # "filtered_lambert_mlm_2nd_5.jl",
-#             "filtered_lambert_mlm_3rd_5.jl",
-#             # "filtered_lambert_mlm_pos_removal.jl"
-#         ]
-#     },
-#     'SidekickSeqLab': {
-#         'base_model_path': [
-#             # "filtered_sidekick_mlm.jl",
-#             # "filtered_sidekick_mlm_2nd_5.jl",
-#             "filtered_sidekick_mlm_3rd_5.jl",
-#             # "sidekick_mlm_pos_removal.jl"
-#         ]
-#     }
-# }
+}
