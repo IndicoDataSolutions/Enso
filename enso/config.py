@@ -116,7 +116,7 @@ TEST_SETUP = {
     "n_splits": 5,
     # "samplers": ['RandomRationalized'],
     #    "samplers": ["ImbalanceSampler"],
-    "samplers": ["RandomSequence"],
+    "samplers": ["RandomRationalized"],
     "sampling_size": 0.2,
     "resamplers": ["NoResampler"]
     #    "resamplers": ["RandomOverSampler"],
@@ -176,7 +176,12 @@ indicoio.config.api_key = ""
 
 # For testing
 EXPERIMENT_PARAMS = {
-    "All": {},
+    "All": {       
+        "n_epochs": [400, 800],
+        "l2_coef": [0.01, 0.1, 1],
+        "batch_size": [4, 8, 16, 32],
+        "alpha": [0.2, 0.5, 0.8],
+    }, 
     "Proto": {
         "n_epochs": [400, 800],
         "l2_coef": [0.01, 0.1, 1],
