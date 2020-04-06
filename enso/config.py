@@ -14,7 +14,7 @@ RESULTS_DIRECTORY = "Results"
 FEATURES_DIRECTORY = "Features"
 
 # Directory for storing experiment results
-EXPERIMENT_NAME = "DocRep"
+EXPERIMENT_NAME = "Prototype"
 
 # Name of the csv used to store results
 RESULTS_CSV_NAME = "Results.csv"
@@ -22,22 +22,7 @@ RESULTS_CSV_NAME = "Results.csv"
 # Datasets to featurize or run experiments on
 DATA = {
     #    "Classify/AirlineComplaints",
-    # "Classify/AirlineNegativity",
-    # "Classify/AirlineSentiment",
-    # "Classify/BrandEmotion",
-    # "Classify/BrandEmotionCause",
-    # "Classify/ChemicalDiseaseCauses",
-    # "Classify/CorporateMessaging",
-    # "Classify/CustomerReviews",
-    # "Classify/DetailedEmotion",
-    # "Classify/Disaster",
-    # "Classify/DrugReviewIntent",
-    # "Classify/DrugReviewType",
-    # "Classify/Economy",
-    # "Classify/Emotion",
-    # "Classify/GlobalWarming",
-    # "Classify/Horror",
-    # "Classify/HotelReviews",
+    # "Classify/AirlineNegativity",cRep
     # "Classify/IMDB",
     # "Classify/Irony",
     # "Classify/MPQA",
@@ -56,7 +41,7 @@ DATA = {
     # "Classify/SST-binary"
     # Seqence
     # 'SequenceLabeling/Reuters-128',
-    "SequenceLabeling/table_synth",
+    # "SequenceLabeling/table_synth",
     # 'SequenceLabeling/bonds_new',
     # 'SequenceLabeling/tables',
     # 'SequenceLabeling/typed_cols',
@@ -71,16 +56,16 @@ DATA = {
     # 'RationalizedClassify/federal_tax',
     "RationalizedClassify/short_federal_tax",
     # 'RationalizedClassify/interest_frequency',
-    "RationalizedClassify/short_interest_frequency",
-    # 'RationalizedClassify/aviation',
-    # 'RationalizedClassify/movie_reviews',
+    # "RationalizedClassify/short_interest_frequency",
+    "RationalizedClassify/aviation",
+    "RationalizedClassify/movie_reviews",
     "RationalizedClassify/mining",
 }
 
 # Featurizers to activate
 FEATURIZERS = {
-    # "PlainTextFeaturizer",
-    "TextContextFeaturizer",
+    "PlainTextFeaturizer",
+    # "TextContextFeaturizer",
     # "IndicoStandard",
     # "SpacyGloveFeaturizer",
     # "IndicoFastText",
@@ -97,7 +82,7 @@ FEATURIZERS = {
 # Experiments to run
 EXPERIMENTS = {
     # "FinetuneSequenceLabel",
-    "RoBERTaSeqLab",
+    "Proto",
     # "IndicoSequenceLabel"
     # "LRBaselineNonRationalized",
     # "DistReweightedGloveClassifierCV",
@@ -117,12 +102,12 @@ EXPERIMENTS = {
 # Metrics to compute
 METRICS = {
     #    "Accuracy",
-    # "AccuracyRationalized",
-    # "MacroRocAucRationalized",
+    "AccuracyRationalized",
+    "MacroRocAucRationalized",
     #    "MacroRocAuc",
-    "MacroCharF1",
-    "MacroCharRecall",
-    "MacroCharPrecision",
+    # "MacroCharF1",
+    # "MacroCharRecall",
+    # "MacroCharPrecision",
 }
 
 # Test setup metadata
@@ -174,7 +159,7 @@ VISUALIZATION_OPTIONS = {
 }
 
 
-MODE = ModeKeys.SEQUENCE
+MODE = ModeKeys.RATIONALIZED
 
 N_GPUS = 0
 N_CORES = 1  # multiprocessing.cpu_count()
@@ -190,7 +175,15 @@ indicoio.config.api_key = ""
 # EXPERIMENT_PARAMS = {}
 
 # For testing
-EXPERIMENT_PARAMS = {"All": {"lr_warmup": [0.1, 0.2]}}
+EXPERIMENT_PARAMS = {
+    "All": {},
+    "Proto": {
+        "n_epochs": [400, 800],
+        "l2_coef": [0.01, 0.1, 1],
+        "batch_size": [4, 8, 16, 32],
+        "alpha": [0.2, 0.5, 0.8],
+    },
+}
 
 # EXPERIMENT_PARAMS = {
 # 'All': {

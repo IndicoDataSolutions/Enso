@@ -8,11 +8,8 @@ from shutil import copyfile
 from time import gmtime, strftime
 import abc
 from functools import wraps
-<<<<<<< HEAD
 from copy import deepcopy
-=======
 from collections import Counter
->>>>>>> 314cf7a... WIP
 
 import concurrent.futures
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
@@ -36,7 +33,7 @@ from enso.config import (
     MODE,
     EXPERIMENT_NAME,
     RESULTS_CSV_NAME,
-    EXPERIMENT_PARAMS
+    EXPERIMENT_PARAMS,
 )
 from enso.registry import Registry, ValidateExperiments
 from multiprocessing import Process
@@ -85,17 +82,10 @@ class Experimentation(object):
                                 "Sampler": sampler,
                                 "Resampler": resampler,
                             }
-                            fixed_setups = experiment_validator.validate(
-                                current_setting, self.experiments
-                            )
+                            fixed_setups = experiment_validator.validate(current_setting, self.experiments)
 
                             for current_setting, experiments in fixed_setups:
-                                future = POOL.submit(
-                                    self._run_experiment,
-                                    dataset_name,
-                                    current_setting,
-                                    experiments,
-                                )
+                                future = POOL.submit(self._run_experiment, dataset_name, current_setting, experiments,)
                                 futures[future] = current_setting
 
         for future in concurrent.futures.as_completed(futures):
@@ -125,10 +115,7 @@ class Experimentation(object):
         if experiment_hparams is None:
             experiment_hparams = {}
 
-        experiment = experiment_cls(
-            Registry.get_resampler(current_setting["Resampler"]),
-            **experiment_hparams
-        )
+        experiment = experiment_cls(Registry.get_resampler(current_setting["Resampler"]), **experiment_hparams)
         name = experiment.name()
         internal_setting = {"Experiment": name}
         internal_setting.update(current_setting)
@@ -182,28 +169,25 @@ class Experimentation(object):
                 if experiment_cls.__name__ not in exp_params:
                     exp_params[experiment_cls.__name__] = {}
             # add the 'All' configuration to all the experiments
-            exp_params = {('All' if k.upper() == 'ALL' else k):v for k, v in exp_params.items()}
-            if 'All' in EXPERIMENT_PARAMS.keys():
+            exp_params = {("All" if k.upper() == "ALL" else k): v for k, v in exp_params.items()}
+            if "All" in EXPERIMENT_PARAMS.keys():
                 for k, v in exp_params.items():
-                    if k != 'All':
-                        v.update(EXPERIMENT_PARAMS['All'])
-            del exp_params['All']
+                    if k != "All":
+                        v.update(EXPERIMENT_PARAMS["All"])
+            del exp_params["All"]
             hparams_by_experiment = {
                 exp_name: list(ParameterGrid(hparams)) for exp_name, hparams in exp_params.items()
             }
             # make sure all experiments share the same experiment param keys (not necessarily values)
             param_keys = list(list(exp_params.values())[0].keys())
-            assert all(set(param_keys) == set(hparams.keys())
-                       for hparams in exp_params.values())
+            assert all(set(param_keys) == set(hparams.keys()) for hparams in exp_params.values())
             # add the experiment params to self.columns
             self.columns += param_keys
         else:
             hparams_by_experiment = {}
 
         results = pd.DataFrame(columns=self.columns)
-        for splitter, target in self._split_dataset(
-            dataset, current_setting["TrainSize"]
-        ):
+        for splitter, target in self._split_dataset(dataset, current_setting["TrainSize"]):
             for train_indices, test in splitter:
                 train = sample(
                     current_setting["Sampler"],
@@ -227,34 +211,32 @@ class Experimentation(object):
                                     "test": test,
                                     "target": target,
                                     "current_setting": current_setting,
-                                    "experiment_hparams": experiment_hparams
+                                    "experiment_hparams": experiment_hparams,
                                 },
                             )
                             p.start()
                             p.join()
                         except Exception:
-                            logging.exception(
-                                "Exception occurred for {}".format(current_setting)
-                            )
+                            logging.exception("Exception occurred for {}".format(current_setting))
                         finally:
                             p.terminate()
                             while p.is_alive():
                                 time.sleep(0.1)
 
         return results
-    
+
     @staticmethod
     def _get_results_row(name, internal_setting, test_score, test_key, train_score=None, train_key=None):
         full_setting = {"Metric": name, test_key: test_score}
 
-        # measure score on train set to help detect overfitting                                                                                    
+        # measure score on train set to help detect overfitting
         if train_score is not None:
             full_setting[train_key] = train_score
-            
+
         full_setting.update(internal_setting)
         full_setting_df = pd.DataFrame.from_records([full_setting])
         return full_setting_df
-            
+
     def _measure_experiment(
         self,
         target,
@@ -265,7 +247,7 @@ class Experimentation(object):
         test_key="Result",
         train_key="TrainResult",
         train_time=None,
-        pred_time=None, 
+        pred_time=None,
     ):
         """Responsible for recording all metrics specified in config for a given experiment."""
         results = pd.DataFrame(columns=self.columns)
@@ -276,25 +258,22 @@ class Experimentation(object):
             else:
                 train_score = None
             full_setting_df = self._get_results_row(
-                metric.name(), internal_setting,
-                test_score=score, test_key=test_key,
-                train_score=train_score, train_key=train_key
+                metric.name(),
+                internal_setting,
+                test_score=score,
+                test_key=test_key,
+                train_score=train_score,
+                train_key=train_key,
             )
             results = results.append(full_setting_df, ignore_index=True)
         if train_time is not None:
             full_setting_df = self._get_results_row(
-                name="train_time",
-                internal_setting=internal_setting,
-                test_score=train_time,
-                test_key=test_key
+                name="train_time", internal_setting=internal_setting, test_score=train_time, test_key=test_key
             )
             results = results.append(full_setting_df, ignore_index=True)
         if pred_time is not None:
             full_setting_df = self._get_results_row(
-                name="pred_time",
-                internal_setting=internal_setting,
-                test_score=pred_time,
-                test_key=test_key
+                name="pred_time", internal_setting=internal_setting, test_score=pred_time, test_key=test_key
             )
             results = results.append(full_setting_df, ignore_index=True)
         return results
@@ -314,9 +293,7 @@ class Experimentation(object):
 
         # The a is for archival, not just a typo
         config_record = "%s/Config.pya" % result_path
-        config_path = os.path.abspath(
-            os.path.join(os.path.dirname(os.path.dirname(__file__)), "config.py")
-        )
+        config_path = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), "config.py"))
         copyfile(config_path, config_record)
 
     @staticmethod
@@ -324,11 +301,7 @@ class Experimentation(object):
         if type(dataset) == list:
             target_list = [0]
         else:
-            target_list = [
-                column
-                for column in dataset.columns.values
-                if column.startswith("Target")
-            ]
+            target_list = [column for column in dataset.columns.values if column.startswith("Target")]
 
         logging.info("Training with train set of size: %s" % training_size)
 
@@ -344,25 +317,19 @@ class Experimentation(object):
                     sample_size=TEST_SETUP["sampling_size"],
                     ds_size=len(dataset),
                     train_size=training_size,
-                    test_size=test_size
+                    test_size=test_size,
                 )
             )
             return
 
         if MODE in [ModeKeys.CLASSIFY]:
-            splitter = SafeStratifiedShuffleSplit(
-                TEST_SETUP["n_splits"], test_size=test_size
-            )
+            splitter = SafeStratifiedShuffleSplit(TEST_SETUP["n_splits"], test_size=test_size)
         elif MODE in [ModeKeys.RATIONALIZED]:
-            splitter = RationalizedStratifiedShuffleSplit(
-                TEST_SETUP['n_splits'], test_size=test_size
-            )
+            splitter = RationalizedStratifiedShuffleSplit(TEST_SETUP["n_splits"], test_size=test_size)
         elif MODE in [ModeKeys.SEQUENCE]:
             splitter = ShuffleSplit(TEST_SETUP["n_splits"], test_size=test_size)
         else:
-            raise ValueError(
-                "config.MODE needs to be either ModeKeys.CLASSIFY or ModeKeys.SEQUENCE"
-            )
+            raise ValueError("config.MODE needs to be either ModeKeys.CLASSIFY or ModeKeys.SEQUENCE")
 
         for target in target_list:
             # We can use np.zeros because it's stratifying the split
@@ -388,9 +355,7 @@ class VerifyOutput(BaseObject):
     def __new__(cls, *args):
         """Wrap predict method with appropriate decorator check."""
         experiment_class = super(VerifyOutput, cls).__new__(cls, *args)
-        experiment_class.predict = experiment_class._verify_output(
-            experiment_class.predict
-        )
+        experiment_class.predict = experiment_class._verify_output(experiment_class.predict)
         return experiment_class
 
 

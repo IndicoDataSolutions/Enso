@@ -289,7 +289,7 @@ class JaxBase(ClassificationExperiment):
         if self.NLP is None:
             self.NLP = spacy.load("en_vectors_web_lg")
         self.target_encoder = BetterLabelBinarizer()
-        self.hparams = {"n_epochs": 500, "alpha": 0.5, "l2_coef": 0.01}
+        self.hparams = kwargs
 
     def _token_in_rationales(self, token, rationales):
         for rationale in rationales:
@@ -385,7 +385,13 @@ class JaxBase(ClassificationExperiment):
         self.n_classes = len(self.target_encoder.classes_)
 
         doc_vectors, rationale_targets, targets, proto = self.featurize_x_y(X, Y)
-        train = self.train_iter(doc_vectors, rationale_targets, targets, batch_size=4, n_epochs=1000)
+        train = self.train_iter(
+            doc_vectors,
+            rationale_targets,
+            targets,
+            batch_size=self.hparams["batch_size"],
+            n_epochs=self.hparams["n_epochs"],
+        )
 
         model_fn = lambda x, length_mask: self.base_model(
             kernel_size=1, n_classes=self.n_classes, rationale_proto=proto
