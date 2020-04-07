@@ -71,7 +71,7 @@ FEATURIZERS = {
     "PlainTextFeaturizer",
     # "TextContextFeaturizer",
     # "IndicoStandard",
-    # "SpacyGloveFeaturizer",
+    "SpacyGloveFeaturizer",
     # "IndicoFastText",
     # "IndicoSentiment",
     # "IndicoElmo",
@@ -88,7 +88,7 @@ EXPERIMENTS = {
     # "FinetuneSequenceLabel",
     "Proto",
     # "IndicoSequenceLabel"
-    # "LRBaselineNonRationalized",
+    "LRBaselineNonRationalized",
     # "DistReweightedGloveClassifierCV",
     "RationaleInformedLRCV"
     # 'DistReweightedGloveClassifierCV'
