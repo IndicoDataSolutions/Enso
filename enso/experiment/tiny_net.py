@@ -57,6 +57,12 @@ class BothProto(hk.Module):
     def __call__(self, x: jnp.ndarray, length_mask: jnp.ndarray):
         """
         x: (batch, seq, n_hidden)
+
+        Performs:
+        - convolution over the document, initializing the filter as the rationale prototype
+        - matrix multiply of the document by its rationale probas
+        - linear projection whose weights are initialized to rationale_proto
+
         """
         rationale_logits = hk.Conv1D(
             output_channels=self.n_classes,
@@ -89,6 +95,11 @@ class RationaleProto(hk.Module):
     def __call__(self, x: jnp.ndarray, length_mask: jnp.ndarray):
         """
         x: (batch, seq, n_hidden)
+
+        Performs:
+        - convolution over the document, initializing the filter as the rationale prototype
+        - matrix multiply of the document by its rationale probas
+        - linear projection
         """
         rationale_logits = hk.Conv1D(
             output_channels=self.n_classes,
