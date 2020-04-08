@@ -274,11 +274,11 @@ class RationaleInformedLRCV(BaseRationaleGridSearch):
         ]
         rationale_targets = [1] * len(rationale_vecs)
         background_vecs = [
-            doc.vector / np.linalg.norm(doc.vector) 
-            for doc in rationale_docs 
+            doc.vector / np.linalg.norm(doc.vector)
+            for doc in docs
             if doc.has_vector and np.any(np.nonzero(doc.vector))
         ]
-        background_targets = [0] * len(rationale_vecs)
+        background_targets = [0] * len(background_vecs)
         X = rationale_vecs + background_vecs
         Y = rationale_targets + background_targets
 
