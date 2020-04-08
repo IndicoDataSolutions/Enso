@@ -101,7 +101,10 @@ class FinetuneSeqBaselineRationalized(ClassificationExperiment):
 
 @Registry.register_experiment(ModeKeys.RATIONALIZED, requirements=[("Featurizer", "PlainTextFeaturizer")])
 class ReweightedGloveClassifier(ClassificationExperiment):
+    """
+    Weights words by their proportional occurrence as rationales, smoothed
 
+    """
     NLP = None
 
     def __init__(self, *args, **kwargs):
@@ -236,7 +239,10 @@ class BaseRationaleGridSearch(GridSearch):
 
 @Registry.register_experiment(ModeKeys.RATIONALIZED, requirements=[("Featurizer", "PlainTextFeaturizer")])
 class DistReweightedGloveClassifierCV(BaseRationaleGridSearch):
+    """
+    Weights words by cosine similarity to the mean of the rationale vector representations
 
+    """
     def _train_rationale_model(self, docs, rationale_docs):
         rationale_vecs = [
             doc.vector / np.linalg.norm(doc.vector) 
@@ -265,7 +271,9 @@ class DistReweightedGloveClassifierCV(BaseRationaleGridSearch):
 
 @Registry.register_experiment(ModeKeys.RATIONALIZED, requirements=[("Featurizer", "PlainTextFeaturizer")])
 class RationaleInformedLRCV(BaseRationaleGridSearch):
-
+    """
+    Reweight document vectors by their similarity to a rationale vector, predicted by an LR model
+    """
     def _train_rationale_model(self, docs, rationale_docs):
         rationale_vecs = [
             doc.vector / np.linalg.norm(doc.vector) 
