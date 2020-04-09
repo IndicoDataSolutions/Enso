@@ -543,7 +543,7 @@ class RACNN(ClassificationExperiment):
 
             In most cases, there will not be negative rationales
         """
-        sent_lbl_vec = np.zeros(3)
+        sent_lbl_vec = np.zeros(2)
         if not rationales:
             sent_lbl_vec[-1] = 1.0
         else: 
@@ -579,22 +579,23 @@ class RACNN(ClassificationExperiment):
                                             stopword=True)
         X, y = self.resample(X, [yi for yi in y])
         documents = self._get_documents(X, y)
+        self.processor.preprocess(X)
         num_classes = len(documents[0].doc_y)
         self.model = racnn.RationaleCNN(self.processor, filters=[1,2,3], 
                                         n_filters=32, 
                                         sent_dropout=0.5, 
                                         doc_dropout=0.5,
-                                        end_to_end_train=False,
+                                        end_to_end_train=True,
                                         num_classes=num_classes)
         self.model.build_RA_CNN_model()
-        self.model.train_sentence_model(documents, nb_epoch=100,
-                                        sent_val_split=.3, downsample=False)
+        self.model.train_sentence_model(documents, nb_epoch=1,
+                                        sent_val_split=.2, downsample=True)
 
         weights_path = 'racnn.hdf5'
-        self.model.train_document_model(documents, nb_epoch=100,
+        self.model.train_document_model(documents, nb_epoch=3,
                                 downsample=False,
-                                batch_size=5,
-                                doc_val_split=.3, 
+                                batch_size=4,
+                                doc_val_split=.2, 
                                 pos_class_weight=1,
                                 document_model_weights_path=weights_path)
 
@@ -607,7 +608,6 @@ class RACNN(ClassificationExperiment):
             doc_id = i
             sentences = xi.split('. ')
             doc = racnn.Document(doc_id, sentences)
-            print(doc)
             pred = self.model.predict_and_rank_sentences_for_doc(doc, num_rationales=0)[0]
             print('pred', pred)
             preds.append(pred)

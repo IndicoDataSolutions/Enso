@@ -34,7 +34,7 @@ import random
 
 import numpy as np
 
-from keras.optimizers import SGD, RMSprop
+from keras.optimizers import SGD, RMSprop, Adam
 from keras import backend as K 
 K.common.set_image_dim_ordering("th")
 K.set_image_data_format("channels_first")
@@ -157,33 +157,45 @@ class RationaleCNN:
     @staticmethod
     def balanced_sample(X, y, sentences=None, binary=False, k=1, n_rows=None):
         if binary:
-            _, neg_indices = np.where([y <= 0]) 
-            _, pos_indices = np.where([y > 0])
-            sampled_neg_indices = np.random.choice(neg_indices, pos_indices.shape[0], replace=False)
-            train_indices = np.concatenate([pos_indices, sampled_neg_indices])
+            # _, neg_indices = np.where([y <= 0]) 
+            # _, pos_indices = np.where([y > 0])
+            try:
+                neg_indices = np.where(y[:, 0] == 0)[0]
+            except:
+                import traceback
+                traceback.print_exc()
+                print(y)
+                raise ValueError('something')
+            if len(neg_indices) == len(y):
+                train_indices = neg_indices
+            else:
+                pos_indices = np.where(y[:, 0])[0]
+                sampled_neg_indices = np.random.choice(neg_indices, pos_indices.shape[0], replace=False)
+                train_indices = np.concatenate([pos_indices, sampled_neg_indices])
         else:        
-            _, pos_rationale_indices = np.where([y[:,0] > 0]) 
-            _, neg_rationale_indices = np.where([y[:,1] > 0]) 
-            _, non_rationale_indices = np.where([y[:,2] > 0]) 
+            pos_rationale_indices = np.where([y[:,0] > 0])[0] 
+            # _, neg_rationale_indices = np.where([y[:,1] > 0]) 
+            # _, non_rationale_indices = np.where([y[:,2] > 0]) 
+            non_rationale_indices = np.where([y[:,1] > 0])[0] 
 
 
             if n_rows is not None: 
                 # then we will return a matrix comprising n_rows rows, 
                 # repeating positive examples but drawing diverse negative
                 # instances
-                num_rationale_indices = int(n_rows / 2.0)
+                
                 if pos_rationale_indices.shape[0] > 0:
+                    num_rationale_indices = int(n_rows / 2.0)
                     rationale_indices = np.random.choice(pos_rationale_indices, num_rationale_indices, replace=True)
+                    # sample the rest as `negative' (neutral) instances
+                    num_non_rationales = n_rows - num_rationale_indices
+                    sampled_non_rationale_indices = np.random.choice(non_rationale_indices, num_non_rationales, replace=True)
+                    train_indices = np.concatenate([rationale_indices, sampled_non_rationale_indices])
                 else: 
-                    rationale_indices = np.random.choice(neg_rationale_indices, num_rationale_indices, replace=True)
-
-                # sample the rest as `negative' (neutral) instances
-                num_non_rationales = n_rows - num_rationale_indices
-                sampled_non_rationale_indices = np.random.choice(non_rationale_indices, num_non_rationales, replace=True)
-                train_indices = np.concatenate([rationale_indices, sampled_non_rationale_indices])
+                    train_indices = list(range(n_rows))
                 
             else:
-
+                raise ValueError('Need n_rows defined')
                 # sample a number of non-rationales equal to the total
                 # number of pos/neg rationales * k
                 m = k*(pos_rationale_indices.shape[0] + neg_rationale_indices.shape[0])
@@ -200,8 +212,8 @@ class RationaleCNN:
 
         np.random.shuffle(train_indices) # why not
         if sentences is not None: 
-            return X[train_indices,:], y[train_indices], [sentences[idx] for idx in train_indices]
-        return X[train_indices,:], y[train_indices]
+            return X[train_indices], y[train_indices], [sentences[idx] for idx in train_indices]
+        return X[train_indices], y[train_indices]
 
 
     def build_simple_doc_model(self):
@@ -337,7 +349,7 @@ class RationaleCNN:
         # note that if end_to_end_train is False, we 'freeze' the sentence
         # softmax weights after pretraining the sentence model
         print("end-to-end training is: %s" % self.end_to_end_train)
-        sent_pred_model = Dense(3, activation="softmax", name="sentence_prediction", kernel_regularizer=l2(0.01))
+        sent_pred_model = Dense(2, activation="softmax", name="sentence_prediction", kernel_regularizer=l2(0.01))
         sent_preds = TimeDistributed(sent_pred_model, name="sentence_predictions")(sent_vectors)
 
         ####
@@ -393,8 +405,9 @@ class RationaleCNN:
         
         # ... and compile
         self.doc_model = Model(inputs=tokens_input, outputs=doc_output)
+        adam = Adam(learning_rate=0.0001, beta_1=0.9, beta_2=0.999, amsgrad=False)
         self.doc_model.compile(metrics=["accuracy"], 
-                                loss="categorical_crossentropy", optimizer="adam")
+                                loss="categorical_crossentropy", optimizer=adam)
 
         self.set_final_sentence_model()
 
@@ -426,7 +439,6 @@ class RationaleCNN:
             doc.generate_sequences(self.preprocessor)
 
         X_doc = np.array([doc.get_padded_sequences(self.preprocessor, labels_too=False)])
-        print('X_doc', X_doc)
         return self.doc_model.predict(X_doc)
 
         # doc pred
@@ -521,10 +533,10 @@ class RationaleCNN:
                     '''
                     n_target_rows = X_doc_i.shape[0]
                     X_doc_i_temp, y_sent_i_temp, sampled_sentences = RationaleCNN.balanced_sample(X_doc_i, y_sent_i, 
+                                                                                binary=False,
                                                                                 sentences=train_sentences[i],
                                                                                 n_rows=n_target_rows)
                    
-                    
                     X_temp.append(X_doc_i_temp)
                     y_sent_temp.append(y_sent_i_temp)
                     sentences_temp.append(sampled_sentences)
@@ -532,7 +544,7 @@ class RationaleCNN:
                 X_temp = np.array(X_temp)
                 y_sent_temp = np.array(y_sent_temp)
                 
-                self.sentence_model.fit(X_temp, y_sent_temp, epochs=1)
+                self.sentence_model.fit(X_temp, y_sent_temp, epochs=nb_epoch)
 
                 cur_val_results = self.sentence_model.evaluate(X_doc_validation, y_sent_validation)
                 #import pdb; pdb.set_trace()
@@ -580,7 +592,7 @@ class RationaleCNN:
             self.doc_model.compile(metrics=["accuracy"], 
                                         loss="categorical_crossentropy", optimizer="adadelta")
 
-    def train_document_model(self, train_documents, nb_epoch=5, downsample=False, 
+    def train_document_model(self, train_documents, nb_epoch=100, downsample=False, 
                                 doc_val_split=.2, batch_size=50,
                                 document_model_weights_path="document_model_weights.hdf5",
                                 pos_class_weight=1):
@@ -628,7 +640,7 @@ class RationaleCNN:
 
                 X_tmp, y_tmp = RationaleCNN.balanced_sample(X_doc, y_doc, binary=False)
 
-                self.doc_model.fit(X_tmp, y_tmp, batch_size=batch_size, epochs=1)
+                self.doc_model.fit(X_tmp, y_tmp, batch_size=batch_size, epochs=nb_epoch)
 
                 cur_val_results = self.doc_model.evaluate(X_doc_validation, y_doc_validation)
                 out_str = ["%s: %s" % (metric, val) for metric, val in zip(self.doc_model.metrics_names, cur_val_results)]
@@ -709,7 +721,7 @@ class Document:
             dummy_rows = 0 * np.ones((p.max_doc_len-n_sentences, p.max_sent_len), dtype='int32')
             X = np.vstack((X, dummy_rows))
         
-            dummy_lbls = [np.array([0,0,1]) for _ in range(p.max_doc_len-n_sentences)]
+            dummy_lbls = [np.array([0,1]) for _ in range(p.max_doc_len-n_sentences)]
             y = np.vstack((y, dummy_lbls))
 
         return np.array(X), np.array(y)
@@ -831,6 +843,7 @@ class Preprocessor:
             processed_texts = self.remove_stopwords(texts)
 
         X = list(self.tokenizer.texts_to_sequences_generator(processed_texts))
+        # X = [text_to_word_sequence(text) for text in processed_texts]
 
         # need to pad the number of sentences, too.
         X = np.array(pad_sequences(X, maxlen=self.max_sent_len))
