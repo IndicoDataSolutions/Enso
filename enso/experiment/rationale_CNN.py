@@ -440,7 +440,7 @@ class RationaleCNN:
             doc.generate_sequences(self.preprocessor)
 
         X_doc = np.array([doc.get_padded_sequences(self.preprocessor, labels_too=False)])
-        sent_preds = self.sentence_prob_model.predict(X_doc)
+        sent_preds = self.sentence_model.predict(X_doc)
         np.save('sent_preds.npy', sent_preds)
         return self.doc_model.predict(X_doc)
 

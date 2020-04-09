@@ -582,7 +582,7 @@ class RACNN(ClassificationExperiment):
         self.processor.preprocess(X)
         num_classes = len(documents[0].doc_y)
         self.model = racnn.RationaleCNN(self.processor, filters=[3, 4, 5], 
-                                        n_filters=20,
+                                        n_filters=1,
                                         sent_dropout=0.5, 
                                         doc_dropout=0.5,
                                         end_to_end_train=False,
@@ -592,7 +592,7 @@ class RACNN(ClassificationExperiment):
                                         sent_val_split=.2, downsample=True)
 
         weights_path = 'racnn.hdf5'
-        self.model.train_document_model(documents, nb_epoch=10,
+        self.model.train_document_model(documents, nb_epoch=1,
                                 downsample=False,
                                 batch_size=5,
                                 doc_val_split=.2, 
@@ -610,6 +610,7 @@ class RACNN(ClassificationExperiment):
             doc = racnn.Document(doc_id, sentences)
             pred = self.model.predict_and_rank_sentences_for_doc(doc, num_rationales=0)[0]
             preds.append(pred)
+        print(preds)
         return pd.DataFrame.from_records(preds, columns=self.target_encoder.classes_)
 
     def cleanup(self):
