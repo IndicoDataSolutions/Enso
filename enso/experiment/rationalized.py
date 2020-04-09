@@ -611,7 +611,7 @@ class RACNN(ClassificationExperiment):
             pred = self.model.predict_and_rank_sentences_for_doc(doc, num_rationales=0)[0]
             print('pred', pred)
             preds.append(pred)
-        return pd.DataFrame.from_records(preds)
+        return pd.DataFrame.from_records(preds, columns=self.target_encoder.classes_)
 
     def cleanup(self):
         del self.model
