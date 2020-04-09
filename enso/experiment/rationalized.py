@@ -12,7 +12,8 @@ from sklearn.preprocessing import LabelBinarizer
 from collections import Counter, defaultdict
 from typing import Any, Tuple
 
-from enso.experiment.tiny_net import RationaleProto, BothProto, BetterLabelBinarizer
+from enso.experiment.tiny_net import RationaleProto, BothProto, BetterLabelBinarizer, RA_CNN_Model
+from enso.rationale_utils import get_rationales_by_sentences
 import haiku as hk
 from jax.experimental import optimizers
 import jax.numpy as jnp
@@ -218,7 +219,6 @@ class BaseRationaleGridSearch(GridSearch):
         labels = self.best_model.classes_
         return pd.DataFrame({label: probas[:, i] for i, label in enumerate(labels)})
 
-
 @Registry.register_experiment(ModeKeys.RATIONALIZED, requirements=[("Featurizer", "PlainTextFeaturizer")])
 class DistReweightedGloveClassifierCV(BaseRationaleGridSearch):
     """
@@ -287,7 +287,6 @@ class RationaleInformedLRCV(BaseRationaleGridSearch):
             return np.zeros_like(doc.vector)
         else:
             return reweighted_doc_vect / np.linalg.norm(reweighted_doc_vect)
-
 
 @Registry.register_experiment(ModeKeys.RATIONALIZED, requirements=[("Featurizer", "PlainTextFeaturizer")])
 class JaxBase(ClassificationExperiment):
@@ -493,3 +492,126 @@ class ProtoV2(JaxBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.base_model = BothProto
+
+
+# class JaxTwoLevelBase(JaxBase):
+#     def fit(self, X, Y):
+#         # # No rationale means everything is a rationale
+#         # for x, y in zip(X, Y):
+#         #     if not y[0]:
+#         #         y[0].append({"start": 0, "end": len(x), "label": y[1], "text": x})
+
+#         self.target_encoder.fit([y[1] for y in Y])
+#         self.n_classes = len(self.target_encoder.classes_)
+
+#         doc_vectors, rationale_targets, targets, proto = self.featurize_x_y(X, Y)
+#         train = self.train_iter(
+#             doc_vectors,
+#             rationale_targets,
+#             targets,
+#             batch_size=self.hparams["batch_size"],
+#             n_epochs=self.hparams["n_epochs"],
+#         )
+
+#         model_fn = lambda x, length_mask: self.base_model(
+#             kernel_size=1, n_classes=self.n_classes, rationale_proto=proto
+#         )(x, length_mask)
+#         model = hk.transform(model_fn)
+#         rng = jax.random.PRNGKey(0)
+#         sample_data_point = next(train)
+#         # TODO: this is the same as JaxBase fit() method except for this line
+#         params = model.init(rng, sample_data_point[0], sample_data_point[1], sample_data_point[-1])
+
+#         opt_init, opt_update, get_params = optimizers.adam(1e-3)
+#         opt_state = opt_init(params)
+
+from enso.experiment import rationale_CNN as racnn
+
+
+@Registry.register_experiment(ModeKeys.RATIONALIZED, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class RACNN(ClassificationExperiment):
+    def __init__(self, *args, **kwargs):
+        """Initialize internal classifier."""
+        super().__init__(auto_resample=False, *args, **kwargs)
+        self.target_encoder = BetterLabelBinarizer()
+
+    def _to_sent_vec(self, rationales):
+        """
+            Convert to binary output vectors, so that e.g., [1, 0, 0]
+            indicates a positive rationale; [0, 1, 0] a negative rationale
+            and [0, 0, 1] a non-rationale
+
+            In most cases, there will not be negative rationales
+        """
+        sent_lbl_vec = np.zeros(3)
+        if not rationales:
+            sent_lbl_vec[-1] = 1.0
+        else: 
+            # positive rationale
+            # (there are no negative rationales)
+            sent_lbl_vec[0] = 1.0
+        return sent_lbl_vec
+
+    def _get_documents(self, X, y):
+        documents = []
+        for doc_id, (xi, yi) in enumerate(zip(X, y)):
+            sentences = xi.split('. ')
+            doc_label = self.target_encoder.transform([yi[1]])[0]
+            rationales = yi[0]
+            rationales_by_sentence = get_rationales_by_sentences(sentences, rationales)
+            sentence_label_vectors = [self._to_sent_vec(r) for r in rationales_by_sentence]
+            documents.append(
+                racnn.Document(doc_id, sentences, doc_label, sentence_label_vectors)
+            )
+        for d in documents: 
+            d.generate_sequences(self.processor)
+        return documents
+
+    def fit(self, X, y):
+        self.target_encoder.fit([yi[1] for yi in y])
+        nlp = spacy.load('en_vectors_web_lg')
+        word_vectors = [nlp(x).vector for x in X]
+        self.processor = racnn.Preprocessor(max_features=20000, 
+                                            max_sent_len=25,
+                                            max_doc_len=200,
+                                            wvs=word_vectors,
+                                            embedding_dims=300,
+                                            stopword=True)
+        X, y = self.resample(X, [yi for yi in y])
+        documents = self._get_documents(X, y)
+        num_classes = len(documents[0].doc_y)
+        self.model = racnn.RationaleCNN(self.processor, filters=[1,2,3], 
+                                        n_filters=32, 
+                                        sent_dropout=0.5, 
+                                        doc_dropout=0.5,
+                                        end_to_end_train=False,
+                                        num_classes=num_classes)
+        self.model.build_RA_CNN_model()
+        self.model.train_sentence_model(documents, nb_epoch=3, 
+                                        sent_val_split=.3, downsample=True)
+
+        weights_path = 'racnn.hdf5'
+        self.model.train_document_model(documents, nb_epoch=3, 
+                                downsample=False,
+                                batch_size=5,
+                                doc_val_split=.3, 
+                                pos_class_weight=1,
+                                document_model_weights_path=weights_path)
+
+        # self.model.doc_model.load_weights(weights_path)
+        self.model.set_final_sentence_model()                       
+
+    def predict(self, X, **kwargs):
+        preds = []
+        for i, xi in enumerate(X):
+            doc_id = i
+            sentences = xi.split('. ')
+            doc = racnn.Document(doc_id, sentences)
+            print(doc)
+            pred = self.model.predict_and_rank_sentences_for_doc(doc, num_rationales=0)[0]
+            print('pred', pred)
+            preds.append(pred)
+        return pd.DataFrame.from_records(preds)
+
+    def cleanup(self):
+        del self.model
