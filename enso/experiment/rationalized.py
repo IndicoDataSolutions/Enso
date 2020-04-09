@@ -587,11 +587,11 @@ class RACNN(ClassificationExperiment):
                                         end_to_end_train=False,
                                         num_classes=num_classes)
         self.model.build_RA_CNN_model()
-        self.model.train_sentence_model(documents, nb_epoch=3, 
-                                        sent_val_split=.3, downsample=True)
+        self.model.train_sentence_model(documents, nb_epoch=100,
+                                        sent_val_split=.3, downsample=False)
 
         weights_path = 'racnn.hdf5'
-        self.model.train_document_model(documents, nb_epoch=3, 
+        self.model.train_document_model(documents, nb_epoch=100,
                                 downsample=False,
                                 batch_size=5,
                                 doc_val_split=.3, 
