@@ -581,20 +581,20 @@ class RACNN(ClassificationExperiment):
         documents = self._get_documents(X, y)
         self.processor.preprocess(X)
         num_classes = len(documents[0].doc_y)
-        self.model = racnn.RationaleCNN(self.processor, filters=[1,2,3], 
-                                        n_filters=32, 
+        self.model = racnn.RationaleCNN(self.processor, filters=[3, 4, 5], 
+                                        n_filters=20,
                                         sent_dropout=0.5, 
                                         doc_dropout=0.5,
-                                        end_to_end_train=True,
+                                        end_to_end_train=False,
                                         num_classes=num_classes)
         self.model.build_RA_CNN_model()
-        self.model.train_sentence_model(documents, nb_epoch=1,
+        self.model.train_sentence_model(documents, nb_epoch=5,
                                         sent_val_split=.2, downsample=True)
 
         weights_path = 'racnn.hdf5'
-        self.model.train_document_model(documents, nb_epoch=3,
+        self.model.train_document_model(documents, nb_epoch=10,
                                 downsample=False,
-                                batch_size=4,
+                                batch_size=5,
                                 doc_val_split=.2, 
                                 pos_class_weight=1,
                                 document_model_weights_path=weights_path)
@@ -609,7 +609,6 @@ class RACNN(ClassificationExperiment):
             sentences = xi.split('. ')
             doc = racnn.Document(doc_id, sentences)
             pred = self.model.predict_and_rank_sentences_for_doc(doc, num_rationales=0)[0]
-            print('pred', pred)
             preds.append(pred)
         return pd.DataFrame.from_records(preds, columns=self.target_encoder.classes_)
 

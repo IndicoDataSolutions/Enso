@@ -405,7 +405,7 @@ class RationaleCNN:
         
         # ... and compile
         self.doc_model = Model(inputs=tokens_input, outputs=doc_output)
-        adam = Adam(learning_rate=0.0001, beta_1=0.9, beta_2=0.999, amsgrad=False)
+        adam = Adam(learning_rate=0.001, beta_1=0.9, beta_2=0.999, amsgrad=False)
         self.doc_model.compile(metrics=["accuracy"], 
                                 loss="categorical_crossentropy", optimizer=adam)
 
