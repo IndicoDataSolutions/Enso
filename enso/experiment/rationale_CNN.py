@@ -191,7 +191,8 @@ class RationaleCNN:
                     num_non_rationales = n_rows - num_rationale_indices
                     sampled_non_rationale_indices = np.random.choice(non_rationale_indices, num_non_rationales, replace=True)
                     train_indices = np.concatenate([rationale_indices, sampled_non_rationale_indices])
-                else: 
+                else:
+                    return None, None, None
                     train_indices = list(range(n_rows))
                 
             else:
@@ -405,7 +406,7 @@ class RationaleCNN:
         
         # ... and compile
         self.doc_model = Model(inputs=tokens_input, outputs=doc_output)
-        adam = Adam(learning_rate=0.001, beta_1=0.9, beta_2=0.999, amsgrad=False)
+        adam = Adam(learning_rate=0.0001, beta_1=0.9, beta_2=0.999, amsgrad=False)
         self.doc_model.compile(metrics=["accuracy"], 
                                 loss="categorical_crossentropy", optimizer=adam)
 
@@ -439,6 +440,8 @@ class RationaleCNN:
             doc.generate_sequences(self.preprocessor)
 
         X_doc = np.array([doc.get_padded_sequences(self.preprocessor, labels_too=False)])
+        sent_preds = self.sentence_prob_model.predict(X_doc)
+        np.save('sent_preds.npy', sent_preds)
         return self.doc_model.predict(X_doc)
 
         # doc pred
@@ -536,10 +539,10 @@ class RationaleCNN:
                                                                                 binary=False,
                                                                                 sentences=train_sentences[i],
                                                                                 n_rows=n_target_rows)
-                   
-                    X_temp.append(X_doc_i_temp)
-                    y_sent_temp.append(y_sent_i_temp)
-                    sentences_temp.append(sampled_sentences)
+                    if X_doc_i_temp is not None:
+                        X_temp.append(X_doc_i_temp)
+                        y_sent_temp.append(y_sent_i_temp)
+                        sentences_temp.append(sampled_sentences)
 
                 X_temp = np.array(X_temp)
                 y_sent_temp = np.array(y_sent_temp)
