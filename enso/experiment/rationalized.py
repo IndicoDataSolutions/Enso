@@ -205,7 +205,7 @@ class BaseRationaleGridSearch(GridSearch):
                 rationales.append([])
         rationale_texts = [rationale["text"] for doc in rationales for rationale in doc]
         docs = np.asarray([self.NLP(str(x), disable=["ner", "tagger", "textcat"]) for x in X])
-        rationale_docs = np.asarray([self.NLP(rationale) for rationale in rationale_texts if len(rationale)])
+        rationale_docs = np.asarray([self.NLP(rationale) if len(rationale) else None for rationale in rationale_texts])
         self._train_rationale_model(docs, rationale_docs, labels=labels)
 
         doc_vects = np.asarray([self._featurize(doc) for doc in docs])
@@ -229,7 +229,7 @@ class DistReweightedGloveClassifierCV(BaseRationaleGridSearch):
         rationale_vecs = [
             doc.vector / np.linalg.norm(doc.vector)
             for doc in rationale_docs
-            if doc.has_vector and np.any(np.nonzero(doc.vector))
+            if doc and doc.has_vector and np.any(np.nonzero(doc.vector))
         ]
         rationale_proto = np.mean(rationale_vecs, axis=0)
         self.normalized_rationale_proto = rationale_proto / np.linalg.norm(rationale_proto)
@@ -258,7 +258,7 @@ class DistReweightedGloveByClassClassifierCV(BaseRationaleGridSearch):
     def _train_rationale_model(self, docs, rationale_docs, labels=None):
         rationale_vecs_by_class = defaultdict(list)
         for doc, label in zip(rationale_docs, labels):
-            if doc.has_vector and np.any(np.nonzero(doc.vector)):
+            if doc and doc.has_vector and np.any(np.nonzero(doc.vector)):
                 rationale_vecs_by_class[label].append(
                     doc.vector / np.linalg.norm(doc.vector)
                 )
