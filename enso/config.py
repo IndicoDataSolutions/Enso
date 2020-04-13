@@ -14,7 +14,7 @@ RESULTS_DIRECTORY = "Results"
 FEATURES_DIRECTORY = "Features"
 
 # Directory for storing experiment results
-EXPERIMENT_NAME = "RationalizedClassify"
+EXPERIMENT_NAME = "Prototype"
 
 # Name of the csv used to store results
 RESULTS_CSV_NAME = "Results.csv"
@@ -59,12 +59,11 @@ DATA = {
     "RationalizedClassify/short_interest_frequency",
     "RationalizedClassify/aviation",
     "RationalizedClassify/movie_reviews",
-    "RationalizedClassify/mining_fixed",  # fixed rationales
+    "RationalizedClassify/mining_rationales",
     "RationalizedClassify/mining_extractions",
     "RationalizedClassify/insurance_rationales",
     # "RationalizedClassify/insurance_extractions",
     # "RationalizedClassify/mining",
-    # "RationalizedClassify/mining_rationales",
 }
 
 # Featurizers to activate
@@ -177,23 +176,23 @@ CORRUPTION_FRAC = 0.4
 indicoio.config.api_key = ""
 
 # If we have no experiment hyperparameters we hope to modify:
-# EXPERIMENT_PARAMS = {}
+EXPERIMENT_PARAMS = {}
 
 # For testing
-EXPERIMENT_PARAMS = {
-    "All": {       
-        "n_epochs": [400, 800],
-        "l2_coef": [0.01, 0.1, 1],
-        "batch_size": [4, 8, 16, 32],
-        "alpha": [0.2, 0.5, 0.8],
-    }, 
-    "Proto": {
-        "n_epochs": [400, 800],
-        "l2_coef": [0.01, 0.1, 1],
-        "batch_size": [4, 8, 16, 32],
-        "alpha": [0.2, 0.5, 0.8],
-    },
-}
+# EXPERIMENT_PARAMS = {
+#     "All": {       
+#         "n_epochs": [400, 800],
+#         "l2_coef": [0.01, 0.1, 1],
+#         "batch_size": [4, 8, 16, 32],
+#         "alpha": [0.2, 0.5, 0.8],
+#     }, 
+#     "Proto": {
+#         "n_epochs": [400, 800],
+#         "l2_coef": [0.01, 0.1, 1],
+#         "batch_size": [4, 8, 16, 32],
+#         "alpha": [0.2, 0.5, 0.8],
+#     },
+# }
 
 # EXPERIMENT_PARAMS = {
 # 'All': {
