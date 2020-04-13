@@ -313,7 +313,6 @@ class DistReweightedGloveByClassClassifierCV(BaseRationaleGridSearch):
                 )
             )
         doc_vect = np.mean(doc_vects, axis=0)
-        print('doc_vect.shape', doc_vect.shape)
 
         return doc_vect / np.linalg.norm(doc_vect)
 
