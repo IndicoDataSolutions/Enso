@@ -9,7 +9,7 @@ from enso.registry import Registry, ModeKeys
 from enso.experiment.grid_search import GridSearch
 from finetune import Classifier, SequenceLabeler
 from sklearn.preprocessing import LabelBinarizer
-from collections import Counter, defaultdict
+from collections import Counter, defaultdict, OrderedDict
 from typing import Any, Tuple
 
 from enso.experiment.tiny_net import RationaleProto, BothProto, BetterLabelBinarizer, RA_CNN_Model
@@ -206,7 +206,7 @@ class BaseRationaleGridSearch(GridSearch):
         rationale_texts = [rationale["text"] for doc in rationales for rationale in doc]
         docs = np.asarray([self.NLP(str(x), disable=["ner", "tagger", "textcat"]) for x in X])
         rationale_docs = np.asarray([self.NLP(rationale) for rationale in rationale_texts if len(rationale)])
-        self._train_rationale_model(docs, rationale_docs)
+        self._train_rationale_model(docs, rationale_docs, labels=labels)
 
         doc_vects = np.asarray([self._featurize(doc) for doc in docs])
         resampled_x, resampled_y = self.resample(doc_vects, labels)
@@ -225,7 +225,7 @@ class DistReweightedGloveClassifierCV(BaseRationaleGridSearch):
     Weights words by cosine similarity to the mean of the rationale vector representations
 
     """
-    def _train_rationale_model(self, docs, rationale_docs):
+    def _train_rationale_model(self, docs, rationale_docs, labels=None):
         rationale_vecs = [
             doc.vector / np.linalg.norm(doc.vector)
             for doc in rationale_docs
@@ -250,11 +250,60 @@ class DistReweightedGloveClassifierCV(BaseRationaleGridSearch):
 
 
 @Registry.register_experiment(ModeKeys.RATIONALIZED, requirements=[("Featurizer", "PlainTextFeaturizer")])
+class DistReweightedGloveByClassClassifierCV(BaseRationaleGridSearch):
+    """
+    Weights words by cosine similarity to the mean of the rationale vector representations per class
+
+    """
+    def _train_rationale_model(self, docs, rationale_docs, labels=None):
+        rationale_vecs_by_class = defaultdict(list)
+        for doc, label in zip(rationale_docs, labels):
+            if doc.has_vector and np.any(np.nonzero(doc.vector)):
+                rationale_vecs_by_class[label].append(
+                    doc.vector / np.linalg.norm(doc.vector)
+                )
+        rationale_proto_by_class = {
+            label: np.mean(rationale_vecs, axis=0)
+            for label, rationale_vecs in rationale_vecs_by_class.items()
+        }
+        self.normalized_rationale_proto_by_class = OrderedDict({
+            label: rationale_proto / np.linalg.norm(rationale_proto)
+            for label, rationale_proto in rationale_proto_by_class.items()
+        })
+
+    def _rationale_weight(self, word, rationale_proto):
+        cosine_sim = np.dot(word.vector / np.linalg.norm(word.vector), rationale_proto)
+        return cosine_sim
+
+    def _featurize(self, doc):
+        """
+        Take the mean representation, reweighted by the representations of
+        each of the rationale prototypes
+
+        """
+        doc_vects = []
+        for rationale_proto in self.normalized_rationale_proto_by_class.values():
+            doc_vects.append(
+                np.mean(
+                    [
+                        token.vector * self._rationale_weight(token, rationale_proto)
+                        for token in doc if self._valid(token)
+                    ],
+                    axis=0
+                )
+            )
+        doc_vect = np.mean(doc_vects, axis=0)
+        print('doc_vect.shape', doc_vect.shape)
+
+        return doc_vect / np.linalg.norm(doc_vect)
+
+
+@Registry.register_experiment(ModeKeys.RATIONALIZED, requirements=[("Featurizer", "PlainTextFeaturizer")])
 class RationaleInformedLRCV(BaseRationaleGridSearch):
     """
     Reweight document vectors by their similarity to a rationale vector, predicted by an LR model
     """
-    def _train_rationale_model(self, docs, rationale_docs):
+    def _train_rationale_model(self, docs, rationale_docs, labels=None):
         rationale_vecs = [
             doc.vector / np.linalg.norm(doc.vector)
             for doc in rationale_docs
