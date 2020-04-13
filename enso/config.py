@@ -138,7 +138,7 @@ TEST_SETUP = {
 }
 
 # Visualizations to display
-VISUALIZATIONS = {"FacetGridBestVisualizer"}
+VISUALIZATIONS = {"FacetGridBestV2Visualizer"}
 
 # kwargs to pass directly into visualizations
 # VISUALIZATION_OPTIONS = {
@@ -159,7 +159,7 @@ VISUALIZATIONS = {"FacetGridBestVisualizer"}
 VISUALIZATION_OPTIONS = {
     "display": True,
     "save": True,
-    "FacetGridBestVisualizer": {
+    "FacetGridBestV2Visualizer": {
         "x_tile": "Metric",
         "y_tile": "Dataset",
         "x_axis": "TrainSize",
