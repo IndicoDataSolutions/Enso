@@ -87,12 +87,12 @@ FEATURIZERS = {
 # Experiments to run
 EXPERIMENTS = {
     # "FinetuneSequenceLabel",
-    "Proto",
+    # "Proto",
     # "IndicoSequenceLabel"
     "LRBaselineNonRationalized",
-    # "DistReweightedGloveClassifierCV",
-    "RationaleInformedLRCV"
-    # 'DistReweightedGloveClassifierCV'
+    "DistReweightedGloveClassifierCV",
+    'DistReweightedGloveByClassClassifierCV'
+    # "RationaleInformedLRCV"
     # "FinetuneSeqBaselineRationalized",
     # "FinetuneClfBaselineNonRationalized",
     #    "LogisticRegressionCV",
