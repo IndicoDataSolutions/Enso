@@ -14,7 +14,7 @@ RESULTS_DIRECTORY = "Results"
 FEATURES_DIRECTORY = "Features"
 
 # Directory for storing experiment results
-EXPERIMENT_NAME = "Prototype"
+EXPERIMENT_NAME = "RationalizedClassify"
 
 # Name of the csv used to store results
 RESULTS_CSV_NAME = "Results.csv"
@@ -50,20 +50,21 @@ DATA = {
     # 'SequenceLabeling/brown_verbs',
     # 'SequenceLabeling/brown_pronouns',
     # 'SequenceLabeling/brown_adverbs',
-    # 'RationalizedClassify/short_bank_qualified',
-    # 'RationalizedClassify/bank_qualified',
-    # 'RationalizedClassify/evidence_inference',
-    # 'RationalizedClassify/federal_tax',
-    # # "RationalizedClassify/short_federal_tax",
-    # 'RationalizedClassify/interest_frequency',
-    # # "RationalizedClassify/short_interest_frequency",
-    # "RationalizedClassify/aviation",
-    # "RationalizedClassify/movie_reviews",
-    # "RationalizedClassify/mining",
-    "RationalizedClassify/mining_rationales",
+    'RationalizedClassify/short_bank_qualified',
+    'RationalizedClassify/bank_qualified',
+    'RationalizedClassify/evidence_inference',
+    'RationalizedClassify/federal_tax',
+    "RationalizedClassify/short_federal_tax",
+    'RationalizedClassify/interest_frequency',
+    "RationalizedClassify/short_interest_frequency",
+    "RationalizedClassify/aviation",
+    "RationalizedClassify/movie_reviews",
+    "RationalizedClassify/mining_fixed",  # fixed rationales
     "RationalizedClassify/mining_extractions",
     "RationalizedClassify/insurance_rationales",
-    "RationalizedClassify/insurance_extractions",
+    # "RationalizedClassify/insurance_extractions",
+    # "RationalizedClassify/mining",
+    # "RationalizedClassify/mining_rationales",
 }
 
 # Featurizers to activate
@@ -127,7 +128,7 @@ TEST_SETUP = {
 }
 
 # Visualizations to display
-VISUALIZATIONS = {"FacetGridBestVisualizer"}
+VISUALIZATIONS = {"FacetGridVisualizer"}
 
 # kwargs to pass directly into visualizations
 # VISUALIZATION_OPTIONS = {
@@ -148,7 +149,7 @@ VISUALIZATIONS = {"FacetGridBestVisualizer"}
 VISUALIZATION_OPTIONS = {
     "display": True,
     "save": True,
-    "FacetGridBestVisualizer": {
+    "FacetGridVisualizer": {
         "x_tile": "Metric",
         "y_tile": "Dataset",
         "x_axis": "TrainSize",
