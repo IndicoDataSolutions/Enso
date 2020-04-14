@@ -14,7 +14,7 @@ RESULTS_DIRECTORY = "Results"
 FEATURES_DIRECTORY = "Features"
 
 # Directory for storing experiment results
-EXPERIMENT_NAME = "Prototype"
+EXPERIMENT_NAME = "GloveReweight"
 
 # Name of the csv used to store results
 RESULTS_CSV_NAME = "Results.csv"
@@ -50,20 +50,27 @@ DATA = {
     # 'SequenceLabeling/brown_verbs',
     # 'SequenceLabeling/brown_pronouns',
     # 'SequenceLabeling/brown_adverbs',
-    'RationalizedClassify/short_bank_qualified',
-    'RationalizedClassify/bank_qualified',
-    'RationalizedClassify/evidence_inference',
-    'RationalizedClassify/federal_tax',
-    "RationalizedClassify/short_federal_tax",
-    'RationalizedClassify/interest_frequency',
-    "RationalizedClassify/short_interest_frequency",
-    "RationalizedClassify/aviation",
-    "RationalizedClassify/movie_reviews",
-    "RationalizedClassify/mining_rationales",
-    "RationalizedClassify/mining_extractions",
-    "RationalizedClassify/insurance_rationales",
+    # 'RationalizedClassify/short_bank_qualified',
+    # 'RationalizedClassify/bank_qualified',
+    # 'RationalizedClassify/evidence_inference',
+    # 'RationalizedClassify/federal_tax',
+    # "RationalizedClassify/short_federal_tax",
+    # 'RationalizedClassify/interest_frequency',
+    # "RationalizedClassify/short_interest_frequency",
+    # "RationalizedClassify/aviation",
+    # "RationalizedClassify/movie_reviews",
+    # "RationalizedClassify/mining_rationales",
+    # "RationalizedClassify/mining_extractions",
+    # "RationalizedClassify/insurance_rationales",
     # "RationalizedClassify/insurance_extractions",
     # "RationalizedClassify/mining",
+    "RationalizedClassify/insurance_rationales_precise",
+    'RationalizedClassify/short_bank_qualified',
+    'RationalizedClassify/bank_qualified',
+    'RationalizedClassify/short_bank_qualified_fixed',
+    'RationalizedClassify/bank_qualified_fixed',
+    'RationalizedClassify/short_bank_qualified_precise',
+    'RationalizedClassify/bank_qualified_precise',
 }
 
 # Featurizers to activate
