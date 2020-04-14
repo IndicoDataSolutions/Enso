@@ -64,13 +64,15 @@ DATA = {
     # "RationalizedClassify/insurance_rationales",
     # "RationalizedClassify/insurance_extractions",
     # "RationalizedClassify/mining",
-    "RationalizedClassify/insurance_rationales_precise",
-    'RationalizedClassify/short_bank_qualified',
-    'RationalizedClassify/bank_qualified',
-    'RationalizedClassify/short_bank_qualified_fixed',
-    'RationalizedClassify/bank_qualified_fixed',
-    'RationalizedClassify/short_bank_qualified_precise',
-    'RationalizedClassify/bank_qualified_precise',
+    # "RationalizedClassify/insurance_rationales_precise",
+    # 'RationalizedClassify/short_bank_qualified',
+    # 'RationalizedClassify/bank_qualified',
+    # 'RationalizedClassify/short_bank_qualified_fixed',
+    # 'RationalizedClassify/bank_qualified_fixed',
+    # 'RationalizedClassify/short_bank_qualified_precise',
+    # 'RationalizedClassify/bank_qualified_precise',
+    'RationalizedClassify/mining_rationales_holdout',
+    'RationalizedClassify/mining_extractions_holdout',
 }
 
 # Featurizers to activate

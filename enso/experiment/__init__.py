@@ -20,7 +20,7 @@ from sklearn.externals import joblib
 from sklearn.model_selection import ParameterGrid
 
 from enso.sample import sample
-from enso.utils import feature_set_location, BaseObject, SafeStratifiedShuffleSplit, RationalizedStratifiedShuffleSplit
+from enso.utils import feature_set_location, BaseObject, SafeStratifiedShuffleSplit, RationalizedStratifiedShuffleSplit, HackSplit
 from enso.mode import ModeKeys
 from enso.config import (
     FEATURIZERS,
@@ -325,7 +325,8 @@ class Experimentation(object):
         if MODE in [ModeKeys.CLASSIFY]:
             splitter = SafeStratifiedShuffleSplit(TEST_SETUP["n_splits"], test_size=test_size)
         elif MODE in [ModeKeys.RATIONALIZED]:
-            splitter = RationalizedStratifiedShuffleSplit(TEST_SETUP["n_splits"], test_size=test_size)
+            # splitter = RationalizedStratifiedShuffleSplit(TEST_SETUP["n_splits"], test_size=test_size)
+            splitter = HackSplit(TEST_SETUP['n_splits'], test_size=100)
         elif MODE in [ModeKeys.SEQUENCE]:
             splitter = ShuffleSplit(TEST_SETUP["n_splits"], test_size=test_size)
         else:

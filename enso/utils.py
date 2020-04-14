@@ -54,6 +54,18 @@ class RationalizedStratifiedShuffleSplit(SafeStratifiedShuffleSplit):
     def split(self, X, Y):
         yield from super().split(X, [y[1] for y in Y])
 
+class HackSplit(object):
+    def __init__(self, n_splits, test_size):
+        self.n_splits = n_splits
+        self.test_size = test_size
+
+    def split(self, X, Y):
+        Y = np.asarray(Y)
+        idxs = np.arange(len(Y))
+        test_idxs = idxs[-test_size:]
+        train_idxs = idxs[:-test_size]
+        for _ in range(self.n_splits):
+            yield train_idxs, test_idxs
 
 def feature_set_location(dataset_name, featurizer_name):
     """Responsible for generating filenames for generated feature sets."""
