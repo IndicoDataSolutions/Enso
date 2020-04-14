@@ -213,11 +213,19 @@ class BaseRationaleGridSearch(GridSearch):
         super().fit(resampled_x, resampled_y)
 
     def predict(self, X, **kwargs):
+        import uuid
+        uid = uuid.uuid4().hex
+        import cProfile
+        profile = cProfile.Profile()
+        profile.enable()
         docs = np.asarray([self.NLP(str(x), disable=["ner", "tagger", "textcat"]) for x in X])
         doc_vects = np.asarray([self._featurize(doc) for doc in docs])
         probas = self.best_model.predict_proba(doc_vects)
         labels = self.best_model.classes_
-        return pd.DataFrame({label: probas[:, i] for i, label in enumerate(labels)})
+        result = pd.DataFrame({label: probas[:, i] for i, label in enumerate(labels)})
+        profile.disable()
+        profile.dump_stats(f"stats-{uid}.profile")
+        return result
 
 @Registry.register_experiment(ModeKeys.RATIONALIZED, requirements=[("Featurizer", "PlainTextFeaturizer")])
 class DistReweightedGloveClassifierCV(BaseRationaleGridSearch):
@@ -234,19 +242,16 @@ class DistReweightedGloveClassifierCV(BaseRationaleGridSearch):
         rationale_proto = np.mean(rationale_vecs, axis=0)
         self.normalized_rationale_proto = rationale_proto / np.linalg.norm(rationale_proto)
 
-    def _rationale_weight(self, word):
-        cosine_sim = np.dot(word.vector / np.linalg.norm(word.vector), self.normalized_rationale_proto)
-        return (1 + cosine_sim) / 2.0
-
     def _featurize(self, doc):
-        doc_vect = np.mean(
-            [token.vector * self._rationale_weight(token) for token in doc if self._valid(token)], axis=0
-        )
-
-        if not np.any(np.nonzero(doc_vect)):
-            return np.zeros_like(doc.vector)
-        else:
-            return doc_vect / np.linalg.norm(doc_vect)
+        vects = [token.vector for token in doc if self._valid(token)]
+        if not vects:
+            return np.zeros(300,)
+        vects = np.asarray(vects)
+        cosine_sims = np.dot(vects, self.normalized_rationale_proto) / np.linalg.norm(vects, axis=-1)
+        weights = (1 + cosine_sims) / 2.
+        doc_vect = np.mean(vects * np.expand_dims(weights, axis=1), axis=0)
+        # I wonder if this final normalization is necessary
+        return doc_vect / np.linalg.norm(doc_vect)
 
 
 @Registry.register_experiment(ModeKeys.RATIONALIZED, requirements=[("Featurizer", "PlainTextFeaturizer")])
