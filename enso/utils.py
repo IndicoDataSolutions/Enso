@@ -62,8 +62,8 @@ class HackSplit(object):
     def split(self, X, Y):
         Y = np.asarray(Y)
         idxs = np.arange(len(Y))
-        test_idxs = idxs[-test_size:]
-        train_idxs = idxs[:-test_size]
+        test_idxs = idxs[-self.test_size:]
+        train_idxs = idxs[:-self.test_size]
         for _ in range(self.n_splits):
             yield train_idxs, test_idxs
 
