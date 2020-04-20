@@ -9,7 +9,7 @@ from enso.registry import Registry, ModeKeys
 from enso.experiment.grid_search import GridSearch
 from finetune import Classifier, SequenceLabeler
 from sklearn.preprocessing import LabelBinarizer
-from collections import Counter, defaultdict
+from collections import Counter, defaultdict, OrderedDict
 
 class RationalizedGridSearch(GridSearch):
     def fit(self, X, y):
