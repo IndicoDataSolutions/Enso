@@ -14,7 +14,7 @@ RESULTS_DIRECTORY = "Results"
 FEATURES_DIRECTORY = "Features"
 
 # Directory for storing experiment results
-EXPERIMENT_NAME = "DocRep"
+EXPERIMENT_NAME = "Exp"
 
 # Name of the csv used to store results
 RESULTS_CSV_NAME = "Results.csv"
@@ -22,7 +22,7 @@ RESULTS_CSV_NAME = "Results.csv"
 # Datasets to featurize or run experiments on
 DATA = {
 #    "Classify/AirlineComplaints",
-    # "Classify/AirlineNegativity",
+    "Classify/AirlineNegativity",
     # "Classify/AirlineSentiment",
     # "Classify/BrandEmotion",
     # "Classify/BrandEmotionCause",
@@ -57,7 +57,7 @@ DATA = {
     # Seqence
     # 'SequenceLabeling/Reuters-128',
     # 'SequenceLabeling/bonds',
-    'SequenceLabeling/table_synth',
+    # 'SequenceLabeling/table_synth',
     # 'SequenceLabeling/bonds_new',
     # 'SequenceLabeling/tables',
     # 'SequenceLabeling/typed_cols',
@@ -81,9 +81,9 @@ DATA = {
 # Featurizers to activate
 FEATURIZERS = {
     # "PlainTextFeaturizer",
-    "TextContextFeaturizer",
+    # "TextContextFeaturizer",
     # "IndicoStandard",
-    # "SpacyGloveFeaturizer",
+    "SpacyGloveFeaturizer",
     # "IndicoFastText",
     # "IndicoSentiment",
     # "IndicoElmo",
@@ -98,9 +98,9 @@ FEATURIZERS = {
 # Experiments to run
 EXPERIMENTS = {
     # "FinetuneSequenceLabel",
-    "RoBERTaSeqLab",
-    "SidekickSeqLab",
-    "LambertSeqLab",
+    # "RoBERTaSeqLab",
+    # "SidekickSeqLab",
+    # "LambertSeqLab",
     # "IndicoSequenceLabel"
     # "LRBaselineNonRationalized",
     # "DistReweightedGloveClassifierCV",
@@ -109,7 +109,7 @@ EXPERIMENTS = {
     # "FinetuneSeqBaselineRationalized",
     # "FinetuneClfBaselineNonRationalized",
 #    "LogisticRegressionCV",
-#    "KNNCV",
+   "KNNCV",
 #    "TfidfKNN",
 #    "TfidfLogisticRegression",
 #    "KCenters",
@@ -119,13 +119,13 @@ EXPERIMENTS = {
 
 # Metrics to compute
 METRICS = {
-#    "Accuracy",
+   "Accuracy",
+   "MacroRocAuc",
     # "AccuracyRationalized",
     # "MacroRocAucRationalized",
-#    "MacroRocAuc",
-    "MacroCharF1",
-    "MacroCharRecall",
-    "MacroCharPrecision"
+    # "MacroCharF1",
+    # "MacroCharRecall",
+    # "MacroCharPrecision"
 }
 
 # Test setup metadata
@@ -134,34 +134,32 @@ TEST_SETUP = {
     "n_splits": 5,
     # "samplers": ['RandomRationalized'],
     # "samplers": ["ImbalanceSampler"],
-    "samplers": ["RandomSequence"],
+    "samplers": ["Random"],
     "sampling_size": 0.2,
     "resamplers": ['NoResampler']
     # "resamplers": ["RandomOverSampler"],
 }
 
 # Visualizations to display
-VISUALIZATIONS = {"FacetGridBestV2Visualizer"}
+VISUALIZATIONS = {"FacetGridVisualizer"}
 
+# kwargs to pass directly into visualizations
 VISUALIZATION_OPTIONS = {
     "display": True,
     "save": True,
-    "FacetGridBestV2Visualizer": {
+    "FacetGridVisualizer": {
         "x_tile": "Metric",
         "y_tile": "Dataset",
         "x_axis": "TrainSize",
         "y_axis": "Result",
-        "lines": ["Experiment", "Featurizer", "Sampler", "Resampler", "base_model_path"],
-        "pick_best": ["lr", "lr_warmup", "batch_size", "n_epochs"],
-        "metric": "MacroCharF1",
+        "lines": ["Experiment", "Featurizer", "Sampler", "Resampler"],
         "category": "merge",
         "cv": "mean",
         "filename": "TestResult",
     },
 }
 
-
-MODE = ModeKeys.SEQUENCE
+MODE = ModeKeys.CLASSIFY
 
 N_GPUS = 1
 N_CORES = 1  # multiprocessing.cpu_count()
@@ -174,42 +172,4 @@ CORRUPTION_FRAC = 0.4
 indicoio.config.api_key = ""
 
 # If we have no experiment hyperparameters we hope to modify:
-# EXPERIMENT_PARAMS = {}
-
-# For testing
-# EXPERIMENT_PARAMS = {
-#     'All': {"lr_warmup": [0.1, 0.2]}
-# }
-
-EXPERIMENT_PARAMS = {
-    'All': {
-        "lr_warmup": [0.1, 0.2],
-        "lr": [1e-5, 1e-4],
-        "batch_size": [8, 16],
-        "n_epochs": [16, 32],
-    },
-    'RoBERTaSeqLab': {
-        'base_model_path': [
-            "roberta-model-sm-v2.jl",
-            # "filtered_mlm_baseline.jl",
-            # "filtered_mlm_baseline_2nd_5.jl",
-            "filtered_mlm_baseline_3rd_5.jl"
-        ]
-    },
-    'LambertSeqLab': {
-        'base_model_path': [
-            # "filtered_lambert_mlm.jl",
-            # "filtered_lambert_mlm_2nd_5.jl",
-            "filtered_lambert_mlm_3rd_5.jl",
-            # "filtered_lambert_mlm_pos_removal.jl"
-        ]
-    },
-    'SidekickSeqLab': {
-        'base_model_path': [
-            # "filtered_sidekick_mlm.jl",
-            # "filtered_sidekick_mlm_2nd_5.jl",
-            "filtered_sidekick_mlm_3rd_5.jl",
-            # "sidekick_mlm_pos_removal.jl"
-        ]
-    }
-}
+EXPERIMENT_PARAMS = {}
