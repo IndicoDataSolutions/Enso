@@ -174,12 +174,8 @@ VISUALIZATION_OPTIONS = {
     },
 }
 
-<<<<<<< HEAD
-MODE = ModeKeys.RATIONALIZED
-=======
 
 MODE = ModeKeys.SEQUENCE
->>>>>>> 8f8b361... ADD: FacetGridBestVisualizer
 
 N_GPUS = 1
 N_CORES = 1  # multiprocessing.cpu_count()
