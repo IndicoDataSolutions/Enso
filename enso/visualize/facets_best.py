@@ -15,6 +15,9 @@ from enso.registry import Registry
 
 @Registry.register_visualizer()
 class FacetGridBestVisualizer(FacetGridVisualizer):
+    """
+    Uses the configuration of `pick_best` that gives the maximum single score for a metric
+    """
     def visualize(
             self,
             results,
@@ -72,7 +75,7 @@ from enso.registry import Registry
 @Registry.register_visualizer()
 class FacetGridBestV2Visualizer(FacetGridVisualizer):
     """
-    Takes the hparams whose mean is the highest, per training size
+    Uses the configuration of `pick_best` that gives the maximum average score for a metric
     """
     def visualize(
             self,
