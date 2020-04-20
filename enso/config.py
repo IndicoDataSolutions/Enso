@@ -56,10 +56,11 @@ DATA = {
     # "Classify/SST-binary"
     # Seqence
     # 'SequenceLabeling/Reuters-128',
-    'SequenceLabeling/table_synth',
-    # 'SequenceLabeling/bonds_new',
-    # 'SequenceLabeling/tables',
-    # 'SequenceLabeling/typed_cols',
+#    'SequenceLabeling/table_synth',
+     'SequenceLabeling/bonds',
+    'SequenceLabeling/invoices',
+#     'SequenceLabeling/tables',
+#     'SequenceLabeling/typed_cols',
     # 'SequenceLabeling/brown_all',
     # 'SequenceLabeling/brown_nouns',
     # 'SequenceLabeling/brown_verbs',
@@ -234,17 +235,20 @@ EXPERIMENT_PARAMS = {
     },
     'LambertNoPosSeqLab' : {
         'base_model_path': [
-            "base_models/lambert_no_pos.jl"
+#            "base_models/lambert_no_pos.jl",
+            "base_models/even_longer_no_pos.jl"
         ]
     },
     'LambertNoPosSeqLab1024' : {
         'base_model_path': [
-            "base_models/lambert_no_pos.jl"
+#            "base_models/lambert_no_pos.jl",
+            "base_models/even_longer_no_pos.jl"
         ]
     },
     'LambertHybridNoPosSeqLab' : {
         'base_model_path': [
-            "base_models/lambert_no_pos.jl"
+#            "base_models/lambert_no_pos.jl",
+            "base_models/even_longer_no_pos.jl"
         ]
     },
 

@@ -103,7 +103,7 @@ class LambertNoPosSeqLab1024(SidekickSeqLab):
             sidekick=False,
             pos_removal_mode="zero_out",
             pos_decay_mode="fixed",
-            interpolate_pos_embeds=True, # these are zeroed out so doesn't make a difference but stops finetune from crying.
+            interpolate_pos_embed=True, # these are zeroed out so doesn't make a difference but stops finetune from crying.
             max_length=1024,
         ))
         self.model_config.update(kwargs)
