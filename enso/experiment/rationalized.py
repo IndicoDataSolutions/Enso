@@ -215,7 +215,7 @@ class BaseRationaleGridSearch(GridSearch):
             else:
                 rationales.append([])
         rationale_texts = [rationale["text"] for doc in rationales for rationale in doc]
-        docs = np.asarray([self.NLP(str(x), disable=["ner", "tagger", "textcat"]) for x in X])
+        docs = self.NLP.pipe(X, disable=["ner", "tagger", "textcat"])
         rationale_docs = np.asarray([self.NLP(rationale) if len(rationale) else None for rationale in rationale_texts])
         self._train_rationale_model(docs, rationale_docs, labels=labels)
 
