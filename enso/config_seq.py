@@ -22,7 +22,7 @@ RESULTS_CSV_NAME = "Results.csv"
 # Datasets to featurize or run experiments on
 DATA = {
 #    "Classify/AirlineComplaints",
-    "Classify/AirlineNegativity",
+    # "Classify/AirlineNegativity",
     # "Classify/AirlineSentiment",
     # "Classify/BrandEmotion",
     # "Classify/BrandEmotionCause",
@@ -55,7 +55,7 @@ DATA = {
     # "Classify/TextSpam",
     # "Classify/SST-binary"
     # Seqence
-    # 'SequenceLabeling/Reuters-128',
+    'SequenceLabeling/Reuters-128',
     # 'SequenceLabeling/bonds',
     # 'SequenceLabeling/table_synth',
     # 'SequenceLabeling/bonds_new',
@@ -80,10 +80,10 @@ DATA = {
 
 # Featurizers to activate
 FEATURIZERS = {
-    # "PlainTextFeaturizer",
+    "PlainTextFeaturizer",
     # "TextContextFeaturizer",
     # "IndicoStandard",
-    "SpacyGloveFeaturizer",
+    # "SpacyGloveFeaturizer",
     # "IndicoFastText",
     # "IndicoSentiment",
     # "IndicoElmo",
@@ -97,10 +97,9 @@ FEATURIZERS = {
 
 # Experiments to run
 EXPERIMENTS = {
-    # "FinetuneSequenceLabel",
+    "FinetuneSequenceLabel",
     # "RoBERTaSeqLab",
     # "SidekickSeqLab",
-    # "LambertSeqLab",
     # "IndicoSequenceLabel"
     # "LRBaselineNonRationalized",
     # "DistReweightedGloveClassifierCV",
@@ -108,24 +107,24 @@ EXPERIMENTS = {
     # 'DistReweightedGloveClassifierCV'
     # "FinetuneSeqBaselineRationalized",
     # "FinetuneClfBaselineNonRationalized",
-#    "LogisticRegressionCV",
-   "KNNCV",
-#    "TfidfKNN",
-#    "TfidfLogisticRegression",
-#    "KCenters",
-#    "TfidfKCenters"
+    # "LogisticRegressionCV",
+    # "KNNCV",
+    # "TfidfKNN",
+    # "TfidfLogisticRegression",
+    # "KCenters",
+    # "TfidfKCenters"
     # "SupportVectorMachineCV",
 }
 
 # Metrics to compute
 METRICS = {
-   "Accuracy",
-   "MacroRocAuc",
+    # "Accuracy",
     # "AccuracyRationalized",
     # "MacroRocAucRationalized",
-    # "MacroCharF1",
-    # "MacroCharRecall",
-    # "MacroCharPrecision"
+    # "MacroRocAuc",
+    "MacroCharF1",
+    "MacroCharRecall",
+    "MacroCharPrecision"
 }
 
 # Test setup metadata
@@ -134,10 +133,10 @@ TEST_SETUP = {
     "n_splits": 5,
     # "samplers": ['RandomRationalized'],
     # "samplers": ["ImbalanceSampler"],
-    "samplers": ["Random"],
+    "samplers": ['RandomSequence'],
     "sampling_size": 0.2,
     "resamplers": ['NoResampler']
-    # "resamplers": ["RandomOverSampler"],
+#    "resamplers": ["RandomOverSampler"],
 }
 
 # Visualizations to display
@@ -152,14 +151,15 @@ VISUALIZATION_OPTIONS = {
         "y_tile": "Dataset",
         "x_axis": "TrainSize",
         "y_axis": "Result",
-        "lines": ["Experiment", "Featurizer", "Sampler", "Resampler"],
+        "lines": ["Experiment", "Featurizer", "Sampler", "Resampler",
+                  "lr", "lr_warmup", "batch_size", "n_epochs", "base_model_path"],
         "category": "merge",
         "cv": "mean",
         "filename": "TestResult",
     },
 }
 
-MODE = ModeKeys.CLASSIFY
+MODE = ModeKeys.SEQUENCE
 
 N_GPUS = 1
 N_CORES = 1  # multiprocessing.cpu_count()

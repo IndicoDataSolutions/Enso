@@ -14,30 +14,15 @@ RESULTS_DIRECTORY = "Results"
 FEATURES_DIRECTORY = "Features"
 
 # Directory for storing experiment results
-EXPERIMENT_NAME = "Exp"
+EXPERIMENT_NAME = "Rationales"
 
 # Name of the csv used to store results
 RESULTS_CSV_NAME = "Results.csv"
 
 # Datasets to featurize or run experiments on
 DATA = {
-#    "Classify/AirlineComplaints",
-    "Classify/AirlineNegativity",
-    # "Classify/AirlineSentiment",
-    # "Classify/BrandEmotion",
-    # "Classify/BrandEmotionCause",
-    # "Classify/ChemicalDiseaseCauses",
-    # "Classify/CorporateMessaging",
-    # "Classify/CustomerReviews",
-    # "Classify/DetailedEmotion",
-    # "Classify/Disaster",
-    # "Classify/DrugReviewIntent",
-    # "Classify/DrugReviewType",
-    # "Classify/Economy",
-    # "Classify/Emotion",
-    # "Classify/GlobalWarming",
-    # "Classify/Horror",
-    # "Classify/HotelReviews",
+    #    "Classify/AirlineComplaints",
+    # "Classify/AirlineNegativity",cRep
     # "Classify/IMDB",
     # "Classify/Irony",
     # "Classify/MPQA",
@@ -56,8 +41,7 @@ DATA = {
     # "Classify/SST-binary"
     # Seqence
     # 'SequenceLabeling/Reuters-128',
-    # 'SequenceLabeling/bonds',
-    # 'SequenceLabeling/table_synth',
+    # "SequenceLabeling/table_synth",
     # 'SequenceLabeling/bonds_new',
     # 'SequenceLabeling/tables',
     # 'SequenceLabeling/typed_cols',
@@ -70,17 +54,28 @@ DATA = {
     # 'RationalizedClassify/bank_qualified',
     # 'RationalizedClassify/evidence_inference',
     # 'RationalizedClassify/federal_tax',
-    # 'RationalizedClassify/short_federal_tax',
+    # "RationalizedClassify/short_federal_tax",
     # 'RationalizedClassify/interest_frequency',
-    # 'RationalizedClassify/short_interest_frequency',
-    # 'RationalizedClassify/aviation',
-    # 'RationalizedClassify/movie_reviews',
-    # 'RationalizedClassify/mining'
+    # "RationalizedClassify/short_interest_frequency",
+    "RationalizedClassify/aviation",
+    # "RationalizedClassify/movie_reviews",
+    # "RationalizedClassify/mining_rationales",
+    # "RationalizedClassify/mining_extractions",
+    # "RationalizedClassify/insurance_rationales",
+    # "RationalizedClassify/insurance_extractions",
+    # "RationalizedClassify/mining",
+    # "RationalizedClassify/insurance_rationales_precise",
+    # 'RationalizedClassify/short_bank_qualified',
+    # 'RationalizedClassify/bank_qualified',
+    # 'RationalizedClassify/short_bank_qualified_fixed',
+    # 'RationalizedClassify/bank_qualified_fixed',
+    # 'RationalizedClassify/short_bank_qualified_precise',
+    # 'RationalizedClassify/bank_qualified_precise',
 }
 
 # Featurizers to activate
 FEATURIZERS = {
-    # "PlainTextFeaturizer",
+    "PlainTextFeaturizer",
     # "TextContextFeaturizer",
     # "IndicoStandard",
     "SpacyGloveFeaturizer",
@@ -98,34 +93,32 @@ FEATURIZERS = {
 # Experiments to run
 EXPERIMENTS = {
     # "FinetuneSequenceLabel",
-    # "RoBERTaSeqLab",
-    # "SidekickSeqLab",
-    # "LambertSeqLab",
+    # "Proto",
     # "IndicoSequenceLabel"
-    # "LRBaselineNonRationalized",
-    # "DistReweightedGloveClassifierCV",
+    "LRBaselineNonRationalized",
+    "DistReweightedGloveClassifierCV",
+    'DistReweightedGloveByClassClassifierCV'
     # "RationaleInformedLRCV"
-    # 'DistReweightedGloveClassifierCV'
     # "FinetuneSeqBaselineRationalized",
     # "FinetuneClfBaselineNonRationalized",
-#    "LogisticRegressionCV",
-   "KNNCV",
-#    "TfidfKNN",
-#    "TfidfLogisticRegression",
-#    "KCenters",
-#    "TfidfKCenters"
+    #    "LogisticRegressionCV",
+    #    "KNNCV",
+    #    "TfidfKNN",
+    #    "TfidfLogisticRegression",
+    #    "KCenters",
+    #    "TfidfKCenters"
     # "SupportVectorMachineCV",
 }
 
 # Metrics to compute
 METRICS = {
-   "Accuracy",
-   "MacroRocAuc",
-    # "AccuracyRationalized",
-    # "MacroRocAucRationalized",
+    #    "Accuracy",
+    "AccuracyRationalized",
+    "MacroRocAucRationalized",
+    #    "MacroRocAuc",
     # "MacroCharF1",
     # "MacroCharRecall",
-    # "MacroCharPrecision"
+    # "MacroCharPrecision",
 }
 
 # Test setup metadata
@@ -133,11 +126,11 @@ TEST_SETUP = {
     "train_sizes": [20, 40, 60, 80, 100, 150, 200, 300, 400, 500],
     "n_splits": 5,
     # "samplers": ['RandomRationalized'],
-    # "samplers": ["ImbalanceSampler"],
-    "samplers": ["Random"],
+    #    "samplers": ["ImbalanceSampler"],
+    "samplers": ["RandomRationalized"],
     "sampling_size": 0.2,
-    "resamplers": ['NoResampler']
-    # "resamplers": ["RandomOverSampler"],
+    "resamplers": ["NoResampler"]
+    #    "resamplers": ["RandomOverSampler"],
 }
 
 # Visualizations to display
@@ -159,9 +152,9 @@ VISUALIZATION_OPTIONS = {
     },
 }
 
-MODE = ModeKeys.CLASSIFY
+MODE = ModeKeys.RATIONALIZED
 
-N_GPUS = 1
+N_GPUS = 0
 N_CORES = 1  # multiprocessing.cpu_count()
 
 FIX_REQUIREMENTS = True

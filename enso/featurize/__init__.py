@@ -79,6 +79,8 @@ class Featurization(object):
             if 'Target' not in df:
                 raise ValueError("File %s has no column 'Target'" % dataset_name)
             return df
+        elif "DocRep" in dataset:
+            return pd.read_csv("{}.csv".format(dataset))
         else:
             raise FileNotFoundError("Dataset type : %s not understood" % dataset_name)
 
@@ -185,6 +187,7 @@ class Featurizer(BaseObject):
 from enso.featurize import indico_features
 from enso.featurize import plain_text
 from enso.featurize import spacy_features
+from enso.featurize import text_context
 
 try:
     # These require tensorflow which is not strictly a requirement of enso.
