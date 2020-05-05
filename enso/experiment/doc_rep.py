@@ -1,5 +1,5 @@
 from finetune import SequenceLabeler
-from finetune.base_models import RoBERTa
+from finetune.base_models import RoBERTa#, DocRep
 
 from enso.registry import Registry, ModeKeys
 from enso.experiment.finetuning import FinetuneSequenceLabel
@@ -63,7 +63,11 @@ class RoBERTaSeqLab(SidekickSeqLab):
     def predict(self, X, **kwargs):
         text, context = zip(*X)
         return self.model.predict(text)
-
+    
+@Registry.register_experiment(ModeKeys.SEQUENCE, requirements=[("Featurizer", "TextContextFeaturizer")])
+class RoBERTaSeqLabDefault(RoBERTaSeqLab):
+    pass
+    
 @Registry.register_experiment(ModeKeys.SEQUENCE, requirements=[("Featurizer", "TextContextFeaturizer")])
 class LambertSeqLab(SidekickSeqLab):
     def __init__(self, *args, **kwargs):
@@ -137,6 +141,21 @@ class SidekickPlaceholderNoPos(SidekickSeqLab):
 	))
         self.model_config.update(kwargs)
         self.model = SequenceLabeler(**self.model_config)
+
+@Registry.register_experiment(ModeKeys.SEQUENCE, requirements=[("Featurizer", "TextContextFeaturizer")])
+class DocRepFinetune(FinetuneSequenceLabel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model_config.update(kwargs)
+        self.model = SequenceLabeler(**self.model_config, base_model=DocRep, low_memory_mode=True)
+        
+    def fit(self, X, y):
+        text, context = zip(*X)
+        self.model.fit(text, y, context=context)
+
+    def predict(self, X, **kwargs):
+        text, context = zip(*X)
+        return self.model.predict(text, context=context)
 
         
         

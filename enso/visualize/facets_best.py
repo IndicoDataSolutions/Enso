@@ -30,11 +30,20 @@ class FacetGridBestVisualizer(FacetGridVisualizer):
             **kwargs
     ):
         if pick_best:
+            non_timed_results = results[~results.Metric.isin(['train_time', 'pred_time'])]
             cols = lines + [x_tile] + [y_tile]
-            grouped_results = results.groupby(cols).Result.max()
+            grouped_results = non_timed_results.groupby(cols).Result.max()
             subsetted_results = []
-            for setting in grouped_results.index.to_list():
-                subsetted_results.append(results[(results[cols] == setting).all(1)])
+            for setting, value in zip(grouped_results.index.to_list(), grouped_results.values):
+                best_hparams = results[(results.Result == value) &
+                                       (results[cols] == setting).all(1)][pick_best].values[0]
+                if "LambertNoPosSeqLab" == setting[0]:
+                    print(best_hparams)
+                full_setting = list(setting) + list(best_hparams)
+                full_cols = cols + pick_best
+                subsetted_results.append(results[(results[full_cols] == full_setting).all(1)])
+        # append time results back in
+        subsetted_results.append(results[results.Metric.isin(['train_time', 'pred_time'])])
         new_results = pd.concat(subsetted_results, axis=0)
         super().visualize(
                 new_results,

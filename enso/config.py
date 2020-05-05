@@ -57,8 +57,9 @@ DATA = {
     # Seqence
     # 'SequenceLabeling/Reuters-128',
 #    'SequenceLabeling/table_synth',
-     'SequenceLabeling/bonds',
-    'SequenceLabeling/invoices',
+#     'SequenceLabeling/bonds_new',
+#    'SequenceLabeling/invoices',
+    'SequenceLabeling/correspondence',
 #     'SequenceLabeling/tables',
 #     'SequenceLabeling/typed_cols',
     # 'SequenceLabeling/brown_all',
@@ -100,10 +101,13 @@ EXPERIMENTS = {
     # "FinetuneSequenceLabel",
 #    "RoBERTaSeqLab",
 #    "SidekickSeqLab",
-    "LambertNoPosSeqLab",
-    "SidekickPlaceholderNoPos",
-    "LambertHybridNoPosSeqLab",
+#    "LambertNoPosSeqLab",
     "LambertNoPosSeqLab1024",
+#    "SidekickPlaceholderNoPos",
+#    "LambertHybridNoPosSeqLab",
+#    "RoBERTaSeqLabDefault",
+#    "LambertNoPosSeqLab1024",
+#    "DocRepFinetune",
     # "IndicoSequenceLabel"
     # "LRBaselineNonRationalized",
     # "DistReweightedGloveClassifierCV",
@@ -203,6 +207,16 @@ EXPERIMENT_PARAMS = {
         "batch_size": [8, 16],
         "n_epochs": [16, 32],
     },
+    'RoBERTaSeqLabDefault': {
+        'base_model_path': [
+            "base_models/roberta-model-sm-v2.jl",
+        ],
+        "lr_warmup": [0.1],
+        "lr": [1e-5],
+        "batch_size": [2],
+        "n_epochs": [8],
+
+    },
     'RoBERTaSeqLab': {
         'base_model_path': [
             "roberta-model-sm-v2.jl",
@@ -242,7 +256,8 @@ EXPERIMENT_PARAMS = {
     'LambertNoPosSeqLab1024' : {
         'base_model_path': [
 #            "base_models/lambert_no_pos.jl",
-            "base_models/even_longer_no_pos.jl"
+#            "base_models/even_longer_no_pos.jl"
+            "base_models/no_pos_long_new_data.jl"
         ]
     },
     'LambertHybridNoPosSeqLab' : {
@@ -251,5 +266,11 @@ EXPERIMENT_PARAMS = {
             "base_models/even_longer_no_pos.jl"
         ]
     },
+    'DocRepFinetune':{
+        'base_model_path': [
+            "base_models/even_longer_no_pos.jl"
+        ]
+
+    }
 
 }

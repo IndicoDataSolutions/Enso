@@ -182,7 +182,9 @@ class Experimentation(object):
             if 'All' in EXPERIMENT_PARAMS.keys():
                 for k, v in exp_params.items():
                     if k != 'All':
-                        v.update(EXPERIMENT_PARAMS['All'])
+                        # Note that specific experiment hparam values take precedent over the 'All' values 
+                        exp_params[k] = deepcopy(EXPERIMENT_PARAMS['All'])
+                        exp_params[k].update(v)
             del exp_params['All']
             hparams_by_experiment = {
                 exp_name: list(ParameterGrid(hparams)) for exp_name, hparams in exp_params.items()
