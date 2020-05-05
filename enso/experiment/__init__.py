@@ -308,8 +308,10 @@ class Experimentation(object):
         result_file = os.path.join(result_path, RESULTS_CSV_NAME)
         
         needs_rewrite = False
-        if os.path.exists(results_file):
-            cols = list(pd.read_csv(result_file, index_col=0, nrows=1).columns) # just read the first row.
+        if os.path.exists(result_file):
+            df = pd.read_csv(result_file, index_col=0, nrows=1)
+            df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+            cols = list(df.columns) # just read the first row.
             for col in self.columns:
                 if col not in cols: # we have new columns
                     needs_rewrite = True
