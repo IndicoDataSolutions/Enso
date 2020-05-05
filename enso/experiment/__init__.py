@@ -306,9 +306,24 @@ class Experimentation(object):
         if not os.path.exists(result_path):
             os.makedirs(result_path)
         result_file = os.path.join(result_path, RESULTS_CSV_NAME)
-        header = False if os.path.exists(result_file) else True
-        result_fd = open(result_file, "a")
-        results.to_csv(result_fd, header=header, columns=self.columns)
+        
+        needs_rewrite = False
+        if os.path.exists(results_file):
+            cols = list(pd.read_csv(result_file, index_col=0, nrows=1).columns) # just read the first row.
+            for col in self.columns:
+                if col not in cols: # we have new columns
+                    needs_rewrite = True
+                    break
+            header = needs_rewrite
+        else:
+            cols = self.columns
+            header = True
+
+        if needs_rewrite:
+            pd.concat([pd.read_csv(result_file), results]).to_csv(result_file)
+        else:
+            result_fd = open(result_file, "a")
+            results.to_csv(result_fd, header=header, columns=cols)
 
         # The a is for archival, not just a typo
         config_record = "%s/Config.pya" % result_path
