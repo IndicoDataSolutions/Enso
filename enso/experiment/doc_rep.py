@@ -44,7 +44,7 @@ class SidekickSeqLab(FinetuneSequenceLabel):
         return self.model.predict(text, context=context)
 
 @Registry.register_experiment(ModeKeys.SEQUENCE, requirements=[("Featurizer", "TextContextFeaturizer")])
-class RoBERTaDocRepSeqLab(SidekickSeqLab):
+class RoBERTaSeqLab(SidekickSeqLab):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model_config = dict(
