@@ -18,6 +18,7 @@ from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit
 from sklearn.externals import joblib
 from sklearn.model_selection import ParameterGrid
 
+from finetune.util.metrics import annotation_report
 from enso.sample import sample
 from enso.utils import feature_set_location, BaseObject, SafeStratifiedShuffleSplit, RationalizedStratifiedShuffleSplit
 from enso.mode import ModeKeys
@@ -267,6 +268,11 @@ class Experimentation(object):
     ):
         """Responsible for recording all metrics specified in config for a given experiment."""
         results = pd.DataFrame(columns=self.columns)
+        report = annotation_report(target, result)
+        print(internal_setting)
+        print(report)
+        with open('_'.join([v for _, v in sorted(internal_setting.items())]) + '.txt', 'w') as f:
+            f.write(report)
         for metric in self.metrics:
             score = metric.evaluate(target, result)
             if train_target is not None and train_result is not None:
