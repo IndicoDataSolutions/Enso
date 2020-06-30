@@ -51,6 +51,11 @@ class TextContextFeaturizer(Featurizer):
         if type(dataset) != dict:
             raise ValueError("dataset must be a dict")
         text = dataset['text']
+        context = []
+        for c in dataset["context"]:
+            for ci in c:
+                if "text" in ci:
+                    ci["token"] = ci.pop("text")
         context = dataset['context']
         labels = dataset['labels']
         feats = [(t, c) for t, c in zip(text, context)]
