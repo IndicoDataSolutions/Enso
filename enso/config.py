@@ -57,11 +57,13 @@ DATA = {
     # Seqence
     # 'SequenceLabeling/Reuters-128',
 #    'SequenceLabeling/table_synth',
-#     'SequenceLabeling/bonds_new',
+#     'SequenceLabeling/bonds',
+#    'SequenceLabeling/bonds_new',
 #    'SequenceLabeling/invoices',
     'SequenceLabeling/correspondence',
 #     'SequenceLabeling/tables',
 #     'SequenceLabeling/typed_cols',
+    "SequenceLabeling/dhl_invoices",
     # 'SequenceLabeling/brown_all',
     # 'SequenceLabeling/brown_nouns',
     # 'SequenceLabeling/brown_verbs',
@@ -99,13 +101,16 @@ FEATURIZERS = {
 # Experiments to run
 EXPERIMENTS = {
     # "FinetuneSequenceLabel",
-#    "RoBERTaSeqLab",
+    "RoBERTaDocRepSeqLab",
 #    "SidekickSeqLab",
+    "LambertNoPosSeqLabCRF",
+    "LambertNoPosSeqLab"
 #    "LambertNoPosSeqLab",
-    "LambertNoPosSeqLab1024",
+#    "LambertNoPosSeqLab1024",
 #    "SidekickPlaceholderNoPos",
 #    "LambertHybridNoPosSeqLab",
 #    "RoBERTaSeqLabDefault",
+#    "OscarSeqLab"
 #    "LambertNoPosSeqLab1024",
 #    "DocRepFinetune",
     # "IndicoSequenceLabel"
@@ -137,7 +142,7 @@ METRICS = {
 
 # Test setup metadata
 TEST_SETUP = {
-    "train_sizes": [20, 40, 60, 80, 100, 150, 200, 300, 400, 500],
+    "train_sizes": [25, 50, 100, 150, 200],
     "n_splits": 5,
     # "samplers": ['RandomRationalized'],
 #    "samplers": ["ImbalanceSampler"],
@@ -217,9 +222,15 @@ EXPERIMENT_PARAMS = {
         "n_epochs": [8],
 
     },
-    'RoBERTaSeqLab': {
+    'OscarSeqLab': {
         'base_model_path': [
-            "roberta-model-sm-v2.jl",
+            "base_models/oscar_bidi_weights.jl"
+        ]
+    },
+
+    'RoBERTaDocRepSeqLab': {
+        'base_model_path': [
+            "base_models/roberta-model-sm-v2.jl",
             # "filtered_mlm_baseline.jl",
             # "filtered_mlm_baseline_2nd_5.jl",
 #            "filtered_mlm_baseline_3rd_5.jl"
@@ -249,6 +260,13 @@ EXPERIMENT_PARAMS = {
     },
     'LambertNoPosSeqLab' : {
         'base_model_path': [
+            #            "base_models/lambert_no_pos.jl",                                                                                                          
+            "base_models/even_longer_no_pos.jl"
+        ]
+    },
+
+    'LambertNoPosSeqLabCRF' : {
+        'base_model_path': [
 #            "base_models/lambert_no_pos.jl",
             "base_models/even_longer_no_pos.jl"
         ]
@@ -256,7 +274,7 @@ EXPERIMENT_PARAMS = {
     'LambertNoPosSeqLab1024' : {
         'base_model_path': [
 #            "base_models/lambert_no_pos.jl",
-#            "base_models/even_longer_no_pos.jl"
+ #           "base_models/even_longer_no_pos.jl",
             "base_models/no_pos_long_new_data.jl"
         ]
     },
