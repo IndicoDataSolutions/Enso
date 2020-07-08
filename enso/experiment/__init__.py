@@ -238,10 +238,10 @@ class Experimentation(object):
                             )
                         #     p.start()
                         #     p.join()
-                        # except Exception:
-                        #     logging.exception(
-                        #         "Exception occurred for {}".format(current_setting)
-                        #     )
+                        except Exception:
+                            logging.exception(
+                                "Exception occurred for {}".format(current_setting)
+                            )
                         # finally:
                         #     p.terminate()
                         #     while p.is_alive():
