@@ -38,7 +38,7 @@ from enso.config import (
 from enso.registry import Registry, ValidateExperiments
 from multiprocessing import Process
 
-POOL = ProcessPoolExecutor(N_CORES)
+# POOL = ProcessPoolExecutor(N_CORES)
 
 
 class Experimentation(object):
@@ -66,7 +66,7 @@ class Experimentation(object):
 
     def run_experiments(self):
         """Responsible for actually running experiments."""
-        futures = {}
+        # futures = {}
         experiment_validator = ValidateExperiments()
         for dataset_name in DATA:
             logging.info("Experimenting on %s dataset" % dataset_name)
@@ -86,22 +86,28 @@ class Experimentation(object):
                                 current_setting, self.experiments
                             )
 
+                            # for current_setting, experiments in fixed_setups:
+                            #     future = POOL.submit(
+                            #         self._run_experiment,
+                            #         dataset_name,
+                            #         current_setting,
+                            #         experiments,
+                            #     )
+                            #     futures[future] = current_setting
                             for current_setting, experiments in fixed_setups:
-                                future = POOL.submit(
-                                    self._run_experiment,
+                                self._run_experiment(
                                     dataset_name,
                                     current_setting,
                                     experiments,
                                 )
-                                futures[future] = current_setting
 
-        for future in concurrent.futures.as_completed(futures):
-            current_setting = futures[future]
-            try:
-                future.result()
-                logging.info("Finished training for {}".format(current_setting))
-            except Exception:
-                logging.exception("Exception occurred for {}".format(current_setting))
+        # for future in concurrent.futures.as_completed(futures):
+        #     current_setting = futures[future]
+        #     try:
+        #         future.result()
+        #         logging.info("Finished training for {}".format(current_setting))
+        #     except Exception:
+        #         logging.exception("Exception occurred for {}".format(current_setting))
 
     def experiment_has_been_run(self, current_settings):
         result_path = os.path.join(RESULTS_DIRECTORY, EXPERIMENT_NAME, RESULTS_CSV_NAME)
@@ -217,8 +223,9 @@ class Experimentation(object):
                             # Ideally we wouldn't have to do this in a process, but at the moment
                             # creating a process and killing the process after execution is the
                             # only way to force TF to free it's GPU memory.
-                            p = Process(
-                                target=self._run_sub_experiment,
+                            # p = Process(
+                                # target=self._run_sub_experiment,
+                            self._run_sub_experiment(
                                 kwargs={
                                     "experiment_cls": experiment_cls,
                                     "dataset": dataset,
@@ -229,16 +236,16 @@ class Experimentation(object):
                                     "experiment_hparams": experiment_hparams
                                 },
                             )
-                            p.start()
-                            p.join()
-                        except Exception:
-                            logging.exception(
-                                "Exception occurred for {}".format(current_setting)
-                            )
-                        finally:
-                            p.terminate()
-                            while p.is_alive():
-                                time.sleep(0.1)
+                        #     p.start()
+                        #     p.join()
+                        # except Exception:
+                        #     logging.exception(
+                        #         "Exception occurred for {}".format(current_setting)
+                        #     )
+                        # finally:
+                        #     p.terminate()
+                        #     while p.is_alive():
+                        #         time.sleep(0.1)
 
         return results
     
