@@ -134,6 +134,11 @@ class Featurizer(BaseObject):
             features = self._features_from_text(dataset["Text"])
             new_dataset = dataset.copy()  # Don't want to modify the underlying dataframe
             new_dataset['Features'] = features
+        elif type(dataset) == dict:
+            features = self._features_from_text(dataset["text"])
+            new_dataset = pd.DataFrame(dataset)  # Don't want to modify the underlying dataframe
+            new_dataset.rename(columns={'text': 'Text'}, inplace=True)
+            new_dataset['Features'] = features
         else:
             raise ValueError("Unrecognised data format!!")
 
