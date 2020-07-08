@@ -1,7 +1,8 @@
 import indicoio
 from enso.mode import ModeKeys
 import multiprocessing
-from finetune.base_models import RoBERTa, BERTModelMultilingualCased
+from finetune.base_models import RoBERTa
+from finetune.base_models.bert.model import BERTModelMultilingualCased
 from finetune.base_models.huggingface.models import HFXLMRoberta
 
 """Constants to configure the rest of Enso."""
