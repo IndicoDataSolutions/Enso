@@ -150,7 +150,7 @@ METRICS = {
 
 # Test setup metadata
 TEST_SETUP = {
-    "train_sizes": [20, 40, 60, 80, 100, 150, 200, 300, 400, 500],
+    "train_sizes": [50, 100, 150, 200, 300, 400, 500],
     "n_splits": 5,
     # "samplers": ['RandomRationalized'],
     # "samplers": ["ImbalanceSampler"],
@@ -207,7 +207,7 @@ EXPERIMENT_PARAMS = {
         "lr": [1e-5, 1e-4],
         "batch_size": [8, 16],
         "n_epochs": [16, 32],
-        "base_model": [HFXLMRoberta, RoBERTa, BERTModelMultilingualCased]
+        "base_model": [RoBERTa, BERTModelMultilingualCased, HFXLMRoberta]
     },
     # 'RoBERTaSeqLab': {
     #     'base_model_path': [

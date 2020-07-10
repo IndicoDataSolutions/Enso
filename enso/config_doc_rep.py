@@ -1,7 +1,7 @@
 import indicoio
 from enso.mode import ModeKeys
 import multiprocessing
-from finetune.base_models import DocRep, Roberta
+from finetune.base_models import DocRep, RoBERTa
 from finetune.base_models.bert.model import BERTModelMultilingualCased
 from finetune.base_models.huggingface.models import HFXLMRoberta
 
@@ -106,7 +106,7 @@ FEATURIZERS = {
 # Experiments to run
 EXPERIMENTS = {
     # "FinetuneSequenceLabel",
-    "DocumentLabeler",
+    "DocumentLabelerExp",
     # "RoBERTaSeqLab",
     # "SidekickSeqLab",
     # "LambertSeqLab",
@@ -141,7 +141,7 @@ METRICS = {
 
 # Test setup metadata
 TEST_SETUP = {
-    "train_sizes": [20, 40, 60, 80, 100, 150, 200, 300, 400, 500],
+    "train_sizes": [50, 80, 100, 150, 200, 300, 400, 500],
     "n_splits": 5,
     # "samplers": ['RandomRationalized'],
     # "samplers": ["ImbalanceSampler"],
@@ -199,9 +199,9 @@ EXPERIMENT_PARAMS = {
         "batch_size": [8, 16],
         "n_epochs": [16, 32],
     },
-    'DocumentLabeler': {
+    'DocumentLabelerExp': {
         'base_model': [
-            DocRep, Roberta, BERTModelMultilingualCased, HFXLMRoberta
+            DocRep, RoBERTa, BERTModelMultilingualCased, HFXLMRoberta
         ]
     }
     # 'RoBERTaSeqLab': {
