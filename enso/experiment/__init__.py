@@ -202,9 +202,9 @@ class Experimentation(object):
                        for hparams in exp_params.values())
             # add the experiment params to self.columns
             self.columns += param_keys
+            print(exp_params)
         else:
             hparams_by_experiment = {}
-
         results = pd.DataFrame(columns=self.columns)
         for splitter, target in self._split_dataset(
             dataset, current_setting["TrainSize"]
@@ -218,6 +218,7 @@ class Experimentation(object):
                     current_setting["TrainSize"],
                 )
                 for experiment_cls in experiments:
+                    print('experiments', experiments)
                     for experiment_hparams in hparams_by_experiment.get(experiment_cls.__name__, [{}]):
                         try:
                             # Ideally we wouldn't have to do this in a process, but at the moment
@@ -226,7 +227,7 @@ class Experimentation(object):
                             # p = Process(
                                 # target=self._run_sub_experiment,
                             self._run_sub_experiment(
-                                kwargs={
+                                **{
                                     "experiment_cls": experiment_cls,
                                     "dataset": dataset,
                                     "train": train,
@@ -278,8 +279,6 @@ class Experimentation(object):
         report = annotation_report(target, result)
         print(internal_setting)
         print(report)
-        with open('_'.join([v for _, v in sorted(internal_setting.items())]) + '.txt', 'w') as f:
-            f.write(report)
         for metric in self.metrics:
             score = metric.evaluate(target, result)
             if train_target is not None and train_result is not None:
@@ -510,3 +509,4 @@ from enso.experiment import tfidf
 from enso.experiment import knn
 from enso.experiment import rationalized
 from enso.experiment import doc_rep
+from enso.experiment import document_labeler
