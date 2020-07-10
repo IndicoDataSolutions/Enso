@@ -1,9 +1,9 @@
 import indicoio
 from enso.mode import ModeKeys
 import multiprocessing
-from finetune.base_models import RoBERTa
-from finetune.base_models.bert.model import BERTModelMultilingualCased
-from finetune.base_models.huggingface.models import HFXLMRoberta
+# from finetune.base_models import RoBERTa
+# from finetune.base_models.bert.model import BERTModelMultilingualCased
+# from finetune.base_models.huggingface.models import HFXLMRoberta
 
 """Constants to configure the rest of Enso."""
 
@@ -161,6 +161,7 @@ TEST_SETUP = {
 }
 
 # Visualizations to display
+# VISUALIZATIONS = {"FacetGridBestV2Visualizer"}
 VISUALIZATIONS = {"FacetGridBestV2Visualizer"}
 
 VISUALIZATION_OPTIONS = {
@@ -171,7 +172,7 @@ VISUALIZATION_OPTIONS = {
         "y_tile": "Dataset",
         "x_axis": "TrainSize",
         "y_axis": "Result",
-        "lines": ["Experiment", "Featurizer", "Sampler", "Resampler", "base_model_path"],
+        "lines": ["Experiment", "Featurizer", "Sampler", "Resampler", "base_model"],
         "pick_best": ["lr", "lr_warmup", "batch_size", "n_epochs"],
         "metric": "MacroCharF1",
         "category": "merge",
@@ -201,36 +202,36 @@ indicoio.config.api_key = ""
 #     'All': {"lr_warmup": [0.1, 0.2]}
 # }
 
-EXPERIMENT_PARAMS = {
-    'All': {
-        "lr_warmup": [0.1, 0.2],
-        "lr": [1e-5, 1e-4],
-        "batch_size": [8, 16],
-        "n_epochs": [16, 32],
-        "base_model": [RoBERTa, BERTModelMultilingualCased, HFXLMRoberta]
-    },
-    # 'RoBERTaSeqLab': {
-    #     'base_model_path': [
-    #         "roberta-model-sm-v2.jl",
-    #         # "filtered_mlm_baseline.jl",
-    #         # "filtered_mlm_baseline_2nd_5.jl",
-    #         "filtered_mlm_baseline_3rd_5.jl"
-    #     ]
-    # },
-    # 'LambertSeqLab': {
-    #     'base_model_path': [
-    #         # "filtered_lambert_mlm.jl",
-    #         # "filtered_lambert_mlm_2nd_5.jl",
-    #         "filtered_lambert_mlm_3rd_5.jl",
-    #         # "filtered_lambert_mlm_pos_removal.jl"
-    #     ]
-    # },
-    # 'SidekickSeqLab': {
-    #     'base_model_path': [
-    #         # "filtered_sidekick_mlm.jl",
-    #         # "filtered_sidekick_mlm_2nd_5.jl",
-    #         "filtered_sidekick_mlm_3rd_5.jl",
-    #         # "sidekick_mlm_pos_removal.jl"
-    #     ]
-    # }
-}
+# EXPERIMENT_PARAMS = {
+#     'All': {
+#         "lr_warmup": [0.1, 0.2],
+#         "lr": [1e-5, 1e-4],
+#         "batch_size": [8, 16],
+#         "n_epochs": [16, 32],
+#         "base_model": [RoBERTa, BERTModelMultilingualCased, HFXLMRoberta]
+#     },
+#     # 'RoBERTaSeqLab': {
+#     #     'base_model_path': [
+#     #         "roberta-model-sm-v2.jl",
+#     #         # "filtered_mlm_baseline.jl",
+#     #         # "filtered_mlm_baseline_2nd_5.jl",
+#     #         "filtered_mlm_baseline_3rd_5.jl"
+#     #     ]
+#     # },
+#     # 'LambertSeqLab': {
+#     #     'base_model_path': [
+#     #         # "filtered_lambert_mlm.jl",
+#     #         # "filtered_lambert_mlm_2nd_5.jl",
+#     #         "filtered_lambert_mlm_3rd_5.jl",
+#     #         # "filtered_lambert_mlm_pos_removal.jl"
+#     #     ]
+#     # },
+#     # 'SidekickSeqLab': {
+#     #     'base_model_path': [
+#     #         # "filtered_sidekick_mlm.jl",
+#     #         # "filtered_sidekick_mlm_2nd_5.jl",
+#     #         "filtered_sidekick_mlm_3rd_5.jl",
+#     #         # "sidekick_mlm_pos_removal.jl"
+#     #     ]
+#     # }
+# }

@@ -18,7 +18,7 @@ from sklearn.model_selection import StratifiedShuffleSplit, ShuffleSplit
 from sklearn.externals import joblib
 from sklearn.model_selection import ParameterGrid
 
-from finetune.util.metrics import annotation_report
+# from finetune.util.metrics import annotation_report
 from enso.sample import sample
 from enso.utils import feature_set_location, BaseObject, SafeStratifiedShuffleSplit, RationalizedStratifiedShuffleSplit
 from enso.mode import ModeKeys
@@ -33,7 +33,7 @@ from enso.config import (
     MODE,
     EXPERIMENT_NAME,
     RESULTS_CSV_NAME,
-    EXPERIMENT_PARAMS
+    # EXPERIMENT_PARAMS
 )
 from enso.registry import Registry, ValidateExperiments
 from multiprocessing import Process
@@ -498,7 +498,7 @@ class MatchingExperiment(Experiment):
         raise NotImplementedError
 
 
-from enso.experiment import finetuning
+# from enso.experiment import finetuning
 from enso.experiment import grid_search
 from enso.experiment import logistic_regression
 from enso.experiment import naive_bayes
@@ -507,6 +507,6 @@ from enso.experiment import random_forest
 from enso.experiment import svm
 from enso.experiment import tfidf
 from enso.experiment import knn
-from enso.experiment import rationalized
-from enso.experiment import doc_rep
-from enso.experiment import document_labeler
+# from enso.experiment import rationalized
+# from enso.experiment import doc_rep
+# from enso.experiment import document_labeler

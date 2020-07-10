@@ -1,6 +1,9 @@
 import indicoio
 from enso.mode import ModeKeys
 import multiprocessing
+# from finetune.base_models import DocRep, RoBERTa
+# from finetune.base_models.bert.model import BERTModelMultilingualCased
+# from finetune.base_models.huggingface.models import HFXLMRoberta
 
 """Constants to configure the rest of Enso."""
 
@@ -14,7 +17,7 @@ RESULTS_DIRECTORY = "Results"
 FEATURES_DIRECTORY = "Features"
 
 # Directory for storing experiment results
-EXPERIMENT_NAME = "Exp"
+EXPERIMENT_NAME = "DocRepXLM"
 
 # Name of the csv used to store results
 RESULTS_CSV_NAME = "Results.csv"
@@ -22,7 +25,7 @@ RESULTS_CSV_NAME = "Results.csv"
 # Datasets to featurize or run experiments on
 DATA = {
 #    "Classify/AirlineComplaints",
-    "Classify/AirlineNegativity",
+    # "Classify/AirlineNegativity",
     # "Classify/AirlineSentiment",
     # "Classify/BrandEmotion",
     # "Classify/BrandEmotionCause",
@@ -66,6 +69,11 @@ DATA = {
     # 'SequenceLabeling/brown_verbs',
     # 'SequenceLabeling/brown_pronouns',
     # 'SequenceLabeling/brown_adverbs',
+    'SequenceLabeling/dhl_eng_eng_ocr',
+    'SequenceLabeling/dhl_all_eng_ocr',
+    'SequenceLabeling/dhl_noneng_langall_ocr',
+    'SequenceLabeling/dhl_all_langall_ocr',
+    # 'SequenceLabeling/multilingual_ner',
     # 'RationalizedClassify/short_bank_qualified',
     # 'RationalizedClassify/bank_qualified',
     # 'RationalizedClassify/evidence_inference',
@@ -80,10 +88,10 @@ DATA = {
 
 # Featurizers to activate
 FEATURIZERS = {
-    # "PlainTextFeaturizer",
+    "PlainTextFeaturizer",
     # "TextContextFeaturizer",
     # "IndicoStandard",
-    "SpacyGloveFeaturizer",
+    # "SpacyGloveFeaturizer",
     # "IndicoFastText",
     # "IndicoSentiment",
     # "IndicoElmo",
@@ -98,9 +106,12 @@ FEATURIZERS = {
 # Experiments to run
 EXPERIMENTS = {
     # "FinetuneSequenceLabel",
+    "DocumentLabelerExp",
     # "RoBERTaSeqLab",
     # "SidekickSeqLab",
     # "LambertSeqLab",
+    # "MultiLingualBertSeqLab",
+    # "XLMRobertaSeqLab",
     # "IndicoSequenceLabel"
     # "LRBaselineNonRationalized",
     # "DistReweightedGloveClassifierCV",
@@ -109,7 +120,7 @@ EXPERIMENTS = {
     # "FinetuneSeqBaselineRationalized",
     # "FinetuneClfBaselineNonRationalized",
 #    "LogisticRegressionCV",
-   "KNNCV",
+#    "KNNCV",
 #    "TfidfKNN",
 #    "TfidfLogisticRegression",
 #    "KCenters",
@@ -119,47 +130,49 @@ EXPERIMENTS = {
 
 # Metrics to compute
 METRICS = {
-   "Accuracy",
-   "MacroRocAuc",
+#    "Accuracy",
     # "AccuracyRationalized",
     # "MacroRocAucRationalized",
-    # "MacroCharF1",
-    # "MacroCharRecall",
-    # "MacroCharPrecision"
+#    "MacroRocAuc",
+    "MacroCharF1",
+    "MacroCharRecall",
+    "MacroCharPrecision"
 }
 
 # Test setup metadata
 TEST_SETUP = {
-    "train_sizes": [20, 40, 60, 80, 100, 150, 200, 300, 400, 500],
+    "train_sizes": [50, 80, 100, 150, 200, 300, 400, 500],
     "n_splits": 5,
     # "samplers": ['RandomRationalized'],
     # "samplers": ["ImbalanceSampler"],
-    "samplers": ["Random"],
+    "samplers": ["RandomSequence"],
     "sampling_size": 0.2,
     "resamplers": ['NoResampler']
     # "resamplers": ["RandomOverSampler"],
 }
 
 # Visualizations to display
-VISUALIZATIONS = {"FacetGridVisualizer"}
+VISUALIZATIONS = {"FacetGridBestV2Visualizer"}
 
-# kwargs to pass directly into visualizations
 VISUALIZATION_OPTIONS = {
     "display": True,
     "save": True,
-    "FacetGridVisualizer": {
+    "FacetGridBestV2Visualizer": {
         "x_tile": "Metric",
         "y_tile": "Dataset",
         "x_axis": "TrainSize",
         "y_axis": "Result",
-        "lines": ["Experiment", "Featurizer", "Sampler", "Resampler"],
+        "lines": ["Experiment", "Featurizer", "Sampler", "Resampler", "base_model"],
+        "pick_best": ["lr", "lr_warmup", "batch_size", "n_epochs"],
+        "metric": "MacroCharF1",
         "category": "merge",
         "cv": "mean",
         "filename": "TestResult",
     },
 }
 
-MODE = ModeKeys.CLASSIFY
+
+MODE = ModeKeys.SEQUENCE
 
 N_GPUS = 1
 N_CORES = 1  # multiprocessing.cpu_count()
@@ -172,4 +185,47 @@ CORRUPTION_FRAC = 0.4
 indicoio.config.api_key = ""
 
 # If we have no experiment hyperparameters we hope to modify:
-EXPERIMENT_PARAMS = {}
+# EXPERIMENT_PARAMS = {}
+
+# For testing
+# EXPERIMENT_PARAMS = {
+#     'All': {"lr_warmup": [0.1, 0.2]}
+# }
+
+# EXPERIMENT_PARAMS = {
+#     'All': {
+#         "lr_warmup": [0.1, 0.2],
+#         "lr": [1e-5, 1e-4],
+#         "batch_size": [8, 16],
+#         "n_epochs": [16, 32],
+#     },
+#     'DocumentLabelerExp': {
+#         'base_model': [
+#             DocRep, RoBERTa, BERTModelMultilingualCased, HFXLMRoberta
+#         ]
+#     }
+#     # 'RoBERTaSeqLab': {
+#     #     'base_model_path': [
+#     #         "roberta-model-sm-v2.jl",
+#     #         # "filtered_mlm_baseline.jl",
+#     #         # "filtered_mlm_baseline_2nd_5.jl",
+#     #         "filtered_mlm_baseline_3rd_5.jl"
+#     #     ]
+#     # },
+#     # 'LambertSeqLab': {
+#     #     'base_model_path': [
+#     #         # "filtered_lambert_mlm.jl",
+#     #         # "filtered_lambert_mlm_2nd_5.jl",
+#     #         "filtered_lambert_mlm_3rd_5.jl",
+#     #         # "filtered_lambert_mlm_pos_removal.jl"
+#     #     ]
+#     # },
+#     # 'SidekickSeqLab': {
+#     #     'base_model_path': [
+#     #         # "filtered_sidekick_mlm.jl",
+#     #         # "filtered_sidekick_mlm_2nd_5.jl",
+#     #         "filtered_sidekick_mlm_3rd_5.jl",
+#     #         # "sidekick_mlm_pos_removal.jl"
+#     #     ]
+#     # }
+# }
