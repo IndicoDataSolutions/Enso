@@ -100,7 +100,9 @@ class RandomSequence(Random):
             for cls in self.classes:
                 indices = [i for i, val in enumerate(self.train_labels) if cls in val]
                 index = random.choice(indices)
-                points.append(self.train_indices[index])
+                train_index = self.train_indices[index]
+                if train_index not in points:
+                    points.append(train_index)
         return points
 
     @property
