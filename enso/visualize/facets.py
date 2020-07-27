@@ -118,7 +118,8 @@ class BarChartVisualizer(ClassificationVisualizer):
                 results[col] = results[col].astype(str)
             results['key'] = results[lines].apply(lambda x: ','.join(x), axis=1)
         g = sns.catplot(x=x_axis, y=y_axis, row=y_tile, col=x_tile, hue='key',
-                        data=results, kind='bar', legend_out = True, margin_titles=True)
+                        data=results, kind='bar', legend_out = True, margin_titles=True,
+                        sharex=True, sharey=False)
         for ax in g.axes.flatten():
             ax.set_ylabel('')
             ax.set_xlabel('')
