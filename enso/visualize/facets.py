@@ -78,3 +78,49 @@ class FacetGridVisualizer(ClassificationVisualizer):
         fig.tight_layout()
         filename = os.path.join(RESULTS_DIRECTORY, results_id, "{}.png".format(filename))
         plt.savefig(filename, bbox_extra_artists=(legend,), bbox_inches='tight')
+
+
+@Registry.register_visualizer()
+class BarChartVisualizer(ClassificationVisualizer):
+    """
+    Create a grid of bar charts based on the value of `config.VISUALIZATION_OPTIONS`
+    """
+
+    def visualize(
+            self,
+            results,
+            x_tile,
+            y_tile,
+            x_axis,
+            y_axis,
+            lines,
+            results_id=None,
+            filename='BarChartVisualizer',
+            **kwargs
+    ):
+        """
+        Create a tiled visualization of experiment results.
+
+        :param results: pd.DataFrame of results, loaded from results .csv file.
+        :param x_tile: string name of DataFrame column to vary over the x axis of the grid of line graphs
+        :param y_tile: string name of DataFrame column to vary over the y axis of the grid of line graphs
+        :param x_axis: string name of DataFrame column to plot on the x axis within each individual line graph
+        :param y_axis: string name of DataFrame column to plot on the y axis within each individual line graph
+        :param lines: string name or list of DataFrame column string names displayed as separate lines within each graph.
+                      Providing multiple values means that each unique combination of values will be displayed as a single line.
+        :param results_id: string name of folder to save resulting visual in, relative to the root of the results directory
+        :param filename: filename (excluding filetype) to use when saving visualization.  Value is relative to folder specified by results_id.
+        """
+        sns.set(style="ticks", color_codes=True)
+
+        if isinstance(lines, (tuple, list)):
+            for col in lines:
+                results[col] = results[col].astype(str)
+            results['key'] = results[lines].apply(lambda x: ','.join(x), axis=1)
+        g = sns.catplot(x=x_axis, y=y_axis, row=y_tile, col=x_tile, hue='key',
+                        data=results, kind='bar', legend_out = True, margin_titles=True)
+        for ax in g.axes.flatten():
+            ax.set_ylabel('')
+            ax.set_xlabel('')
+        filename = os.path.join(RESULTS_DIRECTORY, results_id, "{}.png".format(filename))
+        plt.savefig(filename, bbox_inches='tight')
