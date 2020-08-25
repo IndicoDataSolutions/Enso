@@ -38,7 +38,7 @@ from enso.config import (
 from enso.registry import Registry, ValidateExperiments
 from multiprocessing import Process
 
-# POOL = ProcessPoolExecutor(N_CORES)
+POOL = ProcessPoolExecutor(N_CORES)
 
 
 class Experimentation(object):
@@ -66,7 +66,7 @@ class Experimentation(object):
 
     def run_experiments(self):
         """Responsible for actually running experiments."""
-        # futures = {}
+        futures = {}
         experiment_validator = ValidateExperiments()
         for dataset_name in DATA:
             logging.info("Experimenting on %s dataset" % dataset_name)
@@ -86,28 +86,28 @@ class Experimentation(object):
                                 current_setting, self.experiments
                             )
 
-                            # for current_setting, experiments in fixed_setups:
-                            #     future = POOL.submit(
-                            #         self._run_experiment,
-                            #         dataset_name,
-                            #         current_setting,
-                            #         experiments,
-                            #     )
-                            #     futures[future] = current_setting
                             for current_setting, experiments in fixed_setups:
-                                self._run_experiment(
+                                future = POOL.submit(
+                                    self._run_experiment,
                                     dataset_name,
                                     current_setting,
                                     experiments,
                                 )
+                                futures[future] = current_setting
+                            # for current_setting, experiments in fixed_setups:
+                            #     self._run_experiment(
+                            #         dataset_name,
+                            #         current_setting,
+                            #         experiments,
+                            #     )
 
-        # for future in concurrent.futures.as_completed(futures):
-        #     current_setting = futures[future]
-        #     try:
-        #         future.result()
-        #         logging.info("Finished training for {}".format(current_setting))
-        #     except Exception:
-        #         logging.exception("Exception occurred for {}".format(current_setting))
+        for future in concurrent.futures.as_completed(futures):
+            current_setting = futures[future]
+            try:
+                future.result()
+                logging.info("Finished training for {}".format(current_setting))
+            except Exception:
+                logging.exception("Exception occurred for {}".format(current_setting))
 
     def experiment_has_been_run(self, current_settings):
         result_path = os.path.join(RESULTS_DIRECTORY, EXPERIMENT_NAME, RESULTS_CSV_NAME)
@@ -201,7 +201,8 @@ class Experimentation(object):
             assert all(set(param_keys) == set(hparams.keys())
                        for hparams in exp_params.values())
             # add the experiment params to self.columns
-            self.columns += param_keys
+            if param_keys not in self.columns:
+                self.columns += param_keys
             print(exp_params)
         else:
             hparams_by_experiment = {}
@@ -290,7 +291,15 @@ class Experimentation(object):
                 test_score=score, test_key=test_key,
                 train_score=train_score, train_key=train_key
             )
-            results = results.append(full_setting_df, ignore_index=True)
+            try:
+                results = results.append(full_setting_df, ignore_index=True)
+            except:
+                print(results.columns)
+                print(results.head())
+                print(full_setting_df.columns)
+                import ipdb; ipdb.set_trace()
+                
+
         if train_time is not None:
             full_setting_df = self._get_results_row(
                 name="train_time",
