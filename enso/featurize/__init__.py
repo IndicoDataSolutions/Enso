@@ -33,7 +33,11 @@ class Featurization(object):
             featurizer.load()
             for dataset_name in DATA:
                 dataset = self._load_dataset(dataset_name)
-                logging.info("Featurizing {} with {}....".format(dataset_name, featurizer.__class__.__name__))
+                logging.info(
+                    "Featurizing {} with {}....".format(
+                        dataset_name, featurizer.__class__.__name__
+                    )
+                )
                 future = POOL.submit(featurizer.generate, dataset, dataset_name)
                 futures[future] = (featurizer, dataset_name)
 
@@ -44,14 +48,16 @@ class Featurization(object):
                 logging.info(
                     "Completed featurization of dataset `{dataset_name}` with featurizer `{featurizer}`.".format(
                         dataset_name=dataset_name,
-                        featurizer=featurizer.__class__.__name__
-                    ))
+                        featurizer=featurizer.__class__.__name__,
+                    )
+                )
             except Exception as e:
                 logging.exception(
                     "Failed featurization of dataset `{dataset_name}` with featurizer `{featurizer}`.".format(
                         dataset_name=dataset_name,
-                        featurizer=featurizer.__class__.__name__
-                    ))
+                        featurizer=featurizer.__class__.__name__,
+                    )
+                )
 
     def run(self, n_jobs=N_CORES):
         """
@@ -68,15 +74,17 @@ class Featurization(object):
     @staticmethod
     def _load_dataset(dataset_name):
         """Responsible for finding datasets and reading them into dataframes."""
-        dataset = "Data/%s" % dataset_name  # TODO Data is hard coded although seems configurable from config.
+        dataset = (
+            "Data/%s" % dataset_name
+        )  # TODO Data is hard coded although seems configurable from config.
         if "SequenceLabeling" in dataset or "RationalizedClassify" in dataset:
             with open("%s.json" % dataset, "rt") as fp:
                 return json.load(fp)
         elif "Classify" in dataset:
             df = pd.read_csv("%s.csv" % dataset)
-            if 'Text' not in df:
+            if "Text" not in df:
                 raise ValueError("File: %s has no column 'Text'" % dataset_name)
-            if 'Target' not in df:
+            if "Target" not in df:
                 raise ValueError("File %s has no column 'Target'" % dataset_name)
             return df
         elif "DocRep" in dataset:
@@ -124,16 +132,28 @@ class Featurizer(BaseObject):
         if type(dataset) == list:
             text = [d[0] for d in dataset]
             features = self._features_from_text(text)
-            new_dataset = pd.DataFrame(data={
-                "Text": text,
-                "Targets": [d[1] for d in dataset],
-                "Features": features
-            })
-
+            new_dataset = pd.DataFrame(
+                data={
+                    "Text": text,
+                    "Targets": [d[1] for d in dataset],
+                    "Features": features,
+                }
+            )
+        elif type(dataset) == dict:
+            text = dataset["text"]
+            new_dataset = pd.DataFrame(
+                data={
+                    "Text": text,
+                    "Targets": dataset["labels"],
+                    "Features": self._features_from_text(text),
+                }
+            )
         elif type(dataset) == pd.DataFrame:
             features = self._features_from_text(dataset["Text"])
-            new_dataset = dataset.copy()  # Don't want to modify the underlying dataframe
-            new_dataset['Features'] = features
+            new_dataset = (
+                dataset.copy()
+            )  # Don't want to modify the underlying dataframe
+            new_dataset["Features"] = features
         else:
             raise ValueError("Unrecognised data format!!")
 
@@ -158,9 +178,11 @@ class Featurizer(BaseObject):
             try:
                 features = [self.featurize(entry) for entry in text_batches]
             except (NotImplementedError, AttributeError):
-                raise NotImplementedError("""
+                raise NotImplementedError(
+                    """
                     Featurizers must implement the featurize_list, or the featurize method
-                """)
+                """
+                )
         return features
 
     def _write(self, featurized_dataset, dataset_name):

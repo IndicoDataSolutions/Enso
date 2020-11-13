@@ -1,6 +1,9 @@
-import indicoio
-from enso.mode import ModeKeys
 import multiprocessing
+import functools
+
+import indicoio
+
+from enso.mode import ModeKeys
 
 """Constants to configure the rest of Enso."""
 
@@ -14,130 +17,53 @@ RESULTS_DIRECTORY = "Results"
 FEATURES_DIRECTORY = "Features"
 
 # Directory for storing experiment results
-EXPERIMENT_NAME = "Exp"
+EXPERIMENT_NAME = "BERT-Showdown"
 
 # Name of the csv used to store results
 RESULTS_CSV_NAME = "Results.csv"
 
 # Datasets to featurize or run experiments on
 DATA = {
-#    "Classify/AirlineComplaints",
-    "Classify/AirlineNegativity",
-    # "Classify/AirlineSentiment",
-    # "Classify/BrandEmotion",
-    # "Classify/BrandEmotionCause",
-    # "Classify/ChemicalDiseaseCauses",
-    # "Classify/CorporateMessaging",
-    # "Classify/CustomerReviews",
-    # "Classify/DetailedEmotion",
-    # "Classify/Disaster",
-    # "Classify/DrugReviewIntent",
-    # "Classify/DrugReviewType",
-    # "Classify/Economy",
-    # "Classify/Emotion",
-    # "Classify/GlobalWarming",
-    # "Classify/Horror",
-    # "Classify/HotelReviews",
-    # "Classify/IMDB",
-    # "Classify/Irony",
-    # "Classify/MPQA",
-    # "Classify/MovieReviews",
-    # "Classify/NewYearsResolutions",
-    # "Classify/PoliticalTweetAlignment",
-    # "Classify/PoliticalTweetBias",
-    # "Classify/PoliticalTweetClassification",
-    # "Classify/PoliticalTweetSubjectivity",
-    # "Classify/PoliticalTweetTarget",
-    # "Classify/ReligiousTexts",
-    # "Classify/ShortAnswer",
-    # "Classify/SocialMediaDisasters",
-    # "Classify/Subjectivity",
-    # "Classify/TextSpam",
-    # "Classify/SST-binary"
-    # Seqence
-    # 'SequenceLabeling/Reuters-128',
-    # 'SequenceLabeling/bonds',
-    # 'SequenceLabeling/table_synth',
-    # 'SequenceLabeling/bonds_new',
-    # 'SequenceLabeling/tables',
-    # 'SequenceLabeling/typed_cols',
-    # 'SequenceLabeling/brown_all',
-    # 'SequenceLabeling/brown_nouns',
-    # 'SequenceLabeling/brown_verbs',
-    # 'SequenceLabeling/brown_pronouns',
-    # 'SequenceLabeling/brown_adverbs',
-    # 'RationalizedClassify/short_bank_qualified',
-    # 'RationalizedClassify/bank_qualified',
-    # 'RationalizedClassify/evidence_inference',
-    # 'RationalizedClassify/federal_tax',
-    # 'RationalizedClassify/short_federal_tax',
-    # 'RationalizedClassify/interest_frequency',
-    # 'RationalizedClassify/short_interest_frequency',
-    # 'RationalizedClassify/aviation',
-    # 'RationalizedClassify/movie_reviews',
-    # 'RationalizedClassify/mining'
+    # "SequenceLabeling/Reuters-128",
+    # "SequenceLabeling/bonds",
+    # "SequenceLabeling/bonds_new",
+    "SequenceLabeling/cord",
+    "SequenceLabeling/invoices",
+    # "SequenceLabeling/correspondence",
+    # "SequenceLabeling/d_invoices",
+    # "SequenceLabeling/C_data",
+    # "SequenceLabeling/H_data",
+    # "SequenceLabeling/wiki",
 }
 
 # Featurizers to activate
 FEATURIZERS = {
-    # "PlainTextFeaturizer",
-    # "TextContextFeaturizer",
-    # "IndicoStandard",
-    "SpacyGloveFeaturizer",
-    # "IndicoFastText",
-    # "IndicoSentiment",
-    # "IndicoElmo",
-    # "IndicoTopics",
-    # "IndicoFinance",
-    # "IndicoTransformer",
-    # "IndicoEmotion",
-    # "IndicoFastText",
-    # "SpacyCNNFeaturizer",
+    "PlainTextFeaturizer",
 }
 
 # Experiments to run
 EXPERIMENTS = {
-    # "FinetuneSequenceLabel",
-    # "RoBERTaSeqLab",
-    # "SidekickSeqLab",
-    # "LambertSeqLab",
-    # "IndicoSequenceLabel"
-    # "LRBaselineNonRationalized",
-    # "DistReweightedGloveClassifierCV",
-    # "RationaleInformedLRCV"
-    # 'DistReweightedGloveClassifierCV'
-    # "FinetuneSeqBaselineRationalized",
-    # "FinetuneClfBaselineNonRationalized",
-#    "LogisticRegressionCV",
-   "KNNCV",
-#    "TfidfKNN",
-#    "TfidfLogisticRegression",
-#    "KCenters",
-#    "TfidfKCenters"
-    # "SupportVectorMachineCV",
+    # "FinetuneRoberta",
+    "FinetuneAlbert"
 }
 
 # Metrics to compute
 METRICS = {
-   "Accuracy",
-   "MacroRocAuc",
-    # "AccuracyRationalized",
-    # "MacroRocAucRationalized",
-    # "MacroCharF1",
-    # "MacroCharRecall",
-    # "MacroCharPrecision"
+    "MicroCharF1",
+    "MicroCharRecall",
+    "MicroCharPrecision",
+    "MacroCharF1",
+    "MacroCharRecall",
+    "MacroCharPrecision",
 }
 
 # Test setup metadata
 TEST_SETUP = {
-    "train_sizes": [20, 40, 60, 80, 100, 150, 200, 300, 400, 500],
-    "n_splits": 5,
-    # "samplers": ['RandomRationalized'],
-    # "samplers": ["ImbalanceSampler"],
-    "samplers": ["Random"],
+    "train_sizes": [50, 100, 150, 200, 250, 300, 350, 400, 450, 500],
+    "n_splits": 3,
+    "samplers": ["RandomSequence"],
     "sampling_size": 0.2,
-    "resamplers": ['NoResampler']
-    # "resamplers": ["RandomOverSampler"],
+    "resamplers": ["NoResampler"],
 }
 
 # Visualizations to display
@@ -159,7 +85,7 @@ VISUALIZATION_OPTIONS = {
     },
 }
 
-MODE = ModeKeys.CLASSIFY
+MODE = ModeKeys.SEQUENCE
 
 N_GPUS = 1
 N_CORES = 1  # multiprocessing.cpu_count()

@@ -19,7 +19,12 @@ from sklearn.externals import joblib
 from sklearn.model_selection import ParameterGrid
 
 from enso.sample import sample
-from enso.utils import feature_set_location, BaseObject, SafeStratifiedShuffleSplit, RationalizedStratifiedShuffleSplit
+from enso.utils import (
+    feature_set_location,
+    BaseObject,
+    SafeStratifiedShuffleSplit,
+    RationalizedStratifiedShuffleSplit,
+)
 from enso.mode import ModeKeys
 from enso.config import (
     FEATURIZERS,
@@ -32,10 +37,11 @@ from enso.config import (
     MODE,
     EXPERIMENT_NAME,
     RESULTS_CSV_NAME,
-    EXPERIMENT_PARAMS
+    EXPERIMENT_PARAMS,
 )
 from enso.registry import Registry, ValidateExperiments
 from multiprocessing import Process
+from threading import Thread
 
 POOL = ProcessPoolExecutor(N_CORES)
 
@@ -116,14 +122,20 @@ class Experimentation(object):
         return True
 
     def _run_sub_experiment(
-        self, experiment_cls, dataset, train, test, target, current_setting, experiment_hparams=None
+        self,
+        experiment_cls,
+        dataset,
+        train,
+        test,
+        target,
+        current_setting,
+        experiment_hparams=None,
     ):
         if experiment_hparams is None:
             experiment_hparams = {}
 
         experiment = experiment_cls(
-            Registry.get_resampler(current_setting["Resampler"]),
-            **experiment_hparams
+            Registry.get_resampler(current_setting["Resampler"]), **experiment_hparams
         )
         name = experiment.name()
         internal_setting = {"Experiment": name}
@@ -178,21 +190,26 @@ class Experimentation(object):
                 if experiment_cls.__name__ not in exp_params:
                     exp_params[experiment_cls.__name__] = {}
             # add the 'All' configuration to all the experiments
-            exp_params = {('All' if k.upper() == 'ALL' else k):v for k, v in exp_params.items()}
-            if 'All' in EXPERIMENT_PARAMS.keys():
+            exp_params = {
+                ("All" if k.upper() == "ALL" else k): v for k, v in exp_params.items()
+            }
+            if "All" in EXPERIMENT_PARAMS.keys():
                 for k, v in exp_params.items():
-                    if k != 'All':
-                        # Note that specific experiment hparam values take precedent over the 'All' values 
-                        exp_params[k] = deepcopy(EXPERIMENT_PARAMS['All'])
+                    if k != "All":
+                        # Note that specific experiment hparam values take precedent over the 'All' values
+                        exp_params[k] = deepcopy(EXPERIMENT_PARAMS["All"])
                         exp_params[k].update(v)
-            del exp_params['All']
+            del exp_params["All"]
             hparams_by_experiment = {
-                exp_name: list(ParameterGrid(hparams)) for exp_name, hparams in exp_params.items()
+                exp_name: list(ParameterGrid(hparams))
+                for exp_name, hparams in exp_params.items()
             }
             # make sure all experiments share the same experiment param keys (not necessarily values)
             param_keys = list(list(exp_params.values())[0].keys())
-            assert all(set(param_keys) == set(hparams.keys())
-                       for hparams in exp_params.values())
+            assert all(
+                set(param_keys) == set(hparams.keys())
+                for hparams in exp_params.values()
+            )
             # add the experiment params to self.columns
             self.columns += param_keys
         else:
@@ -211,7 +228,9 @@ class Experimentation(object):
                     current_setting["TrainSize"],
                 )
                 for experiment_cls in experiments:
-                    for experiment_hparams in hparams_by_experiment.get(experiment_cls.__name__, [{}]):
+                    for experiment_hparams in hparams_by_experiment.get(
+                        experiment_cls.__name__, [{}]
+                    ):
                         try:
                             # Ideally we wouldn't have to do this in a process, but at the moment
                             # creating a process and killing the process after execution is the
@@ -225,7 +244,7 @@ class Experimentation(object):
                                     "test": test,
                                     "target": target,
                                     "current_setting": current_setting,
-                                    "experiment_hparams": experiment_hparams
+                                    "experiment_hparams": experiment_hparams,
                                 },
                             )
                             p.start()
@@ -240,19 +259,21 @@ class Experimentation(object):
                                 time.sleep(0.1)
 
         return results
-    
+
     @staticmethod
-    def _get_results_row(name, internal_setting, test_score, test_key, train_score=None, train_key=None):
+    def _get_results_row(
+        name, internal_setting, test_score, test_key, train_score=None, train_key=None
+    ):
         full_setting = {"Metric": name, test_key: test_score}
 
-        # measure score on train set to help detect overfitting                                                                                    
+        # measure score on train set to help detect overfitting
         if train_score is not None:
             full_setting[train_key] = train_score
-            
+
         full_setting.update(internal_setting)
         full_setting_df = pd.DataFrame.from_records([full_setting])
         return full_setting_df
-            
+
     def _measure_experiment(
         self,
         target,
@@ -263,7 +284,7 @@ class Experimentation(object):
         test_key="Result",
         train_key="TrainResult",
         train_time=None,
-        pred_time=None, 
+        pred_time=None,
     ):
         """Responsible for recording all metrics specified in config for a given experiment."""
         results = pd.DataFrame(columns=self.columns)
@@ -274,9 +295,12 @@ class Experimentation(object):
             else:
                 train_score = None
             full_setting_df = self._get_results_row(
-                metric.name(), internal_setting,
-                test_score=score, test_key=test_key,
-                train_score=train_score, train_key=train_key
+                metric.name(),
+                internal_setting,
+                test_score=score,
+                test_key=test_key,
+                train_score=train_score,
+                train_key=train_key,
             )
             results = results.append(full_setting_df, ignore_index=True)
         if train_time is not None:
@@ -284,7 +308,7 @@ class Experimentation(object):
                 name="train_time",
                 internal_setting=internal_setting,
                 test_score=train_time,
-                test_key=test_key
+                test_key=test_key,
             )
             results = results.append(full_setting_df, ignore_index=True)
         if pred_time is not None:
@@ -292,7 +316,7 @@ class Experimentation(object):
                 name="pred_time",
                 internal_setting=internal_setting,
                 test_score=pred_time,
-                test_key=test_key
+                test_key=test_key,
             )
             results = results.append(full_setting_df, ignore_index=True)
         return results
@@ -327,22 +351,22 @@ class Experimentation(object):
                 for column in dataset.columns.values
                 if column.startswith("Target")
             ]
+            if not target_list:
+                raise ValueError("No `Target` column in dataset")
 
         logging.info("Training with train set of size: %s" % training_size)
 
-        # Sklearn technically offers a train_size parameter that seems like it would be better
-        # Unfortunately it doesn't work as expected and locks test size to train size
         test_size = int(len(dataset) * TEST_SETUP["sampling_size"])
         if test_size + training_size > len(dataset):
             logging.warning(
                 (
-                    "Invalid training size provided.  Training size must be less than {sample_size} of dataset size."
-                    "the length of dataset is {ds_size}, but we have a train size of {train_size} and test {test_size}"
+                    "Invalid training size provided.  Test size with this configuration is less than the required {sample_fraction}% of dataset size."
+                    "The length of dataset is {ds_size}, but we have a train size of {train_size} and test {test_size}"
                 ).format(
-                    sample_size=TEST_SETUP["sampling_size"],
+                    sample_fraction=TEST_SETUP["sampling_size"] * 100,
                     ds_size=len(dataset),
                     train_size=training_size,
-                    test_size=test_size
+                    test_size=test_size,
                 )
             )
             return
@@ -353,13 +377,13 @@ class Experimentation(object):
             )
         elif MODE in [ModeKeys.RATIONALIZED]:
             splitter = RationalizedStratifiedShuffleSplit(
-                TEST_SETUP['n_splits'], test_size=test_size
+                TEST_SETUP["n_splits"], test_size=test_size
             )
         elif MODE in [ModeKeys.SEQUENCE]:
             splitter = ShuffleSplit(TEST_SETUP["n_splits"], test_size=test_size)
         else:
             raise ValueError(
-                "config.MODE needs to be either ModeKeys.CLASSIFY or ModeKeys.SEQUENCE"
+                "config.MODE needs to be one of [ModeKeys.CLASSIFY, ModeKeys.SEQUENCE, ModeKeys.RATIONALIZED]"
             )
 
         for target in target_list:

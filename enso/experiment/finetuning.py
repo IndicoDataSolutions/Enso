@@ -6,6 +6,8 @@ import numpy as np
 
 from indicoio.custom import Collection
 from finetune import Classifier, SequenceLabeler
+from finetune.base_models.bert.model import RoBERTa
+from finetune.base_models.huggingface.models import HFAlbert
 
 from enso.experiment import ClassificationExperiment
 from enso.config import RESULTS_DIRECTORY
@@ -16,7 +18,9 @@ import numpy as np
 from enso.utils import labels_to_binary
 
 
-@Registry.register_experiment(ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")])
+@Registry.register_experiment(
+    ModeKeys.CLASSIFY, requirements=[("Featurizer", "PlainTextFeaturizer")]
+)
 class Finetune(ClassificationExperiment):
     """
     LanguageModel finetuning as an alternative to simple models trained on top of pretrained features.
@@ -45,18 +49,23 @@ class Finetune(ClassificationExperiment):
         del self.model
 
 
-@Registry.register_experiment(ModeKeys.SEQUENCE, requirements=[("Featurizer", "PlainTextFeaturizer")])
+@Registry.register_experiment(
+    ModeKeys.SEQUENCE, requirements=[("Featurizer", "PlainTextFeaturizer")]
+)
 class IndicoSequenceLabel(ClassificationExperiment):
-
     def __new__(cls, *args, **kwargs):
-        raise Exception("DO NOT run this at the moment.... - waiting to hear from Madison")
+        raise Exception(
+            "DO NOT run this at the moment.... - waiting to hear from Madison"
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model = None
 
     def fit(self, X, y):
-        self.model = Collection("Enso-Sequence-Labeling-{}".format(str(hash(str(X) + str(y)))))
+        self.model = Collection(
+            "Enso-Sequence-Labeling-{}".format(str(hash(str(X) + str(y))))
+        )
         try:
             self.model.clear()
         except:
@@ -74,18 +83,55 @@ class IndicoSequenceLabel(ClassificationExperiment):
         num_batches = num_samples // batch_size
         predictions = []
         for i in range(num_batches):
-            data = X[i * batch_size: (i + 1) * batch_size]
+            data = X[i * batch_size : (i + 1) * batch_size]
             predictions.extend(self.model.predict(data))
         return predictions
 
     def cleanup(self):
         self.model.clear()
 
-@Registry.register_experiment(ModeKeys.SEQUENCE, requirements=[("Featurizer", "PlainTextFeaturizer")])
+
+@Registry.register_experiment(
+    ModeKeys.SEQUENCE, requirements=[("Featurizer", "PlainTextFeaturizer")]
+)
 class FinetuneSequenceLabel(ClassificationExperiment):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model_config = dict(val_size=0)
+        self.model_config.update(kwargs)
+        self.model = SequenceLabeler(**self.model_config)
+
+    def fit(self, X, y):
+        self.model.fit(X, y)
+
+    def predict(self, X, **kwargs):
+        return self.model.predict(X)
+
+
+@Registry.register_experiment(
+    ModeKeys.SEQUENCE, requirements=[("Featurizer", "PlainTextFeaturizer")]
+)
+class FinetuneRoberta(FinetuneSequenceLabel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model_config = dict(val_size=0, base_model=RoBERTa, class_weights="sqrt")
+        self.model_config.update(kwargs)
+        self.model = SequenceLabeler(**self.model_config)
+
+
+@Registry.register_experiment(
+    ModeKeys.SEQUENCE, requirements=[("Featurizer", "PlainTextFeaturizer")]
+)
+class FinetuneAlbert(FinetuneSequenceLabel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model_config = dict(
+            val_size=0,
+            base_model=HFAlbert,
+            class_weights="sqrt",
+            n_epochs=8,
+            chunk_long_sequences=False,
+        )
         self.model_config.update(kwargs)
         self.model = SequenceLabeler(**self.model_config)
 
